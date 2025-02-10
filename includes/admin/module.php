@@ -2,6 +2,7 @@
 /**
  * Makes changes to wordpress admin, disabling some features that are not necessary when using clutch
  */
+namespace Clutch\WP\Admin;
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,7 +35,7 @@ function menu_remove_theme_submenu_pages() {
  * Remove permalink page
  */
 function menu_remove_permalink() {
-  remove_menu_page( 'options-permalink.php' );
+  remove_submenu_page( 'options-general.php', 'options-permalink.php' );
 }
 
 /**

@@ -23,3 +23,4 @@ define( 'CLUTCHWP_DIR', __DIR__ );
 define( 'CLUTCHWP_PRIORITY', 1000 );
 
 require_once CLUTCHWP_DIR . '/includes/admin/module.php';
+require_once CLUTCHWP_DIR . '/includes/rest/module.php';
