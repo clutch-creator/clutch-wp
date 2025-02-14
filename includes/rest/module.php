@@ -30,6 +30,12 @@ function rest_get_post_types() {
   $response = array();
 
   foreach ($post_types as $post_type) {
+    $posts = get_posts(array(
+      'post_type' => $post_type->name,
+      'posts_per_page' => 1,
+      'post_status' => 'publish',
+    ));
+    
     $response[] = array(
       'name' => $post_type->name,
       'description' => $post_type->description,
@@ -37,8 +43,9 @@ function rest_get_post_types() {
       'singular_label' => $post_type->labels->singular_name,
       'rewrite' => $post_type->rewrite,
       'menu_icon' => $post_type->menu_icon,
-      'rest_base' => $post_type->rest_base,
-      'rest_namespace' => $post_type->rest_namespace,
+      'rest_base' => $post_type->rest_base ?: $post_type->name,
+      'rest_namespace' => $post_type->rest_namespace ?: 'wp/v2',
+      'first_post_slug' => !empty($posts) ? $posts[0]->post_name : null,
     );
   }
 
@@ -56,13 +63,20 @@ function rest_get_taxonomies() {
   $response = array();
 
   foreach ($taxonomies as $taxonomy) {
+    $terms = get_terms(array(
+      'taxonomy' => $taxonomy->name,
+      'hide_empty' => false,
+      'number' => 1,
+    ));
+
     $response[] = array(
       'name' => $taxonomy->name,
       'description' => $taxonomy->description,
       'label' => $taxonomy->label,
       'singular_label' => $taxonomy->labels->singular_name,
-      'rest_base' => $taxonomy->rest_base,
-      'rest_namespace' => $taxonomy->rest_namespace,
+      'rest_base' => $taxonomy->rest_base ?: $taxonomy->name,
+      'rest_namespace' => $taxonomy->rest_namespace ?: 'wp/v2',
+      'first_term_slug' => (!empty($terms) && !is_wp_error($terms)) ? $terms[0]->slug : null,
     );
   }
 
