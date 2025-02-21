@@ -83,6 +83,44 @@ function rest_get_taxonomies() {
   return new \WP_REST_Response($response);
 }
 
+function rest_get_permalink_info( \WP_REST_Request $request ) {
+  $url = $request->get_param('url');
+  $response = ['object_type' => 'unknown', 'details' => []];
+  $post_id = url_to_postid($url);
+
+  if ($post_id) {
+    $post = get_post($post_id);
+    if ($post) {
+      $response['object_type'] = 'post';
+      $response['details'] = [
+        'post_type' => $post->post_type,
+        'ID'        => $post->ID,
+        'title'     => $post->post_title,
+      ];
+    }
+  } else {
+    $path = wp_parse_url($url, PHP_URL_PATH);
+    $slug = end(explode('/', trim($path, '/')));
+    $taxonomies = get_taxonomies(['public' => true], 'objects');
+
+    foreach ($taxonomies as $taxonomy) {
+      $term = get_term_by('slug', $slug, $taxonomy->name);
+      
+      if ($term) {
+        $response['object_type'] = 'taxonomy';
+        $response['details'] = [
+          'taxonomy' => $taxonomy->name,
+          'term_id'  => $term->term_id,
+          'name'     => $term->name,
+        ];
+        break;
+      }
+    }
+  }
+
+  return new \WP_REST_Response($response);
+}
+
 add_action('rest_api_init', function () {
   register_rest_route('clutch/v1', '/info', array(
     'methods' => 'GET',
@@ -98,4 +136,9 @@ add_action('rest_api_init', function () {
     'methods' => 'GET',
     'callback' => __NAMESPACE__ . '\\rest_get_taxonomies',
   ));
+
+  register_rest_route('clutch/v1', '/permalink-info', [
+    'methods'  => 'GET',
+    'callback' => __NAMESPACE__ . '\\rest_get_permalink_info',
+  ]);
 });

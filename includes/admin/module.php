@@ -42,9 +42,9 @@ function menu_remove_permalink() {
  * Cleanup admin menu from all non necessary pages
  */
 function menu_remove() {
-  menu_remove_theme_pages();
+  // menu_remove_theme_pages();
   menu_remove_theme_submenu_pages();
-  menu_remove_permalink();
+  // menu_remove_permalink();
 }
 
 add_action( 'admin_menu', __NAMESPACE__ . '\\menu_remove', CLUTCHWP_PRIORITY );
