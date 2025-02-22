@@ -103,10 +103,12 @@ function rest_get_permalink_info( \WP_REST_Request $request ) {
     $slug = end(explode('/', trim($path, '/')));
     $taxonomies = get_taxonomies(['public' => true], 'objects');
 
+    $foundTerm = false;
     foreach ($taxonomies as $taxonomy) {
       $term = get_term_by('slug', $slug, $taxonomy->name);
       
       if ($term) {
+        $foundTerm = true;
         $response['object_type'] = 'taxonomy';
         $response['details'] = [
           'taxonomy' => $taxonomy->name,
@@ -114,6 +116,20 @@ function rest_get_permalink_info( \WP_REST_Request $request ) {
           'name'     => $term->name,
         ];
         break;
+      }
+    }
+    
+    if (!$foundTerm) {
+      foreach ($taxonomies as $taxonomy) {
+        $rewrite_slug = isset($taxonomy->rewrite['slug']) ? $taxonomy->rewrite['slug'] : '';
+        if ($slug === $rewrite_slug) {
+          $response['object_type'] = 'taxonomy_archive';
+          $response['details'] = [
+            'taxonomy' => $taxonomy->name,
+            'label'    => $taxonomy->label,
+          ];
+          break;
+        }
       }
     }
   }
