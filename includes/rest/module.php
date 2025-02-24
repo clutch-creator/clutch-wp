@@ -137,6 +137,24 @@ function rest_get_permalink_info( \WP_REST_Request $request ) {
   return new \WP_REST_Response($response);
 }
 
+function rest_get_front_page() {
+    $front_page_id = get_option('page_on_front');
+    if (!$front_page_id) {
+        return new \WP_REST_Response(['message' => 'No front page set'], 404);
+    }
+
+    $post = get_post($front_page_id);
+    if (!$post) {
+        return new \WP_REST_Response(['message' => 'Front page not found'], 404);
+    }
+
+    return new \WP_REST_Response([
+        'ID'    => $post->ID,
+        'title' => $post->post_title,
+        'slug'  => $post->post_name,
+    ]);
+}
+
 add_action('rest_api_init', function () {
   register_rest_route('clutch/v1', '/info', array(
     'methods' => 'GET',
@@ -156,5 +174,10 @@ add_action('rest_api_init', function () {
   register_rest_route('clutch/v1', '/permalink-info', [
     'methods'  => 'GET',
     'callback' => __NAMESPACE__ . '\\rest_get_permalink_info',
+  ]);
+
+  register_rest_route('clutch/v1', '/front-page', [
+    'methods'  => 'GET',
+    'callback' => __NAMESPACE__ . '\\rest_get_front_page',
   ]);
 });
