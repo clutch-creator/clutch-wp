@@ -90,12 +90,15 @@ function rest_get_permalink_info( \WP_REST_Request $request ) {
 
   if ($post_id) {
     $post = get_post($post_id);
+    $post_type = get_post_type_object($post->post_type);
+
     if ($post) {
       $response['object_type'] = 'post';
       $response['details'] = [
-        'post_type' => $post->post_type,
-        'ID'        => $post->ID,
-        'title'     => $post->post_title,
+        'ID'              => $post->ID,
+        'name'            => $post->post_name,
+        'rest_base'       => $post_type->rest_base ?: $post_type->name,
+        'rest_namespace'  => $post_type->rest_namespace ?: 'wp/v2'
       ];
     }
   } else {
@@ -109,11 +112,13 @@ function rest_get_permalink_info( \WP_REST_Request $request ) {
       
       if ($term) {
         $foundTerm = true;
-        $response['object_type'] = 'taxonomy';
+        $response['object_type'] = 'taxonomy_term';
         $response['details'] = [
-          'taxonomy' => $taxonomy->name,
-          'term_id'  => $term->term_id,
-          'name'     => $term->name,
+          'ID'              => $term->term_id,
+          'name'            => $term->name,
+          'taxonomy_name'   => $taxonomy->name,
+          'rest_base'       => $taxonomy->rest_base ?: $taxonomy->name,
+          'rest_namespace'  => $taxonomy->rest_namespace ?: 'wp/v2'
         ];
         break;
       }
@@ -122,15 +127,34 @@ function rest_get_permalink_info( \WP_REST_Request $request ) {
     if (!$foundTerm) {
       foreach ($taxonomies as $taxonomy) {
         $rewrite_slug = isset($taxonomy->rewrite['slug']) ? $taxonomy->rewrite['slug'] : '';
+        
         if ($slug === $rewrite_slug) {
-          $response['object_type'] = 'taxonomy_archive';
+          $response['object_type'] = 'taxonomy';
           $response['details'] = [
-            'taxonomy' => $taxonomy->name,
-            'label'    => $taxonomy->label,
+            'name'            => $taxonomy->name,
+            'rest_base'       => $taxonomy->rest_base ?: $taxonomy->name,
+            'rest_namespace'  => $taxonomy->rest_namespace ?: 'wp/v2'
           ];
           break;
         }
       }
+    }
+  }
+
+  // lastly, check if it's a date archive
+  if ($response['object_type'] === 'unknown') {
+    $parts = explode('/', trim($path, '/'));
+    $year  = isset($parts[0]) ? (int) $parts[0] : null;
+    $month = isset($parts[1]) ? (int) $parts[1] : null;
+    $day   = isset($parts[2]) ? (int) $parts[2] : null;
+
+    if ($year >= 1000 && $year <= 9999) {
+      $response['object_type'] = 'date_archive';
+      $response['details'] = [
+        'year'  => $year,
+        'month' => $month,
+        'day'   => $day
+      ];
     }
   }
 
