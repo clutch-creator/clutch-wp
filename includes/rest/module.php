@@ -179,6 +179,43 @@ function rest_get_front_page() {
     ]);
 }
 
+function rest_get_acf_schema( \WP_REST_Request $request ) {
+    $post_type = $request->get_param('post_type');
+
+    if ( empty( $post_type ) ) {
+        return new \WP_REST_Response(['message' => 'No post type provided'], 400);
+    }
+
+    if ( ! function_exists('acf_get_field_groups') ) {
+        return new \WP_REST_Response(['message' => 'ACF plugin not active'], 400);
+    }
+
+    $field_groups = acf_get_field_groups(['post_type' => $post_type]);
+    $schema = [];
+
+    foreach ($field_groups as $group) {
+        $fields = acf_get_fields($group['key']);
+        $field_schema = [];
+        if ($fields) {
+            foreach ($fields as $field) {
+                $field_schema[] = [
+                    'type'          => $field['type'],
+                    'name'          => $field['name'],
+                    'label'         => $field['label'],
+                    'taxonomy'      => $field['taxonomy'] ?? null,
+                    'return_format' => $field['return_format'] ?? null,
+                ];
+            }
+        }
+        $schema[] = [
+            'group_title' => $group['title'],
+            'fields'      => $field_schema,
+        ];
+    }
+
+    return new \WP_REST_Response($schema);
+}
+
 add_action('rest_api_init', function () {
   register_rest_route('clutch/v1', '/info', array(
     'methods' => 'GET',
@@ -203,5 +240,10 @@ add_action('rest_api_init', function () {
   register_rest_route('clutch/v1', '/front-page', [
     'methods'  => 'GET',
     'callback' => __NAMESPACE__ . '\\rest_get_front_page',
+  ]);
+
+  register_rest_route('clutch/v1', '/post-acf-schema', [
+    'methods'  => 'GET',
+    'callback' => __NAMESPACE__ . '\\rest_get_acf_schema',
   ]);
 });
