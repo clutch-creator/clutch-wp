@@ -1,5 +1,5 @@
 {
-    "require-dev": {
-        "php-stubs/acf-pro-stubs": "^6.3"
-    }
+	"require-dev": {
+		"php-stubs/acf-pro-stubs": "^6.3"
+	}
 }
