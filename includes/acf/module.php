@@ -51,7 +51,8 @@ add_filter(
 					'_clt_acf' => true,
 					'type' => 'post',
 					'id' => $post_id,
-					'rest_base' => $post_type_object->rest_base,
+					'rest_base' =>
+						$post_type_object->rest_base ?: $post_type_object->name,
 					'rest_namespace' => $post_type_object->rest_namespace,
 				];
 			}, $post_ids);
