@@ -307,6 +307,36 @@ function rest_set_block_styles(\WP_REST_Request $request)
 	return new \WP_REST_Response(null, 200);
 }
 
+function rest_get_menus()
+{
+	$nav_menus = wp_get_nav_menus();
+	$response = [];
+
+	foreach ($nav_menus as $menu) {
+		$menu_items = wp_get_nav_menu_items($menu->term_id);
+		$items = array_map(
+			function ($item) {
+				return [
+					'ID' => $item->ID,
+					'title' => $item->title,
+					'url' => $item->url,
+					'parent' => $item->menu_item_parent,
+				];
+			},
+			$menu_items ?: []
+		);
+
+		$response[] = [
+			'ID' => $menu->term_id,
+			'name' => $menu->name,
+			'slug' => $menu->slug,
+			'items' => $items,
+		];
+	}
+
+	return new \WP_REST_Response($response);
+}
+
 add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/info', [
 		'methods' => 'GET',
@@ -346,5 +376,10 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/block-styles', [
 		'methods' => 'POST',
 		'callback' => __NAMESPACE__ . '\\rest_set_block_styles',
+	]);
+
+	register_rest_route('clutch/v1', '/menus', [
+		'methods' => 'GET',
+		'callback' => __NAMESPACE__ . '\\rest_get_menus',
 	]);
 });
