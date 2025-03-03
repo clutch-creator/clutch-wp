@@ -26,9 +26,42 @@ function register_clutch_block_styles_post_type()
 
 add_action('init', __NAMESPACE__ . '\\register_clutch_block_styles_post_type');
 
-// register custom block styles as set in the custom post type
+/**
+ * Registers Clutch blocks using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function register_clutch_blocks() {
+	// Define the base directory path.
+	$base_dir = __DIR__ . '/build';
+
+	// Check if the directory exists.
+	if ( ! is_dir( $base_dir ) ) {
+		return;
+	}
+
+	// Scan the directory for subdirectories (each representing a block).
+	$block_dirs = array_filter( glob( $base_dir . '/*' ), 'is_dir' );
+
+	foreach ( $block_dirs as $dir ) {
+		// Register the block using the block.json file.
+		register_block_type($dir);
+	}
+}
+
+add_action('init', __NAMESPACE__ . '\\register_clutch_blocks');
+
+/**
+ * Register custom block styles for clutch/blocks as set in the custom post type
+ */
 function register_clutch_block_styles()
 {
+	// @todo: get list of blocks from each block's block.json file
+	$clutch_blocks = [
+		'clutch/paragraph',
+	];
 	$block_styles = get_posts([
 		'post_type' => 'clutch_block_styles',
 		'posts_per_page' => -1,
@@ -44,17 +77,13 @@ function register_clutch_block_styles()
 		);
 
 		register_block_style(
-			['core/paragraph', 'core/heading'],
+			$clutch_blocks,
 			[
 				'name' => $block_style_classname,
 				'label' => $block_style->post_title,
 				'is_default' => false,
 				'inline_style' =>
-					'.wp-block:is(.is-style-' .
-					$block_style_classname .
-					') { ' .
-					$block_style->post_content .
-					' }',
+					'.wp-block:is(.'.$block_style_classname . ') { ' . $block_style->post_content . ' }',
 			]
 		);
 	}
@@ -69,7 +98,7 @@ function whitelist_editor_blocks()
 		'core/image',
 		'core/list',
 		'core/list-item',
-		'core/paragraph',
+		'clutch/paragraph',
 	];
 }
 
@@ -78,36 +107,4 @@ add_filter(
 	__NAMESPACE__ . '\\whitelist_editor_blocks',
 	10,
 	0
-);
-
-function disabled_block_settings($metadata)
-{
-	// if (isset($metadata['supports'])) {
-	// 	$metadata['supports'] = ['customClassName' => false];
-	// }
-
-	// if (isset($metadata['attributes'])) {
-	// 	$metadata['attributes'] = [];
-	// }
-
-	return $metadata;
-}
-add_filter('block_type_metadata', __NAMESPACE__ . '\\disabled_block_settings');
-
-function disable_editor_settings($editor_settings)
-{
-	// $editor_settings['alignWide'] = false;
-	// $editor_settings['disableCustomColors'] = true;
-	// $editor_settings['disableCustomFontSizes'] = true;
-	// $editor_settings['disableCustomGradients'] = true;
-	// $editor_settings['enableCustomLineHeight'] = false;
-	// $editor_settings['enableCustomSpacing'] = false;
-	// $editor_settings['__experimentalFeatures']['typography']['dropCap'] = false;
-	// $editor_settings['__experimentalFeatures']['typography']['textAlign'] = false;
-
-	return $editor_settings;
-}
-add_filter(
-	'block_editor_settings',
-	__NAMESPACE__ . '\\disable_editor_settings'
 );
