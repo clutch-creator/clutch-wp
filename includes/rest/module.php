@@ -261,6 +261,11 @@ function rest_get_block_styles()
 		];
 	}
 
+	// @todo: ensure classes get sorted in the same order they're shown in Clutch
+	usort($response, function ($a, $b) {
+		return $a['id'] > $b['id'];
+	});
+
 	return new \WP_REST_Response($response);
 }
 
