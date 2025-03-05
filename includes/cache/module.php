@@ -56,9 +56,14 @@ add_action(
 function trigger_revalidation($tags)
 {
 	$endpoints = get_cache_invalidation_endpoints();
+	$tags_param = implode(',', array_map('urlencode', $tags));
+
 	foreach ($endpoints as $endpoint) {
-		$url = $endpoint . '?tags=' . urlencode($tags);
-		wp_remote_get($url);
+		$url = $endpoint . '?tags=' . $tags_param;
+		$response = wp_remote_get($url);
+		if (is_wp_error($response)) {
+			continue; // Ignore errors
+		}
 	}
 }
 
@@ -78,8 +83,12 @@ function flush_cache_on_post($post_id)
 	$rest_base = !empty($ptype_obj->rest_base)
 		? $ptype_obj->rest_base
 		: $ptype_obj->name;
-	$slug_or_id = !empty($post->post_name) ? $post->post_name : $post->ID;
-	$tags = $rest_base . '+' . $slug_or_id;
+
+	$tags = [
+		$rest_base,
+		$rest_base . '-' . $post->post_name,
+		$rest_base . '-' . $post->ID,
+	];
 
 	trigger_revalidation($tags);
 }
@@ -99,7 +108,12 @@ function flush_cache_on_term($term_id, $tt_id, $taxonomy)
 	if (!$term) {
 		return;
 	}
-	$tags = $taxonomy . '+' . $term->slug;
+
+	$tags = [
+		$taxonomy,
+		$taxonomy . '-' . $term->slug,
+		$taxonomy . '-' . $term->term_id,
+	];
 
 	trigger_revalidation($tags);
 }
@@ -114,7 +128,12 @@ function flush_cache_on_term_meta_update(
 	if (!$term) {
 		return;
 	}
-	$tags = $term->taxonomy . '+' . $term->slug;
+
+	$tags = [
+		$term->taxonomy,
+		$term->taxonomy . '-' . $term->slug,
+		$term->taxonomy . '-' . $term->term_id,
+	];
 
 	trigger_revalidation($tags);
 }
@@ -125,7 +144,8 @@ function flush_cache_on_user($user_id)
 	if (!$user) {
 		return;
 	}
-	$tags = 'user+' . $user->user_login;
+
+	$tags = ['users', 'users-' . $user->user_login, 'users-' . $user->ID];
 
 	trigger_revalidation($tags);
 }
@@ -140,8 +160,15 @@ function flush_cache_on_user_meta_update(
 	if (!$user) {
 		return;
 	}
-	$tags = 'user+' . $user->user_login;
 
+	$tags = ['users', 'users-' . $user->user_login, 'users-' . $user->ID];
+
+	trigger_revalidation($tags);
+}
+
+function flush_cache_on_front_page_update($old_value, $new_value)
+{
+	$tags = ['front-page'];
 	trigger_revalidation($tags);
 }
 
@@ -274,4 +301,12 @@ add_action(
 	__NAMESPACE__ . '\flush_cache_on_user_meta_update',
 	CLUTCHWP_PRIORITY,
 	4
+);
+
+// handle front page changes
+add_action(
+	'update_option_page_on_front',
+	__NAMESPACE__ . '\flush_cache_on_front_page_update',
+	CLUTCHWP_PRIORITY,
+	2
 );
