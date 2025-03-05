@@ -17,7 +17,7 @@ function get_cache_invalidation_endpoints()
 
 function register_cache_invalidation_endpoint($request)
 {
-	$params = $request->get_params();
+	$params = json_decode($request->get_body(), true);
 	$new_endpoint = isset($params['endpoint'])
 		? esc_url_raw($params['endpoint'])
 		: '';
