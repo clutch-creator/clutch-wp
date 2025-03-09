@@ -21,16 +21,19 @@ function register_cache_invalidation_endpoint($request)
 	$new_endpoint = isset($params['endpoint'])
 		? esc_url_raw($params['endpoint'])
 		: '';
+	$token = isset($params['token'])
+		? sanitize_text_field($params['token'])
+		: '';
 
-	if (empty($new_endpoint)) {
-		return new \WP_Error('invalid_endpoint', 'Invalid endpoint', [
+	if (empty($new_endpoint) || empty($token)) {
+		return new \WP_Error('invalid_endpoint', 'Invalid endpoint or token', [
 			'status' => 400,
 		]);
 	}
 
 	$endpoints = get_option('clutch_cache_invalidation_endpoints', []);
-	if (!in_array($new_endpoint, $endpoints)) {
-		$endpoints[] = $new_endpoint;
+	if (!in_array($new_endpoint, array_column($endpoints, 'endpoint'))) {
+		$endpoints[] = ['endpoint' => $new_endpoint, 'token' => $token];
 		update_option('clutch_cache_invalidation_endpoints', $endpoints);
 	}
 
@@ -58,8 +61,13 @@ function trigger_revalidation($tags)
 	$endpoints = get_cache_invalidation_endpoints();
 	$tags_param = implode(',', array_map('urlencode', $tags));
 
-	foreach ($endpoints as $endpoint) {
-		$url = $endpoint . '?tags=' . $tags_param;
+	foreach ($endpoints as $endpoint_data) {
+		$url =
+			$endpoint_data['endpoint'] .
+			'?tags=' .
+			$tags_param .
+			'&token=' .
+			urlencode($endpoint_data['token']);
 		$response = wp_remote_get($url);
 		if (is_wp_error($response)) {
 			continue; // Ignore errors
