@@ -87,3 +87,51 @@ add_filter(
 	CLUTCHWP_PRIORITY,
 	5
 );
+
+add_filter(
+	'acf/load_field_group',
+	function ($field_group) {
+		// Force 'show_in_rest' to true if not edited by force
+		if (isset($field_group['show_in_rest_force'])) {
+			$field_group['show_in_rest'] = $field_group['show_in_rest_force'];
+		} else {
+			$field_group['show_in_rest'] = 1;
+		}
+
+		return $field_group;
+	},
+	CLUTCHWP_PRIORITY,
+	1
+);
+
+add_filter(
+	'wp_insert_post_data',
+	function ($data, $postarr, $unsanitized, $update) {
+		// Only target ACF field groups updates
+		if (
+			$data['post_type'] === 'acf-field-group' &&
+			$update &&
+			is_serialized($data['post_content'])
+		) {
+			// unserialize content
+			$content = maybe_unserialize(stripslashes($data['post_content']));
+
+			if (is_array($content)) {
+				// check from content show_in_rest
+				if (
+					$content['show_in_rest'] === 0 ||
+					$content['show_in_rest_force'] === 0
+				) {
+					$content['show_in_rest_force'] = $content['show_in_rest'];
+				}
+
+				// update $data content
+				$data['post_content'] = maybe_serialize($content);
+			}
+		}
+
+		return $data;
+	},
+	CLUTCHWP_PRIORITY,
+	4
+);
