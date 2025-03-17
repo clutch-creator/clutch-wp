@@ -28,3 +28,4 @@ require_once CLUTCHWP_DIR . '/includes/blocks/module.php';
 require_once CLUTCHWP_DIR . '/includes/rest/module.php';
 require_once CLUTCHWP_DIR . '/includes/menus/module.php';
 require_once CLUTCHWP_DIR . '/includes/cache/module.php';
+require_once CLUTCHWP_DIR . '/includes/permalinks/module.php';
