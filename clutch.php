@@ -19,6 +19,7 @@ defined('WPINC') || exit();
 
 define('CLUTCHWP_FILE', __FILE__);
 define('CLUTCHWP_DIR', __DIR__);
+define('CLUTCHWP_URL', plugin_dir_url(__FILE__));
 
 define('CLUTCHWP_PRIORITY', 1000);
 
@@ -27,5 +28,6 @@ require_once CLUTCHWP_DIR . '/includes/admin/module.php';
 require_once CLUTCHWP_DIR . '/includes/blocks/module.php';
 require_once CLUTCHWP_DIR . '/includes/rest/module.php';
 require_once CLUTCHWP_DIR . '/includes/menus/module.php';
+require_once CLUTCHWP_DIR . '/includes/settings/module.php';
 require_once CLUTCHWP_DIR . '/includes/cache/module.php';
 require_once CLUTCHWP_DIR . '/includes/permalinks/module.php';
