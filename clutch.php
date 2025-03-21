@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Clutch
- * Description:       Clutch wordpress plugin
+ * Description:       Integrate WordPress headlessly with Clutch, the next-gen Visual Builder. Empower creative professionals with total design freedom, advanced functionality, and top-tier performance—all with fewer plugins.
  * Plugin URI:        https://clutch.io
  * Author:            Clutch.io
  * Author URI:        https://clutch.io
