@@ -38,3 +38,22 @@ function get_setting_menu_locations()
 		? $options['menu_locations']
 		: 'Main, Footer';
 }
+
+/**
+ * Parses the menu locations setting into an associative array.
+ *
+ * @return array The menu locations as an associative array.
+ */
+function get_setting_menu_locations_parsed()
+{
+	$locations = get_setting_menu_locations();
+	$locations = explode(',', $locations);
+	$parsed = [];
+
+	foreach ($locations as $location) {
+		$location = trim($location);
+		$parsed[sanitize_title_with_dashes($location)] = $location;
+	}
+
+	return $parsed;
+}
