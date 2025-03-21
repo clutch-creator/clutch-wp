@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) {
  */
 function menu_remove_theme_pages()
 {
-	remove_menu_page('themes.php');
 	remove_menu_page('customize.php');
 	remove_menu_page('widgets.php');
 	remove_menu_page('theme-editor.php');
@@ -26,6 +25,7 @@ function menu_remove_theme_pages()
  */
 function menu_remove_theme_submenu_pages()
 {
+	remove_submenu_page('themes.php', 'themes.php');
 	remove_submenu_page('themes.php', 'theme-editor.php');
 	remove_submenu_page('themes.php', 'site-editor.php');
 	remove_submenu_page('themes.php', 'customize.php');
@@ -46,9 +46,9 @@ function menu_remove_permalink()
  */
 function menu_remove()
 {
-	// menu_remove_theme_pages();
+	menu_remove_theme_pages();
 	menu_remove_theme_submenu_pages();
-	// menu_remove_permalink();
+	menu_remove_permalink();
 }
 
 add_action('admin_menu', __NAMESPACE__ . '\\menu_remove', CLUTCHWP_PRIORITY);
@@ -78,13 +78,13 @@ add_action(
 function redirect_to_dashboard()
 {
 	$disallowed_pages = [
-		'themes.php',
-		'customize.php',
-		'widgets.php',
-		'theme-editor.php',
-		'theme-install.php',
-		'site-editor.php',
-		'options-permalink.php',
+		'themes',
+		'customize',
+		'widgets',
+		'theme-editor',
+		'theme-install',
+		'site-editor',
+		'options-permalink',
 	];
 
 	$current_screen = get_current_screen();
