@@ -55,7 +55,7 @@ function get_menu_items($menu_id)
 	$item_lookup = [];
 	foreach ($menu_items as $item) {
 		$item_lookup[$item->ID] = [
-			'ID' => $item->ID,
+			'id' => $item->ID,
 			'title' => $item->title,
 			'url' => $item->url,
 			'url_info' => get_permalink_info($item->url),
@@ -97,7 +97,7 @@ function rest_get_menus_locations()
 			'name' => $name,
 			'menu' => $menu
 				? [
-					'ID' => $menu->term_id,
+					'id' => $menu->term_id,
 					'name' => $menu->name,
 					'slug' => $menu->slug,
 				]
@@ -138,7 +138,7 @@ function rest_get_menu_by_location(\WP_REST_Request $request)
 	$menu = wp_get_nav_menu_object($menu_id);
 
 	$response = [
-		'ID' => $menu->term_id,
+		'id' => $menu->term_id,
 		'name' => $menu->name,
 		'slug' => $menu->slug,
 		'items' => get_menu_items($menu->term_id),

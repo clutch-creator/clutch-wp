@@ -112,7 +112,7 @@ function get_permalink_info($url)
 		if ($post) {
 			$response['object_type'] = 'post';
 			$response['details'] = [
-				'ID' => $post->ID,
+				'id' => $post->ID,
 				'name' => $post->post_name,
 				'rest_base' => $post_type->rest_base ?: $post_type->name,
 				'rest_namespace' => $post_type->rest_namespace ?: 'wp/v2',
@@ -131,7 +131,7 @@ function get_permalink_info($url)
 				$foundTerm = true;
 				$response['object_type'] = 'taxonomy_term';
 				$response['details'] = [
-					'ID' => $term->term_id,
+					'id' => $term->term_id,
 					'name' => $term->name,
 					'taxonomy_name' => $taxonomy->name,
 					'rest_base' => $taxonomy->rest_base ?: $taxonomy->name,
@@ -206,7 +206,7 @@ function rest_get_front_page()
 	}
 
 	return new \WP_REST_Response([
-		'ID' => $post->ID,
+		'id' => $post->ID,
 		'title' => $post->post_title,
 		'slug' => $post->post_name,
 	]);
