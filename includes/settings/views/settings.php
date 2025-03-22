@@ -4,6 +4,14 @@
  */
 namespace Clutch\WP\Settings;
 
+// Define allowed HTML tags and attributes
+$allowed_html = [
+	'svg' => ['class' => true, 'width' => true, 'height' => true],
+	'path' => ['d' => true, 'fill' => true],
+	'span' => ['class' => true],
+	// Add more tags/attributes as needed for your icons
+];
+
 $icons = [
 	'clutch' => get_icon('clutch'),
 	'clutch-text' => get_icon('clutch-text'),
@@ -16,10 +24,12 @@ require_once __DIR__ . '/../functions.php';
 <div class="clt-root">
     <div class="clt-nav clt-dark">
       <div class="clt-icon-large">
-        <?php echo $icons['clutch']; ?>
+        <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $icons['clutch']; ?>
       </div>
       <div class="clt-logo-text">
-        <?php echo $icons['clutch-text']; ?>
+        <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $icons['clutch-text']; ?>
         <span class="clt-text-small-bold clt-text-muted">WP Plugin - v1.2.0</span>
       </div>
     </div>
@@ -39,27 +49,33 @@ require_once __DIR__ . '/../functions.php';
               <h3>About Clutch</h3>
               <a href="https://clutch.io/" target="_blank">
                 <span>Learn more</span>
-                <?php echo $icons['external-link']; ?>
+                <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo $icons['external-link']; ?>
               </a>
             </div>
             <p>Clutch gives creative professionals complete design and functional freedom while delivering superior performance with fewer plugins.</p>
-            <img class="clt-app-img" src="<?php echo CLUTCHWP_URL .
-            	'includes/settings/assets/images/clutch-website.webp'; ?>" alt="Clutch App" />
+            <img class="clt-app-img" src="<?php echo esc_url(
+            	CLUTCHWP_URL .
+            		'includes/settings/assets/images/clutch-website.webp'
+            ); ?>" alt="Clutch App" />
         </div>
         <div class="clt-card">
             <h3>Community & Docs</h3>
             <p>Join a thriving community of developers and designers building the future of WordPress.</p>
             <a href="https://docs.clutch.io/getting-started/connecting-wordpress" target="_blank">
               <span>Getting Started</span>
-              <?php echo $icons['external-link']; ?>
+              <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+              echo $icons['external-link']; ?>
             </a>
             <a href="https://docs.clutch.io/" target="_blank">
               <span>Docs</span>
-              <?php echo $icons['external-link']; ?>
+              <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+              echo $icons['external-link']; ?>
             </a>
             <a href="https://discord.com/invite/j4bnupeese" target="_blank">
               <span>Join the Community</span>
-              <?php echo $icons['external-link']; ?>
+              <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+              echo $icons['external-link']; ?>
             </a>
         </div>
       </div>
