@@ -15,8 +15,8 @@ function register_clutch_block_styles_post_type()
 {
 	register_post_type('clutch_block_styles', [
 		'labels' => [
-			'name' => __('Clutch Block Styles', 'textdomain'),
-			'singular_name' => __('Clutch Block Style', 'textdomain'),
+			'name' => __('Clutch Block Styles', 'clutch-wp'),
+			'singular_name' => __('Clutch Block Style', 'clutch-wp'),
 		],
 		'public' => false,
 		'show_in_rest' => false,
@@ -33,19 +33,20 @@ add_action('init', __NAMESPACE__ . '\\register_clutch_block_styles_post_type');
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
-function register_clutch_blocks() {
+function register_clutch_blocks()
+{
 	// Define the base directory path.
 	$base_dir = __DIR__ . '/build';
 
 	// Check if the directory exists.
-	if ( ! is_dir( $base_dir ) ) {
+	if (!is_dir($base_dir)) {
 		return;
 	}
 
 	// Scan the directory for subdirectories (each representing a block).
-	$block_dirs = array_filter( glob( $base_dir . '/*' ), 'is_dir' );
+	$block_dirs = array_filter(glob($base_dir . '/*'), 'is_dir');
 
-	foreach ( $block_dirs as $dir ) {
+	foreach ($block_dirs as $dir) {
 		// Register the block using the block.json file.
 		register_block_type($dir);
 	}
@@ -59,9 +60,7 @@ add_action('init', __NAMESPACE__ . '\\register_clutch_blocks');
 function register_clutch_block_styles()
 {
 	// @todo: get list of blocks from each block's block.json file
-	$clutch_blocks = [
-		'clutch/paragraph',
-	];
+	$clutch_blocks = ['clutch/paragraph'];
 	$block_styles = get_posts([
 		'post_type' => 'clutch_block_styles',
 		'posts_per_page' => -1,
@@ -76,16 +75,17 @@ function register_clutch_block_styles()
 			true
 		);
 
-		register_block_style(
-			$clutch_blocks,
-			[
-				'name' => $block_style_classname,
-				'label' => $block_style->post_title,
-				'is_default' => false,
-				'inline_style' =>
-					'.wp-block:is(.'.$block_style_classname . ') { ' . $block_style->post_content . ' }',
-			]
-		);
+		register_block_style($clutch_blocks, [
+			'name' => $block_style_classname,
+			'label' => $block_style->post_title,
+			'is_default' => false,
+			'inline_style' =>
+				'.wp-block:is(.' .
+				$block_style_classname .
+				') { ' .
+				$block_style->post_content .
+				' }',
+		]);
 	}
 }
 
