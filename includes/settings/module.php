@@ -68,6 +68,11 @@ function menu_locations_field_callback()
            name="clutch_options[menu_locations]" 
            value="<?php echo esc_attr($value); ?>" 
            class="regular-text" />
+		<p class="description clt-text-muted">
+			Comma-separated menu locations (e.g. Main, Footer). Link each location to a menu in the <a href="<?php echo esc_url(
+   	admin_url('nav-menus.php')
+   ); ?>">Menus</a> screen.
+		</p>
     <?php
 }
 

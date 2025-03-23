@@ -55,7 +55,7 @@
 	line-height: 1.5;
 }
 
-.clt-text-muted {
+.clt-root .clt-text-muted {
 	color: var(--text-muted);
 }
 
@@ -138,4 +138,8 @@
 	width: 100%;
 	height: 110px;
 	margin-bottom: -14px;
+}
+
+.clt-root .description {
+	margin-top: 8px;
 }
