@@ -8,21 +8,7 @@ namespace Clutch\WP\Settings;
 require_once __DIR__ . '/../functions.php';
 
 use function Clutch\WP\Cache\get_website_invalidation_url;
-
-$created_date = current_time('mysql');
-$websites = [
-	[
-		'name' => 'Clutch Website 6.0',
-		'url' => 'https://clutch.io',
-		'invalidationEndpoint' =>
-			'https://clutch-demo.com/wp-json/clutch/v1/invalidate-cache',
-		'token' => 'demo-token',
-		'projectId' => '67e315e12e38f2368404a919',
-		'createdDate' => $created_date,
-		'lastPublishDate' => $created_date,
-		'deploymentId' => '5f7e315e12e38f2368404a919',
-	],
-];
+use function Clutch\WP\Websites\get_registered_websites;
 
 $icons = [
 	'external-link' => get_icon('external-link'),
@@ -30,7 +16,7 @@ $icons = [
 	'clear-cache' => get_icon('clear-cache'),
 ];
 
-// $websites = \Clutch\WP\Cache\get_registered_websites';
+$websites = get_registered_websites();
 
 /**
  * Formats a date to "day month year" if not the current year.

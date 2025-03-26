@@ -30,3 +30,4 @@ require_once CLUTCHWP_DIR . '/includes/menus/module.php';
 require_once CLUTCHWP_DIR . '/includes/settings/module.php';
 require_once CLUTCHWP_DIR . '/includes/cache/module.php';
 require_once CLUTCHWP_DIR . '/includes/permalinks/module.php';
+require_once CLUTCHWP_DIR . '/includes/websites/module.php';

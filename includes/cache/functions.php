@@ -5,17 +5,6 @@
 namespace Clutch\WP\Cache;
 
 /**
- * Retrieves the list of registered clutch websites from the WordPress options.
- *
- * @return array An array of registered websites.
- */
-function get_registered_websites()
-{
-	$websites = get_option('clutch_websites', []);
-	return $websites;
-}
-
-/**
  * Constructs the invalidation URL for a given website and tags.
  *
  * @param array $website An associative array containing website details, including 'invalidationEndpoint' and 'token'.
