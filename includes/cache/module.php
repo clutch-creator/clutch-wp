@@ -80,11 +80,50 @@ function register_website($request)
 	return rest_ensure_response($websites);
 }
 
+function remove_website($request)
+{
+	$params = json_decode($request->get_body(), true);
+	$deployment_id = isset($params['deploymentId'])
+		? sanitize_text_field($params['deploymentId'])
+		: '';
+
+	if (empty($deployment_id)) {
+		return new \WP_Error('invalid_params', 'Invalid deploymentId', [
+			'status' => 400,
+		]);
+	}
+
+	$websites = get_option('clutch_websites', []);
+	$updated_websites = array_filter($websites, function ($website) use (
+		$deployment_id
+	) {
+		return $website['deploymentId'] !== $deployment_id;
+	});
+
+	if (count($websites) === count($updated_websites)) {
+		return new \WP_Error('not_found', 'Website not found', [
+			'status' => 404,
+		]);
+	}
+
+	update_option('clutch_websites', $updated_websites);
+
+	return rest_ensure_response(['success' => true]);
+}
+
 function register_website_routes()
 {
 	register_rest_route('clutch/v1', '/register-website', [
 		'methods' => 'POST',
 		'callback' => __NAMESPACE__ . '\\register_website',
+	]);
+
+	register_rest_route('clutch/v1', '/remove-website', [
+		'methods' => 'POST',
+		'callback' => __NAMESPACE__ . '\\remove_website',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
 	]);
 }
 
@@ -93,15 +132,9 @@ add_action('rest_api_init', __NAMESPACE__ . '\register_website_routes');
 function trigger_cache_invalidation($tags)
 {
 	$websites = get_registered_websites();
-	$tags_param = implode(',', array_map('urlencode', $tags));
 
 	foreach ($websites as $website) {
-		$url =
-			$website['invalidationEndpoint'] .
-			'?tags=' .
-			$tags_param .
-			'&token=' .
-			urlencode($website['token']);
+		$url = get_website_invalidation_url($website, $tags);
 		$response = wp_remote_get($url);
 		if (is_wp_error($response)) {
 			continue; // Ignore errors
