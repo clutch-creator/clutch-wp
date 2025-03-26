@@ -1,73 +1,107 @@
 <?php
 /**
- * Adds functionality/handling for clutch support of ACF
+ * Adds functionality/handling for caching and websites registration
  */
 namespace Clutch\WP\Cache;
+
+require_once __DIR__ . '/functions.php';
 
 if (!defined('ABSPATH')) {
 	exit();
 }
 
-function get_cache_invalidation_endpoints()
-{
-	$endpoints = get_option('clutch_cache_invalidation_endpoints', []);
-
-	return $endpoints;
-}
-
-function register_cache_invalidation_endpoint($request)
+function register_website($request)
 {
 	$params = json_decode($request->get_body(), true);
-	$new_endpoint = isset($params['endpoint'])
-		? esc_url_raw($params['endpoint'])
+	$name = isset($params['name']) ? sanitize_text_field($params['name']) : '';
+	$deployment_id = isset($params['deploymentId'])
+		? sanitize_text_field($params['deploymentId'])
 		: '';
+	$project_id = isset($params['projectId'])
+		? sanitize_text_field($params['projectId'])
+		: '';
+	$new_endpoint = isset($params['invalidationEndpoint'])
+		? esc_url_raw($params['invalidationEndpoint'])
+		: '';
+	$url = isset($params['url']) ? esc_url_raw($params['url']) : '';
 	$token = isset($params['token'])
 		? sanitize_text_field($params['token'])
 		: '';
 
-	if (empty($new_endpoint) || empty($token)) {
-		return new \WP_Error('invalid_endpoint', 'Invalid endpoint or token', [
+	if (
+		empty($name) ||
+		empty($deployment_id) ||
+		empty($project_id) ||
+		empty($new_endpoint) ||
+		empty($url) ||
+		empty($token)
+	) {
+		return new \WP_Error('invalid_params', 'Invalid parameters', [
 			'status' => 400,
 		]);
 	}
 
-	$endpoints = get_option('clutch_cache_invalidation_endpoints', []);
-	if (!in_array($new_endpoint, array_column($endpoints, 'endpoint'))) {
-		$endpoints[] = ['endpoint' => $new_endpoint, 'token' => $token];
-		update_option('clutch_cache_invalidation_endpoints', $endpoints);
+	$websites = get_option('clutch_websites', []);
+	$existing_key = -1;
+	foreach ($websites as $index => $site) {
+		if (
+			$site['deploymentId'] === $deployment_id &&
+			$site['projectId'] === $project_id
+		) {
+			$existing_key = $index;
+			break;
+		}
 	}
 
-	return rest_ensure_response($endpoints);
+	if ($existing_key !== -1) {
+		// Update fields
+		$websites[$existing_key]['name'] = $name;
+		$websites[$existing_key]['invalidationEndpoint'] = $new_endpoint;
+		$websites[$existing_key]['url'] = $url;
+		$websites[$existing_key]['token'] = $token;
+		$websites[$existing_key]['lastPublishDate'] = current_time('mysql');
+	} else {
+		// Add new website
+		$created_date = current_time('mysql');
+		$websites[] = [
+			'name' => $name,
+			'deploymentId' => $deployment_id,
+			'projectId' => $project_id,
+			'invalidationEndpoint' => $new_endpoint,
+			'url' => $url,
+			'token' => $token,
+			'createdDate' => $created_date,
+			'lastPublishDate' => $created_date,
+		];
+	}
+
+	update_option('clutch_websites', $websites);
+
+	return rest_ensure_response($websites);
 }
 
-function register_cache_invalidation_routes()
+function register_website_routes()
 {
-	register_rest_route('clutch/v1', '/cache/invalidation-endpoint', [
+	register_rest_route('clutch/v1', '/register-website', [
 		'methods' => 'POST',
-		'callback' => __NAMESPACE__ . '\register_cache_invalidation_endpoint',
-		// 'permission_callback' => function () {
-		// 	return current_user_can('manage_options');
-		// },
+		'callback' => __NAMESPACE__ . '\\register_website',
 	]);
 }
 
-add_action(
-	'rest_api_init',
-	__NAMESPACE__ . '\register_cache_invalidation_routes'
-);
+add_action('rest_api_init', __NAMESPACE__ . '\register_website_routes');
 
-function trigger_revalidation($tags)
+function trigger_cache_invalidation($tags)
 {
-	$endpoints = get_cache_invalidation_endpoints();
+	$websites = get_registered_websites();
 	$tags_param = implode(',', array_map('urlencode', $tags));
 
-	foreach ($endpoints as $endpoint_data) {
+	foreach ($websites as $website) {
 		$url =
-			$endpoint_data['endpoint'] .
+			$website['invalidationEndpoint'] .
 			'?tags=' .
 			$tags_param .
 			'&token=' .
-			urlencode($endpoint_data['token']);
+			urlencode($website['token']);
 		$response = wp_remote_get($url);
 		if (is_wp_error($response)) {
 			continue; // Ignore errors
@@ -98,7 +132,7 @@ function flush_cache_on_post($post_id)
 		$rest_base . '-' . $post->ID,
 	];
 
-	trigger_revalidation($tags);
+	trigger_cache_invalidation($tags);
 }
 
 function flush_cache_on_meta_update(
@@ -123,7 +157,7 @@ function flush_cache_on_term($term_id, $tt_id, $taxonomy)
 		$taxonomy . '-' . $term->term_id,
 	];
 
-	trigger_revalidation($tags);
+	trigger_cache_invalidation($tags);
 }
 
 function flush_cache_on_term_meta_update(
@@ -143,7 +177,7 @@ function flush_cache_on_term_meta_update(
 		$term->taxonomy . '-' . $term->term_id,
 	];
 
-	trigger_revalidation($tags);
+	trigger_cache_invalidation($tags);
 }
 
 function flush_cache_on_user($user_id)
@@ -155,7 +189,7 @@ function flush_cache_on_user($user_id)
 
 	$tags = ['users', 'users-' . $user->user_login, 'users-' . $user->ID];
 
-	trigger_revalidation($tags);
+	trigger_cache_invalidation($tags);
 }
 
 function flush_cache_on_user_meta_update(
@@ -171,13 +205,13 @@ function flush_cache_on_user_meta_update(
 
 	$tags = ['users', 'users-' . $user->user_login, 'users-' . $user->ID];
 
-	trigger_revalidation($tags);
+	trigger_cache_invalidation($tags);
 }
 
 function flush_cache_on_front_page_update($old_value, $new_value)
 {
 	$tags = ['front-page'];
-	trigger_revalidation($tags);
+	trigger_cache_invalidation($tags);
 }
 
 // handle posts changes, regardless of type
