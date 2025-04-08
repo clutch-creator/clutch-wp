@@ -27,10 +27,10 @@ $websites = get_registered_websites();
 function format_created_date($date)
 {
 	$timestamp = strtotime($date);
-	if (date('Y', $timestamp) !== date('Y')) {
-		return date('d F Y', $timestamp);
+	if (gmdate('Y', $timestamp) !== gmdate('Y')) {
+		return gmdate('d F Y', $timestamp);
 	}
-	return date('d F', $timestamp);
+	return gmdate('d F', $timestamp);
 }
 
 /**
@@ -53,7 +53,7 @@ function time_difference_label($date)
 	} elseif ($diff < 604800) {
 		return floor($diff / 86400) . ' days ago';
 	} else {
-		return date('d F Y', $timestamp);
+		return gmdate('d F Y', $timestamp);
 	}
 }
 
@@ -70,11 +70,11 @@ function render_card($website, $icons)
 	]); ?>
 	<div class="clt-card clt-website-card">
 		<div class="clt-website-frame-wrapper">
-			<iframe src="<?= esc_url($website['url']) ?>"></iframe>
+			<iframe src="<?php echo esc_url($website['url']); ?>"></iframe>
 		</div>
 		<div class="clt-website-content">
 			<div class="clt-website-header">
-				<h3><?= esc_html($website['name']) ?></h3>
+				<h3><?php echo esc_html($website['name']); ?></h3>
 				<div class="clt-website-buttons">
 					<a class="clt-button" href="<?php echo esc_url(
      	'https://app.clutch.io#/project/' . $website['projectId']
@@ -87,17 +87,17 @@ function render_card($website, $icons)
 				</div>
 			</div>
 			<div class="clt-infos">
-				<p class="clt-info"><span class="clt-label">Created</span><span><?= esc_html(
+				<p class="clt-info"><span class="clt-label">Created</span><span><?php echo esc_html(
     	format_created_date($website['createdDate'])
-    ) ?></span></p>
-				<p class="clt-info"><span class="clt-label">Last Published</span><span><?= esc_html(
+    ); ?></span></p>
+				<p class="clt-info"><span class="clt-label">Last Published</span><span><?php echo esc_html(
     	time_difference_label($website['lastPublishDate'])
-    ) ?></span></p>
+    ); ?></span></p>
 			</div>
 			<div class="clt-website-buttons">
-				<button class="clt-button clt-remove-website" data-deployment-id="<?= esc_attr(
+				<button class="clt-button clt-remove-website" data-deployment-id="<?php echo esc_attr(
     	$website['deploymentId']
-    ) ?>">
+    ); ?>">
 					<?php echo $icons['trash']; ?><span>Remove</span>
 				</button>
 				<a class="clt-button" href="<?php echo esc_url(
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'X-WP-Nonce': '<?php echo wp_create_nonce('wp_rest'); ?>'
+						'X-WP-Nonce': '<?php echo esc_js(wp_create_nonce('wp_rest')); ?>'
 					},
 					body: JSON.stringify({ deploymentId })
 				})
