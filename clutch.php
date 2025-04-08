@@ -2,7 +2,6 @@
 /**
  * Plugin Name:       Clutch
  * Description:       Integrate WordPress headlessly with Clutch, the next-gen Visual Builder. Empower creative professionals with total design freedom, advanced functionality, and top-tier performance—all with fewer plugins.
- * Plugin URI:        https://clutch.io
  * Author:            Clutch.io
  * Author URI:        https://clutch.io
  * License:           GPLv2 or later
