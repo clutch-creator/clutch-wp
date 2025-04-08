@@ -1,5 +1,5 @@
 === Clutch ===
-Contributors: clutch
+Contributors: bruno12mota, lmcorreia
 Tags: headless, visual builder, clutch, design, performance
 Requires at least: 5.0
 Tested up to: 6.7
@@ -63,5 +63,5 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 == Upgrade Notice ==
 
 = 1.0.0 =
-First release. Install and explore the future of WordPress design!
+First release. Install and explore the future of WordPress website creation!
 
