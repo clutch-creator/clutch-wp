@@ -1,0 +1,13 @@
+*.git*
+*.DS_Store*
+*.editorconfig*
+*.gitignore*
+*.prettierrc*
+*node_modules*
+*tests*
+*blocks-src*
+*dist*
+.zipignore
+package.json
+package-lock.json
+composer.lock
