@@ -8,7 +8,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Unleash the power of headless WordPress with Clutch, the next-generation Visual Builder for creative pros.
+Unleash the power of headless WordPress with Clutch, the next-generation Visual Builder for professional creators.
 
 == Description ==
 
