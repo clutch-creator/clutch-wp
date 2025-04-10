@@ -11,7 +11,9 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Force permalink structure to be /%postname%/ on plugin activation
+ * Forces the permalink structure to '/%postname%/' on plugin activation.
+ *
+ * @return void
  */
 function activate_clutch_plugin()
 {

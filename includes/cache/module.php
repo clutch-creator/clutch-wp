@@ -12,6 +12,12 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/functions.php';
 use function Clutch\WP\Websites\get_registered_websites;
 
+/**
+ * Triggers cache invalidation for the given tags across all registered websites.
+ *
+ * @param array $tags List of tags to invalidate.
+ * @return void
+ */
 function trigger_cache_invalidation($tags)
 {
 	$websites = get_registered_websites();
@@ -25,6 +31,12 @@ function trigger_cache_invalidation($tags)
 	}
 }
 
+/**
+ * Flushes cache when a post is updated, deleted, or trashed.
+ *
+ * @param int $post_id The ID of the post being modified.
+ * @return void
+ */
 function flush_cache_on_post($post_id)
 {
 	if (
@@ -51,6 +63,15 @@ function flush_cache_on_post($post_id)
 	trigger_cache_invalidation($tags);
 }
 
+/**
+ * Flushes cache when post meta is updated.
+ *
+ * @param int $meta_id The meta ID.
+ * @param int $object_id The object ID.
+ * @param string $meta_key The meta key.
+ * @param mixed $_meta_value The meta value.
+ * @return void
+ */
 function flush_cache_on_meta_update(
 	$meta_id,
 	$object_id,
@@ -60,6 +81,14 @@ function flush_cache_on_meta_update(
 	flush_cache_on_post($object_id);
 }
 
+/**
+ * Flushes cache when a term is created, updated, or deleted.
+ *
+ * @param int $term_id The term ID.
+ * @param int $tt_id The term taxonomy ID.
+ * @param string $taxonomy The taxonomy name.
+ * @return void
+ */
 function flush_cache_on_term($term_id, $tt_id, $taxonomy)
 {
 	$term = get_term($term_id, $taxonomy);
@@ -76,6 +105,15 @@ function flush_cache_on_term($term_id, $tt_id, $taxonomy)
 	trigger_cache_invalidation($tags);
 }
 
+/**
+ * Flushes cache when term meta is updated.
+ *
+ * @param int $meta_id The meta ID.
+ * @param int $object_id The object ID.
+ * @param string $meta_key The meta key.
+ * @param mixed $_meta_value The meta value.
+ * @return void
+ */
 function flush_cache_on_term_meta_update(
 	$meta_id,
 	$object_id,
@@ -96,6 +134,12 @@ function flush_cache_on_term_meta_update(
 	trigger_cache_invalidation($tags);
 }
 
+/**
+ * Flushes cache when a user is created, updated, or deleted.
+ *
+ * @param int $user_id The user ID.
+ * @return void
+ */
 function flush_cache_on_user($user_id)
 {
 	$user = get_userdata($user_id);
@@ -108,6 +152,15 @@ function flush_cache_on_user($user_id)
 	trigger_cache_invalidation($tags);
 }
 
+/**
+ * Flushes cache when user meta is updated.
+ *
+ * @param int $meta_id The meta ID.
+ * @param int $object_id The object ID.
+ * @param string $meta_key The meta key.
+ * @param mixed $_meta_value The meta value.
+ * @return void
+ */
 function flush_cache_on_user_meta_update(
 	$meta_id,
 	$object_id,
@@ -124,6 +177,13 @@ function flush_cache_on_user_meta_update(
 	trigger_cache_invalidation($tags);
 }
 
+/**
+ * Flushes cache when the front page setting is updated.
+ *
+ * @param mixed $old_value The old value of the setting.
+ * @param mixed $new_value The new value of the setting.
+ * @return void
+ */
 function flush_cache_on_front_page_update($old_value, $new_value)
 {
 	$tags = ['front-page'];

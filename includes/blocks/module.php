@@ -91,6 +91,11 @@ function register_clutch_block_styles()
 
 add_action('init', __NAMESPACE__ . '\\register_clutch_block_styles');
 
+/**
+ * Whitelists specific blocks for use in the editor.
+ *
+ * @return array List of allowed block types.
+ */
 function whitelist_editor_blocks()
 {
 	return [
