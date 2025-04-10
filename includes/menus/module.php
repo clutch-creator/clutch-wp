@@ -1,7 +1,9 @@
 <?php
 /**
- * Adds custom REST API endpoints that clutch uses
+ * This file manages menu locations and provides REST API endpoints for menus in Clutch.
+ * It includes functions to process menu locations and retrieve menu details.
  */
+
 namespace Clutch\WP\Menus;
 
 use function Clutch\WP\Settings\get_setting_menu_locations_parsed;

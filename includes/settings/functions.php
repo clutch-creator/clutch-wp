@@ -1,6 +1,7 @@
 <?php
 /**
- * Settings functions.
+ * This file contains utility functions for Clutch settings.
+ * It includes methods to retrieve and parse menu locations and fetch SVG icons.
  */
 
 namespace Clutch\WP\Settings;

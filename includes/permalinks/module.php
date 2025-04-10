@@ -1,6 +1,7 @@
 <?php
 /**
- * Makes changes to wordpress admin, disabling some features that are not necessary when using clutch
+ * This file customizes permalink settings for Clutch.
+ * It ensures the permalink structure is set to '/%postname%/' upon plugin activation.
  */
 namespace Clutch\WP\Permalinks;
 

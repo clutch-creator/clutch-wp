@@ -1,6 +1,7 @@
 <?php
 /**
- * Makes changes to wordpress admin, disabling some features that are not necessary when using clutch
+ * This file customizes the WordPress admin interface for Clutch.
+ * It removes unnecessary menu items, admin bar items, and redirects users from disallowed pages.
  */
 namespace Clutch\WP\Admin;
 

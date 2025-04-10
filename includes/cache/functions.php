@@ -1,6 +1,7 @@
 <?php
 /**
- * Adds functionality/handling for caching and websites registration
+ * This file provides utility functions for cache invalidation in Clutch.
+ * It includes methods to construct invalidation URLs for registered websites.
  */
 namespace Clutch\WP\Cache;
 

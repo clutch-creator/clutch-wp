@@ -1,6 +1,7 @@
 <?php
 /**
- * Adds functionality/handling for caching and websites registration
+ * This file manages cache invalidation for Clutch.
+ * It includes hooks to trigger cache flushes on various WordPress events such as post updates, term changes, and user updates.
  */
 namespace Clutch\WP\Cache;
 

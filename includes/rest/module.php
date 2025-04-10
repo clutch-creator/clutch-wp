@@ -1,6 +1,7 @@
 <?php
 /**
- * Adds custom REST API endpoints that clutch uses
+ * This file defines custom REST API endpoints for Clutch.
+ * It includes endpoints for retrieving plugin info, post types, taxonomies, and clearing cache.
  */
 namespace Clutch\WP\Rest;
 
