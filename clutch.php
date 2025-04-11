@@ -23,7 +23,9 @@ define('CLUTCHWP_PRIORITY', 1000);
 
 require_once CLUTCHWP_DIR . '/includes/acf/module.php';
 require_once CLUTCHWP_DIR . '/includes/admin/module.php';
+require_once CLUTCHWP_DIR . '/includes/auth/module.php';
 require_once CLUTCHWP_DIR . '/includes/blocks/module.php';
+require_once CLUTCHWP_DIR . '/includes/preview/module.php';
 require_once CLUTCHWP_DIR . '/includes/rest/module.php';
 require_once CLUTCHWP_DIR . '/includes/menus/module.php';
 require_once CLUTCHWP_DIR . '/includes/settings/module.php';

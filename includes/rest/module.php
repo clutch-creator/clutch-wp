@@ -356,6 +356,34 @@ function rest_clear_cache()
 	return new \WP_REST_Response(['message' => 'Cache cleared']);
 }
 
+function rest_get_post_preview_data(\WP_REST_Request $request)
+{
+	$slug = $request->get_param('slug');
+
+	// Get the post by slug
+	$post = get_page_by_path($slug, OBJECT, get_post_types(['public' => true]));
+
+	if (!$post) {
+		return new \WP_REST_Response(['message' => 'Post not found'], 404);
+	}
+
+	// Replace post content with autosave content
+	$revisions = wp_get_post_revisions($post->ID);
+
+	if (!empty($revisions)) {
+		$latest = array_shift($revisions); // get latest revision
+		$post->post_title = $latest->post_title ?: $post->post_title;
+		$post->post_content = $latest->post_content ?: $post->post_content;
+		$post->post_excerpt = $latest->post_excerpt ?: $post->post_excerpt;
+	}
+
+	// Prepare REST response using the core controller
+	$controller = new \WP_REST_Posts_Controller($post->post_type);
+	$response = $controller->prepare_item_for_response($post, $request);
+
+	return $response;
+}
+
 add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/info', [
 		'methods' => 'GET',
@@ -400,5 +428,13 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/clear-cache', [
 		'methods' => 'POST',
 		'callback' => __NAMESPACE__ . '\\rest_clear_cache',
+	]);
+
+	register_rest_route('clutch/v1', '/preview/(?P<slug>[a-zA-Z0-9-_]+)', [
+		'methods' => 'GET',
+		'callback' => __NAMESPACE__ . '\\rest_get_post_preview_data',
+		'permission_callback' => function () {
+			return current_user_can('edit_posts');
+		},
 	]);
 });

@@ -18,6 +18,11 @@ $icons = [
 
 $websites = get_registered_websites();
 
+$websites = array_filter($websites, function ($website) {
+	// Exclude websites with localhost URLs
+	return strpos($website['url'], 'localhost') === false;
+});
+
 /**
  * Formats a date to "day month year" if not the current year.
  *
