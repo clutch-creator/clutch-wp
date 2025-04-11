@@ -34,7 +34,7 @@ if (is_user_logged_in()) {
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
-	<?php if (is_user_logged_in()) : ?>
+	<?php if (is_user_logged_in()): ?>
 		<?php wp_body_open(); ?>
 		<?php do_action('wp_admin_bar_render'); ?>
 	<?php endif; ?>
@@ -54,8 +54,8 @@ if (is_user_logged_in()) {
 	    const postId = <?php echo json_encode($post->ID); ?>;
 	    const selectedHost = <?php echo json_encode(esc_url($selected_host)); ?>;
 	    const token = <?php echo json_encode(
-	    		$secure_token
-	    ); ?>; // Pass the secure token to the iframe
+     	$secure_token
+     ); ?>; // Pass the secure token to the iframe
 
 	    // Get the preview_id from the URL if it exists
 	    const urlParams = new URLSearchParams(window.location.search);
@@ -64,8 +64,8 @@ if (is_user_logged_in()) {
 	    // Check if selectedHost is defined
 	    if (selectedHost) {
 	      const apiUrl = `${selectedHost}/api/url?permalink=${encodeURIComponent('<?php echo esc_url(
-	      	get_permalink($post->ID)
-	      ); ?>')}`;
+       	get_permalink($post->ID)
+       ); ?>')}`;
 
 	      // Fetch the resolved URL dynamically
 	      fetch(apiUrl)

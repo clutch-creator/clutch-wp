@@ -208,11 +208,11 @@
 
 		// Helper function to add a website to the dropdown
 		function addWebsiteToDropdown(dropdownMenu, website) {
-      let websiteName = website.name;
+			let websiteName = website.name;
 
-      if (website.url.includes('localhost')) {
-        websiteName += ` (Local)`;
-      }
+			if (website.url.includes('localhost')) {
+				websiteName += ` (Local)`;
+			}
 
 			const menuItem = $(
 				`<li class="ab-item" data-url="${website.url}"><a href="#">${websiteName}</a></li>`

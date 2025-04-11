@@ -12,13 +12,11 @@ add_filter('template_include', __NAMESPACE__ . '\\headless_preview_template');
 
 function headless_preview_template($template)
 {
-
 	if (
 		is_preview() ||
 		(is_admin() && isset($_GET['preview']) && $_GET['preview'] === 'true')
 	) {
-		$custom_template =
-			plugin_dir_path(__FILE__) . 'templates/preview.php';
+		$custom_template = plugin_dir_path(__FILE__) . 'templates/preview.php';
 
 		if (file_exists($custom_template)) {
 			return $custom_template;
