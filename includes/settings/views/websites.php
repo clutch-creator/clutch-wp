@@ -19,8 +19,8 @@ $icons = [
 $websites = get_registered_websites();
 
 $websites = array_filter($websites, function ($website) {
-	// Exclude websites with localhost URLs
-	return strpos($website['url'], 'localhost') === false;
+	// Exclude websites with deploymentId starting with projectId- (local ones)
+	return strpos($website['deploymentId'], $website['projectId'] . '-') !== 0;
 });
 
 /**

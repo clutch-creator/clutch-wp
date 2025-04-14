@@ -49,7 +49,7 @@
 				dropdownMenu.empty();
 
 				const promises = websites.map(async (website) => {
-					if (website.url.includes('localhost')) {
+					if (website.deploymentId.startsWith(`${website.projectId}-`)) {
 						try {
 							const infoResponse = await fetch(
 								`${website.url}/api/info`,
@@ -75,7 +75,7 @@
 								`Website ${website.url} is not reachable.`
 							);
 						}
-					} else {
+					} else if (website.deploymentId) {
 						addWebsiteToDropdown(dropdownMenu, website);
 					}
 				});
@@ -88,6 +88,7 @@
 						.find('.selected-host')
 						.text('No hosts to preview found');
 					dropdownLink.find('.ab-icon').hide(); // Hide chevron
+
 					return; // Exit early since there are no hosts
 				}
 
@@ -210,7 +211,7 @@
 		function addWebsiteToDropdown(dropdownMenu, website) {
 			let websiteName = website.name;
 
-			if (website.url.includes('localhost')) {
+			if (website.deploymentId.startsWith(`${website.projectId}-`)) {
 				websiteName += ` (Local)`;
 			}
 
