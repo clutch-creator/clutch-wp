@@ -434,7 +434,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_post_preview_data',
 		'permission_callback' => function () {
-			return current_user_can('edit_posts');
+			return current_user_can('read_private_posts');
 		},
 	]);
 });
