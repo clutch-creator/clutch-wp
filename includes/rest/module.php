@@ -384,6 +384,51 @@ function rest_get_post_preview_data(\WP_REST_Request $request)
 	return $response;
 }
 
+function rest_get_filtered_posts(\WP_REST_Request $request)
+{
+	$args = [
+		'post_type' => $request->get_param('post_type') ?: 'post',
+		'post_status' => 'publish',
+		'posts_per_page' => $request->get_param('per_page') ?: 10,
+		'paged' => $request->get_param('page') ?: 1,
+	];
+
+	// Add filtering by post fields
+	if ($author = $request->get_param('author')) {
+		$args['author'] = $author;
+	}
+	if ($after = $request->get_param('after')) {
+		$args['date_query'] = [['after' => $after]];
+	}
+	if ($search = $request->get_param('search')) {
+		$args['s'] = $search;
+	}
+
+	// Add filtering by meta fields
+	if ($meta_filters = $request->get_param('meta_query')) {
+		$args['meta_query'] = $meta_filters;
+	}
+
+	$query = new \WP_Query($args);
+
+	// Use the core posts controller to format the response
+	$controller = new \WP_REST_Posts_Controller($args['post_type']);
+	$data = [];
+
+	foreach ($query->posts as $post) {
+		$prepared = $controller->prepare_item_for_response($post, $request);
+		$data[] = $controller->prepare_response_for_collection($prepared);
+	}
+
+	$response = [
+		'posts' => $data,
+		'total_count' => (int) $query->found_posts,
+		'total_pages' => (int) $query->max_num_pages,
+	];
+
+	return rest_ensure_response($response);
+}
+
 add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/info', [
 		'methods' => 'GET',
@@ -436,5 +481,41 @@ add_action('rest_api_init', function () {
 		'permission_callback' => function () {
 			return current_user_can('read_private_posts');
 		},
+	]);
+
+	register_rest_route('clutch/v1', '/posts-filtered', [
+		'methods' => 'GET',
+		'callback' => __NAMESPACE__ . '\\rest_get_filtered_posts',
+		'args' => [
+			'post_type' => [
+				'description' => 'Filter by post type',
+				'type' => 'string',
+			],
+			'author' => [
+				'description' => 'Filter by author ID',
+				'type' => 'integer',
+			],
+			'after' => [
+				'description' => 'Filter posts published after this date',
+				'type' => 'string',
+				'format' => 'date',
+			],
+			'search' => [
+				'description' => 'Search term for post title or content',
+				'type' => 'string',
+			],
+			'meta_query' => [
+				'description' => 'Filter by custom meta fields',
+				'type' => 'array',
+			],
+			'per_page' => [
+				'description' => 'Number of posts per page',
+				'type' => 'integer',
+			],
+			'page' => [
+				'description' => 'Current page of the collection',
+				'type' => 'integer',
+			],
+		],
 	]);
 });
