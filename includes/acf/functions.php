@@ -41,100 +41,26 @@ function get_acf_fields_for_rest($post_id)
 			$value,
 			$post_id,
 			$field,
-			'standard'
+			'light'
 		);
-
-		// switch ($field['type']) {
-		// 	case 'user':
-		// 		$user_values = is_array($value) ? $value : [$value];
-		// 		$formatted_acf_fields[$key] = array_map(function ($user_id) {
-		// 			return [
-		// 				'_clt_field' => true,
-		// 				'type' => 'user',
-		// 				'id' => $user_id,
-		// 			];
-		// 		}, $user_values);
-		// 		if (!is_array($value)) {
-		// 			$formatted_acf_fields[$key] =
-		// 				$formatted_acf_fields[$key][0];
-		// 		}
-		// 		break;
-
-		// 	case 'taxonomy':
-		// 		$taxonomy_values = is_array($value) ? $value : [$value];
-		// 		$formatted_acf_fields[$key] = array_map(function (
-		// 			$term_id
-		// 		) use ($field) {
-		// 			return [
-		// 				'_clt_field' => true,
-		// 				'type' => 'taxonomy_term',
-		// 				'rest_base' => $field['taxonomy'],
-		// 				'id' => $term_id,
-		// 			];
-		// 		}, $taxonomy_values);
-		// 		if (!is_array($value)) {
-		// 			$formatted_acf_fields[$key] =
-		// 				$formatted_acf_fields[$key][0];
-		// 		}
-		// 		break;
-
-		// 	case 'relationship':
-		// 	case 'post_object':
-		// 		$post_ids = is_array($value) ? $value : [$value];
-		// 		$formatted_acf_fields[$key] = array_map(function ($post_id) {
-		// 			$post_type = get_post_type($post_id);
-		// 			$post_type_object = get_post_type_object($post_type);
-
-		// 			return [
-		// 				'_clt_field' => true,
-		// 				'type' => 'post',
-		// 				'id' => $post_id,
-		// 				'rest_base' =>
-		// 					$post_type_object->rest_base ?:
-		// 					$post_type_object->name,
-		// 				'rest_namespace' => $post_type_object->rest_namespace,
-		// 			];
-		// 		}, $post_ids);
-		// 		if (!is_array($value)) {
-		// 			$formatted_acf_fields[$key] =
-		// 				$formatted_acf_fields[$key][0];
-		// 		}
-		// 		break;
-
-		// 	case 'image':
-		// 	case 'file':
-		// 	case 'gallery':
-		// 		$image_values = is_array($value) ? $value : [$value];
-		// 		$formatted_acf_fields[$key] = array_map(function ($image_id) {
-		// 			return [
-		// 				'_clt_field' => true,
-		// 				'type' => 'media',
-		// 				'id' => $image_id,
-		// 			];
-		// 		}, $image_values);
-		// 		if (!is_array($value)) {
-		// 			$formatted_acf_fields[$key] =
-		// 				$formatted_acf_fields[$key][0];
-		// 		}
-		// 		break;
-
-		// 	case 'page_link':
-		// 		$formatted_acf_fields[$key] = acf_format_value(
-		// 			$value,
-		// 			$post_id,
-		// 			$field
-		// 		);
-		// 		break;
-
-		// 	default:
-		// 		$formatted_acf_fields[$key] = acf_format_value(
-		// 			$value,
-		// 			$post_id,
-		// 			$field
-		// 		);
-		// 		break;
-		// }
 	}
 
 	return $formatted_acf_fields;
+}
+
+function apply_acf_fields_on_reponse($response_data, $post_id)
+{
+	if (is_acf_installed() === false) {
+		return $response_data;
+	}
+
+	$acf_fields = get_acf_fields_for_rest($post_id);
+
+	if (empty($acf_fields)) {
+		return $response_data;
+	}
+
+	$response_data['acf'] = $acf_fields;
+
+	return $response_data;
 }
