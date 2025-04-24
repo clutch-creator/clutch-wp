@@ -6,6 +6,8 @@
 
 namespace Clutch\WP\ACF;
 
+require_once __DIR__ . '/functions.php';
+
 if (!defined('ABSPATH')) {
 	exit();
 }

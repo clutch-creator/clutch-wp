@@ -5,6 +5,8 @@
  */
 namespace Clutch\WP\Rest;
 
+use function Clutch\WP\ACF\get_acf_fields_for_rest;
+
 if (!defined('ABSPATH')) {
 	exit();
 }
@@ -415,9 +417,44 @@ function rest_get_filtered_posts(\WP_REST_Request $request)
 	$controller = new \WP_REST_Posts_Controller($args['post_type']);
 	$data = [];
 
+	// Get the REST base for the post type
+	$post_type_object = get_post_type_object($args['post_type']);
+	$rest_base = $post_type_object->rest_base ?: $args['post_type'];
+
+	$meta_object = get_registered_meta_keys('post');
+
 	foreach ($query->posts as $post) {
+		// Prepare the response using the core controller
 		$prepared = $controller->prepare_item_for_response($post, $request);
-		$data[] = $controller->prepare_response_for_collection($prepared);
+		$response_data = $controller->prepare_response_for_collection(
+			$prepared
+		);
+
+		// Include ACF fields using the new helper function
+		$response_data['acf'] = get_acf_fields_for_rest($post->ID);
+
+		// Include Meta Box fields if the plugin is active
+		$meta_box_fields = [];
+		if (class_exists('RWMB_Loader') && function_exists('rwmb_meta')) {
+			$meta_box_fields = \rwmb_meta(null, [], $post->ID) ?: [];
+			$response_data['meta_box'] = $meta_box_fields;
+		}
+
+		// Include meta fields, excluding those starting with `_`, not included in REST, or already in ACF/Meta Box
+		$all_meta = get_post_meta($post->ID);
+		$response_data['meta'] = [];
+		foreach ($all_meta as $key => $value) {
+			if (
+				!str_starts_with($key, '_') &&
+				!empty($meta_object[$key]['show_in_rest']) &&
+				!array_key_exists($key, $acf_fields) &&
+				!array_key_exists($key, $meta_box_fields)
+			) {
+				$response_data['meta'][$key] = $value;
+			}
+		}
+
+		$data[] = $response_data;
 	}
 
 	$response = [
