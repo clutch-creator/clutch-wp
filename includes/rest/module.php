@@ -388,12 +388,24 @@ function rest_get_post_preview_data(\WP_REST_Request $request)
 
 function rest_get_posts(\WP_REST_Request $request)
 {
+	// Validate that post_type is valid
+	$post_type = $request->get_param('post_type') ?: 'post';
+	if (!post_type_exists($post_type)) {
+		return new \WP_Error(
+			'invalid_post_type',
+			__('Invalid post type.', 'textdomain'),
+			['status' => 400]
+		);
+	}
+
+	$default_status = 'attachment' === $post_type ? 'inherit' : 'publish';
+
 	// ---------------------------------------------------------------------
 	// 1. Basic pagination / post-type args
 	// ---------------------------------------------------------------------
 	$args = [
-		'post_type' => $request->get_param('post_type') ?: 'post',
-		'post_status' => 'publish',
+		'post_type' => $post_type,
+		'post_status' => $default_status,
 		'posts_per_page' => $request->get_param('per_page') ?: 10,
 		'paged' => $request->get_param('page') ?: 1,
 		'no_found_rows' => false,
@@ -696,7 +708,13 @@ function rest_get_posts(\WP_REST_Request $request)
 	// 5. Build the REST response
 	// ---------------------------------------------------------------------
 	$data = [];
-	$controller = new \WP_REST_Posts_Controller($args['post_type']);
+
+	// Attachments need their own controller
+	if ('attachment' === $post_type) {
+		$controller = new \WP_REST_Attachments_Controller('attachment');
+	} else {
+		$controller = new \WP_REST_Posts_Controller($post_type);
+	}
 
 	foreach ($query->posts as $post) {
 		$response = $controller->prepare_item_for_response($post, $request);
@@ -738,7 +756,7 @@ function rest_get_post(\WP_REST_Request $request)
 	$args = [
 		'post_type' => 'any',
 		'posts_per_page' => 1,
-		'post_status' => ['publish'],
+		'post_status' => ['inherit', 'publish'],
 	];
 
 	if ($id) {
@@ -762,7 +780,14 @@ function rest_get_post(\WP_REST_Request $request)
 	// ---------------------------------------------------------------------
 	// 3. Let the built-in controller create the response
 	// ---------------------------------------------------------------------
-	$controller = new \WP_REST_Posts_Controller($post->post_type);
+	$post_type = $post->post_type;
+
+	// Attachments need their own controller
+	if ('attachment' === $post_type) {
+		$controller = new \WP_REST_Attachments_Controller('attachment');
+	} else {
+		$controller = new \WP_REST_Posts_Controller($post_type);
+	}
 
 	// Prepare the single item
 	$response = $controller
