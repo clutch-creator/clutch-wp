@@ -389,69 +389,338 @@ function rest_get_post_preview_data(\WP_REST_Request $request)
 
 function rest_get_filtered_posts(\WP_REST_Request $request)
 {
+	// ---------------------------------------------------------------------
+	// 1. Basic pagination / post-type args
+	// ---------------------------------------------------------------------
 	$args = [
 		'post_type' => $request->get_param('post_type') ?: 'post',
 		'post_status' => 'publish',
 		'posts_per_page' => $request->get_param('per_page') ?: 10,
 		'paged' => $request->get_param('page') ?: 1,
+		'no_found_rows' => false,
+		// Place-holders for the dynamic parts we will build below
+		'meta_query' => [],
+		'tax_query' => [],
 	];
 
-	// Add filtering by post fields
-	if ($author = $request->get_param('author')) {
-		$args['author'] = $author;
-	}
-	if ($after = $request->get_param('after')) {
-		$args['date_query'] = [['after' => $after]];
-	}
-	if ($search = $request->get_param('search')) {
-		$args['s'] = $search;
+	// Make sure multiple meta / tax conditions get an AND relation by default
+	$args['meta_query']['relation'] = 'AND';
+	$args['tax_query']['relation'] = 'AND';
+
+	// ---------------------------------------------------------------------
+	// 2. Map our "friendly" operators to WP_Query / SQL
+	// ---------------------------------------------------------------------
+	$operator_map = [
+		'eq' => '=',
+		'neq' => '!=',
+		'lt' => '<',
+		'lte' => '<=',
+		'gt' => '>',
+		'gte' => '>=',
+		'like' => 'LIKE',
+		'not_like' => 'NOT LIKE',
+		'contains' => 'LIKE',
+		'in' => 'IN',
+		'nin' => 'NOT IN',
+		'between' => 'BETWEEN',
+		'exists' => 'EXISTS',
+		'not_exists' => 'NOT EXISTS',
+	];
+
+	// Will hold custom SQL WHERE snippets when WP_Query has no parameter
+	$title_where_snippets = [];
+	$slug_where_snippets = [];
+
+	$filters = $request->get_param('filter');
+
+	if ($filters && is_array($filters)) {
+		foreach ($filters as $field => $conditions) {
+			if (!is_array($conditions)) {
+				continue;
+			}
+
+			// ----------------------------------------------------------
+			// 2.a  Handle "meta_" prefixed keys  -----------------------
+			// ----------------------------------------------------------
+			if (str_starts_with($field, 'meta_')) {
+				$meta_key = substr($field, 5);
+
+				foreach ($conditions as $user_operator => $raw_value) {
+					if (!isset($operator_map[$user_operator])) {
+						continue;
+					}
+
+					$compare = $operator_map[$user_operator];
+					$value = sanitize_text_field($raw_value);
+
+					// Convert list strings ("1,2,3") to arrays for IN / NOT IN
+					if (in_array($user_operator, ['in', 'nin'], true)) {
+						$value = array_map('trim', explode(',', $value));
+					}
+
+					// BETWEEN requires an array( min, max )
+					if ('between' === $user_operator) {
+						$tmp = array_map('trim', explode(',', $value));
+						$value = [$tmp[0] ?? '', $tmp[1] ?? ''];
+					}
+
+					// For a "contains" request use LIKE and wrap the wildcards
+					if ('contains' === $user_operator) {
+						$value = '%' . esc_sql($value) . '%';
+					}
+
+					$args['meta_query'][] = [
+						'key' => $meta_key,
+						'value' => $value,
+						'compare' => $compare,
+						'type' => is_numeric($value) ? 'NUMERIC' : 'CHAR',
+					];
+				}
+
+				continue; // done with this field
+			}
+
+			// ----------------------------------------------------------
+			// 2.b  Taxonomies – "tax_" prefix OR well-known shortcuts
+			//      tax_category, tax_post_tag, tax_my_custom_tax
+			// ----------------------------------------------------------
+			if (
+				str_starts_with($field, 'tax_') ||
+				in_array($field, ['categories', 'tags'], true)
+			) {
+				// Map shortcut names
+				if ('categories' === $field) {
+					$taxonomy = 'category';
+				} elseif ('tags' === $field) {
+					$taxonomy = 'post_tag';
+				} else {
+					$taxonomy = substr($field, 4);
+				}
+
+				foreach ($conditions as $user_operator => $raw_value) {
+					if (!isset($operator_map[$user_operator])) {
+						continue;
+					}
+
+					$operator = $operator_map[$user_operator];
+					$terms = array_map('intval', explode(',', $raw_value));
+
+					$args['tax_query'][] = [
+						'taxonomy' => $taxonomy,
+						'field' => 'term_id',
+						'terms' => $terms,
+						'operator' => $operator, // IN, NOT IN, etc.
+					];
+				}
+
+				continue;
+			}
+
+			// ----------------------------------------------------------
+			// 2.c  Core WP_Query params (author, status, date, …)
+			// ----------------------------------------------------------
+			switch ($field) {
+				case 'author':
+					foreach ($conditions as $user_operator => $raw_value) {
+						$authors = array_map(
+							'intval',
+							explode(',', $raw_value)
+						);
+						if (
+							'eq' === $user_operator ||
+							'in' === $user_operator
+						) {
+							$args['author__in'] = $authors;
+						} elseif (
+							'neq' === $user_operator ||
+							'nin' === $user_operator
+						) {
+							$args['author__not_in'] = $authors;
+						}
+					}
+					break;
+
+				case 'status':
+					foreach ($conditions as $user_operator => $status) {
+						if ('eq' === $user_operator) {
+							$args['post_status'] = sanitize_key($status);
+						}
+					}
+					break;
+
+				case 'date':
+					foreach ($conditions as $user_operator => $raw_value) {
+						$compare = $operator_map[$user_operator] ?? '=';
+						$args['date_query'][] = [
+							'column' => 'post_date',
+							'compare' => $compare,
+							'value' => sanitize_text_field($raw_value),
+						];
+					}
+					break;
+
+				// --------------------------------------------------
+				// 2.d  TITLE & SLUG  (no native WP_Query support
+				//      for >, <, LIKE, …) – build WHERE snippets
+				// --------------------------------------------------
+				case 'title':
+					foreach ($conditions as $user_operator => $raw_value) {
+						if (!isset($operator_map[$user_operator])) {
+							continue;
+						}
+						$value = esc_sql($raw_value);
+
+						if (
+							'contains' === $user_operator ||
+							'like' === $user_operator
+						) {
+							$title_where_snippets[] = $GLOBALS['wpdb']->prepare(
+								"{$GLOBALS['wpdb']->posts}.post_title LIKE %s",
+								'%' . $GLOBALS['wpdb']->esc_like($value) . '%'
+							);
+						} elseif (
+							'in' === $user_operator ||
+							'nin' === $user_operator
+						) {
+							$list = array_map(
+								[$GLOBALS['wpdb'], 'prepare'],
+								array_fill(0, count(explode(',', $value)), '%s')
+							);
+							$list = implode(',', $list);
+							$op = 'in' === $user_operator ? 'IN' : 'NOT IN';
+							$title_where_snippets[] = "{$GLOBALS['wpdb']->posts}.post_title {$op} ( {$list} )";
+						} else {
+							$compare = $operator_map[$user_operator];
+							$title_where_snippets[] = $GLOBALS['wpdb']->prepare(
+								"{$GLOBALS['wpdb']->posts}.post_title {$compare} %s",
+								$value
+							);
+						}
+					}
+					break;
+
+				case 'slug':
+					foreach ($conditions as $user_operator => $raw_value) {
+						$escaped = esc_sql($raw_value);
+
+						if ('eq' === $user_operator) {
+							$args['name'] = $escaped;
+						} elseif (
+							'in' === $user_operator ||
+							'nin' === $user_operator
+						) {
+							$list = array_map(
+								'sanitize_title',
+								explode(',', $escaped)
+							);
+							if ('in' === $user_operator) {
+								$args['post_name__in'] = $list;
+							} else {
+								$placeholders = implode(
+									',',
+									array_fill(0, count($list), '%s')
+								);
+								$slug_where_snippets[] = $GLOBALS[
+									'wpdb'
+								]->prepare(
+									"{$GLOBALS['wpdb']->posts}.post_name NOT IN ( {$placeholders} )",
+									$list
+								);
+							}
+						} elseif (
+							'contains' === $user_operator ||
+							'like' === $user_operator
+						) {
+							$slug_where_snippets[] = $GLOBALS['wpdb']->prepare(
+								"{$GLOBALS['wpdb']->posts}.post_name LIKE %s",
+								'%' . $GLOBALS['wpdb']->esc_like($escaped) . '%'
+							);
+						}
+					}
+					break;
+
+				default:
+					/*  Unknown field – ignore silently. You could
+					 *  alternatively throw an error here.              */
+					break;
+			}
+		}
 	}
 
-	// Add filtering by meta fields
-	if ($meta_filters = $request->get_param('meta_query')) {
-		$args['meta_query'] = $meta_filters;
+	// ---------------------------------------------------------------------
+	// 3. Inject the extra where clauses (title / slug) if we have any
+	// ---------------------------------------------------------------------
+	if ($title_where_snippets || $slug_where_snippets) {
+		add_filter(
+			'posts_where',
+			$dynamic_where = function ($where) use (
+				$title_where_snippets,
+				$slug_where_snippets
+			) {
+				if ($title_where_snippets) {
+					$where .=
+						' AND ( ' .
+						implode(' AND ', $title_where_snippets) .
+						' ) ';
+				}
+				if ($slug_where_snippets) {
+					$where .=
+						' AND ( ' .
+						implode(' AND ', $slug_where_snippets) .
+						' ) ';
+				}
+				return $where;
+			},
+			10,
+			1
+		);
 	}
 
+	// ---------------------------------------------------------------------
+	// 4. Run the query
+	// ---------------------------------------------------------------------
 	$query = new \WP_Query($args);
 
-	// Use the core posts controller to format the response
+	// Remove the dynamic where filter immediately to avoid side effects
+	if (isset($dynamic_where)) {
+		remove_filter('posts_where', $dynamic_where);
+	}
+
+	// ---------------------------------------------------------------------
+	// 5. Build the REST response
+	// ---------------------------------------------------------------------
 	$controller = new \WP_REST_Posts_Controller($args['post_type']);
 	$data = [];
-
-	// Get the REST base for the post type
 	$post_type_object = get_post_type_object($args['post_type']);
 	$rest_base = $post_type_object->rest_base ?: $args['post_type'];
-
-	$meta_object = get_registered_meta_keys('post');
+	$registered_meta = get_registered_meta_keys('post');
 
 	foreach ($query->posts as $post) {
-		// Prepare the response using the core controller
 		$prepared = $controller->prepare_item_for_response($post, $request);
 		$response_data = $controller->prepare_response_for_collection(
 			$prepared
 		);
 
-		// Apply ACF fields to the response
 		$response_data = apply_acf_fields_on_reponse($response_data, $post->ID);
-
-		// Apply Meta Box fields to the response
 		$response_data = apply_metabox_fields_on_response(
 			$response_data,
 			$post->ID
 		);
 
-		// Include meta fields, excluding those starting with `_`, not included in REST, or already in ACF/Meta Box
+		// Raw meta (respect show_in_rest, exclude keys starting with underscore)
 		$all_meta = get_post_meta($post->ID);
 		$response_data['meta'] = [];
+
 		foreach ($all_meta as $key => $value) {
 			if (
 				!str_starts_with($key, '_') &&
-				!empty($meta_object[$key]['show_in_rest'])
+				(empty($registered_meta[$key]['show_in_rest'])
+					? false
+					: $registered_meta[$key]['show_in_rest'])
 			) {
 				$response_data['meta'][$key] = $value;
 			}
 		}
-
 		$data[] = $response_data;
 	}
 
@@ -526,23 +795,6 @@ add_action('rest_api_init', function () {
 				'description' => 'Filter by post type',
 				'type' => 'string',
 			],
-			'author' => [
-				'description' => 'Filter by author ID',
-				'type' => 'integer',
-			],
-			'after' => [
-				'description' => 'Filter posts published after this date',
-				'type' => 'string',
-				'format' => 'date',
-			],
-			'search' => [
-				'description' => 'Search term for post title or content',
-				'type' => 'string',
-			],
-			'meta_query' => [
-				'description' => 'Filter by custom meta fields',
-				'type' => 'array',
-			],
 			'per_page' => [
 				'description' => 'Number of posts per page',
 				'type' => 'integer',
@@ -550,6 +802,16 @@ add_action('rest_api_init', function () {
 			'page' => [
 				'description' => 'Current page of the collection',
 				'type' => 'integer',
+			],
+			'filter' => [
+				'description' => 'Filters to apply to the query',
+				'type' => 'object',
+				'additionalProperties' => [
+					'type' => 'object',
+					'additionalProperties' => [
+						'type' => ['string', 'number', 'boolean'],
+					],
+				],
 			],
 		],
 	]);
