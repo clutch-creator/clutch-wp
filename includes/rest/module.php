@@ -398,6 +398,9 @@ function rest_get_filtered_posts(\WP_REST_Request $request)
 		'posts_per_page' => $request->get_param('per_page') ?: 10,
 		'paged' => $request->get_param('page') ?: 1,
 		'no_found_rows' => false,
+		'ignore_sticky_posts' => true,
+		'order' => strtoupper($request->get_param('order') ?: 'DESC'),
+		'orderby' => $request->get_param('orderby') ?: 'date',
 		// Place-holders for the dynamic parts we will build below
 		'meta_query' => [],
 		'tax_query' => [],
@@ -812,6 +815,15 @@ add_action('rest_api_init', function () {
 						'type' => ['string', 'number', 'boolean'],
 					],
 				],
+			],
+			'order' => [
+				'description' => 'Order of the posts (asc or desc)',
+				'type' => 'string',
+				'enum' => ['asc', 'desc'],
+			],
+			'orderby' => [
+				'description' => 'Field to order posts by',
+				'type' => 'string',
 			],
 		],
 	]);
