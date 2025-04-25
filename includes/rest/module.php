@@ -5,8 +5,7 @@
  */
 namespace Clutch\WP\Rest;
 
-use function Clutch\WP\ACF\apply_acf_fields_on_reponse;
-use function Clutch\WP\MetaBox\apply_metabox_fields_on_response;
+require_once __DIR__ . '/functions.php';
 
 if (!defined('ABSPATH')) {
 	exit();
@@ -387,7 +386,7 @@ function rest_get_post_preview_data(\WP_REST_Request $request)
 	return $response;
 }
 
-function rest_get_filtered_posts(\WP_REST_Request $request)
+function rest_get_posts(\WP_REST_Request $request)
 {
 	// ---------------------------------------------------------------------
 	// 1. Basic pagination / post-type args
@@ -643,8 +642,12 @@ function rest_get_filtered_posts(\WP_REST_Request $request)
 					break;
 
 				default:
-					/*  Unknown field – ignore silently. You could
-					 *  alternatively throw an error here.              */
+					/*  Unknown field – throw an error here. */
+					return new \WP_Error(
+						'invalid_field',
+						'Invalid field: ' . $field,
+						['status' => 400]
+					);
 					break;
 			}
 		}
@@ -692,39 +695,16 @@ function rest_get_filtered_posts(\WP_REST_Request $request)
 	// ---------------------------------------------------------------------
 	// 5. Build the REST response
 	// ---------------------------------------------------------------------
-	$controller = new \WP_REST_Posts_Controller($args['post_type']);
 	$data = [];
-	$post_type_object = get_post_type_object($args['post_type']);
-	$rest_base = $post_type_object->rest_base ?: $args['post_type'];
-	$registered_meta = get_registered_meta_keys('post');
+	$controller = new \WP_REST_Posts_Controller($args['post_type']);
 
 	foreach ($query->posts as $post) {
-		$prepared = $controller->prepare_item_for_response($post, $request);
+		$response = $controller->prepare_item_for_response($post, $request);
 		$response_data = $controller->prepare_response_for_collection(
-			$prepared
+			$response
 		);
 
-		$response_data = apply_acf_fields_on_reponse($response_data, $post->ID);
-		$response_data = apply_metabox_fields_on_response(
-			$response_data,
-			$post->ID
-		);
-
-		// Raw meta (respect show_in_rest, exclude keys starting with underscore)
-		$all_meta = get_post_meta($post->ID);
-		$response_data['meta'] = [];
-
-		foreach ($all_meta as $key => $value) {
-			if (
-				!str_starts_with($key, '_') &&
-				(empty($registered_meta[$key]['show_in_rest'])
-					? false
-					: $registered_meta[$key]['show_in_rest'])
-			) {
-				$response_data['meta'][$key] = $value;
-			}
-		}
-		$data[] = $response_data;
+		$data[] = prepare_post_for_rest($post->ID, $response_data);
 	}
 
 	$response = [
@@ -734,6 +714,63 @@ function rest_get_filtered_posts(\WP_REST_Request $request)
 	];
 
 	return rest_ensure_response($response);
+}
+
+function rest_get_post(\WP_REST_Request $request)
+{
+	// ---------------------------------------------------------------------
+	// 1. Read & sanitise input
+	// ---------------------------------------------------------------------
+	$id = absint($request->get_param('id'));
+	$slug = sanitize_title($request->get_param('slug'));
+
+	if (!$id && !$slug) {
+		return new \WP_Error(
+			'rest_missing_id_or_slug',
+			__('You must specify either “id” or “slug”.', 'textdomain'),
+			['status' => 400]
+		);
+	}
+
+	// ---------------------------------------------------------------------
+	// 2. Build a query to fetch the post
+	// ---------------------------------------------------------------------
+	$args = [
+		'post_type' => 'any',
+		'posts_per_page' => 1,
+		'post_status' => ['publish'],
+	];
+
+	if ($id) {
+		$args['p'] = $id;
+	} else {
+		$args['name'] = $slug;
+	}
+
+	$q = new \WP_Query($args);
+
+	if (!$q->have_posts()) {
+		return new \WP_Error(
+			'rest_post_not_found',
+			__('Post not found.', 'textdomain'),
+			['status' => 404]
+		);
+	}
+
+	$post = $q->posts[0];
+
+	// ---------------------------------------------------------------------
+	// 3. Let the built-in controller create the response
+	// ---------------------------------------------------------------------
+	$controller = new \WP_REST_Posts_Controller($post->post_type);
+
+	// Prepare the single item
+	$response = $controller
+		->prepare_item_for_response($post, $request)
+		->get_data();
+	$data = prepare_post_for_rest($post->ID, $response);
+
+	return rest_ensure_response($data);
 }
 
 add_action('rest_api_init', function () {
@@ -790,9 +827,9 @@ add_action('rest_api_init', function () {
 		},
 	]);
 
-	register_rest_route('clutch/v1', '/posts-filtered', [
+	register_rest_route('clutch/v1', '/posts', [
 		'methods' => 'GET',
-		'callback' => __NAMESPACE__ . '\\rest_get_filtered_posts',
+		'callback' => __NAMESPACE__ . '\\rest_get_posts',
 		'args' => [
 			'post_type' => [
 				'description' => 'Filter by post type',
@@ -824,6 +861,23 @@ add_action('rest_api_init', function () {
 			'orderby' => [
 				'description' => 'Field to order posts by',
 				'type' => 'string',
+			],
+		],
+	]);
+
+	register_rest_route('clutch/v1', '/post', [
+		'methods' => 'GET',
+		'callback' => __NAMESPACE__ . '\\rest_get_post',
+		'args' => [
+			'id' => [
+				'description' => 'The ID of the post',
+				'type' => 'integer',
+				'required' => false,
+			],
+			'slug' => [
+				'description' => 'The slug of the post',
+				'type' => 'string',
+				'required' => false,
 			],
 		],
 	]);
