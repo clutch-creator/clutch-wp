@@ -398,7 +398,7 @@ function rest_get_posts(\WP_REST_Request $request)
 		);
 	}
 
-	$default_status = 'attachment' === $post_type ? 'inherit' : 'publish';
+	$default_status = ['inherit', 'publish'];
 
 	// ---------------------------------------------------------------------
 	// 1. Basic pagination / post-type args
@@ -411,11 +411,17 @@ function rest_get_posts(\WP_REST_Request $request)
 		'no_found_rows' => false,
 		'ignore_sticky_posts' => true,
 		'order' => strtoupper($request->get_param('order') ?: 'DESC'),
-		'orderby' => $request->get_param('orderby') ?: 'date',
+		'order_by' => $request->get_param('order_by') ?: 'date',
 		// Place-holders for the dynamic parts we will build below
 		'meta_query' => [],
 		'tax_query' => [],
 	];
+
+	// Check if drafts should be included
+	$include_drafts = $request->get_header('X-Draft-Mode');
+	if ($include_drafts && 'true' === strtolower($include_drafts)) {
+		$args['post_status'][] = 'draft';
+	}
 
 	// Make sure multiple meta / tax conditions get an AND relation by default
 	$args['meta_query']['relation'] = 'AND';
@@ -759,6 +765,12 @@ function rest_get_post(\WP_REST_Request $request)
 		'post_status' => ['inherit', 'publish'],
 	];
 
+	// Check if drafts should be included
+	$draft_mode = $request->get_header('X-Draft-Mode');
+	if ($draft_mode && 'true' === strtolower($draft_mode)) {
+		$args['post_status'][] = 'draft';
+	}
+
 	if ($id) {
 		$args['p'] = $id;
 	} else {
@@ -776,6 +788,22 @@ function rest_get_post(\WP_REST_Request $request)
 	}
 
 	$post = $q->posts[0];
+
+	/* ---------------------------------------------------------------
+	 * If “draft-mode”: swap in the most recent revision
+	 * ------------------------------------------------------------- */
+	if ($draft_mode && current_user_can('edit_post', $post->ID)) {
+		$revisions = wp_get_post_revisions($post->ID, [
+			'orderby' => 'ID',
+			'order' => 'DESC',
+			'posts_per_page' => 1,
+		]);
+
+		// get newest revision
+		if (!empty($revisions)) {
+			$post = array_shift($revisions);
+		}
+	}
 
 	// ---------------------------------------------------------------------
 	// 3. Let the built-in controller create the response
@@ -883,11 +911,14 @@ add_action('rest_api_init', function () {
 				'type' => 'string',
 				'enum' => ['asc', 'desc'],
 			],
-			'orderby' => [
+			'order_by' => [
 				'description' => 'Field to order posts by',
 				'type' => 'string',
 			],
 		],
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/post', [
@@ -905,5 +936,8 @@ add_action('rest_api_init', function () {
 				'required' => false,
 			],
 		],
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
 	]);
 });
