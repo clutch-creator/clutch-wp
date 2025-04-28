@@ -89,5 +89,23 @@ function prepare_post_for_rest($postId, $response_data)
 	// drop _links
 	unset($response_data['_links']);
 
+	// all content fields should just return the rendered content
+	if (isset($response_data['title'])) {
+		$response_data['title'] = $response_data['title']['rendered'];
+	}
+	if (isset($response_data['content'])) {
+		$response_data['content'] = $response_data['content']['rendered'];
+	}
+	if (isset($response_data['excerpt'])) {
+		$response_data['excerpt'] = $response_data['excerpt']['rendered'];
+	}
+	if (isset($response_data['description'])) {
+		$response_data['description'] =
+			$response_data['description']['rendered'];
+	}
+	if (isset($response_data['caption'])) {
+		$response_data['caption'] = $response_data['caption']['rendered'];
+	}
+
 	return $response_data;
 }
