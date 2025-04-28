@@ -32,5 +32,58 @@ function prepare_post_for_rest($postId, $response_data)
 		}
 	}
 
+	// Add taxonomies directly to response_data using rest_base (e.g., tags, categories)
+	$taxonomies = get_object_taxonomies(get_post_type($postId), 'objects');
+
+	foreach ($taxonomies as $taxonomy) {
+		$rest_base = $taxonomy->rest_base ?: $taxonomy->name;
+		$terms = get_the_terms($postId, $taxonomy->name);
+		if (!is_wp_error($terms) && !empty($terms)) {
+			$response_data[$rest_base] = array_map(function ($term) use (
+				$taxonomy,
+				$rest_base
+			) {
+				return [
+					'_clutch_type' => 'taxonomy_term',
+					'id' => $term->term_id,
+					'name' => $term->name,
+					'slug' => $term->slug,
+					'taxonomy' => $taxonomy->name,
+					'rest_base' => $rest_base,
+				];
+			}, $terms);
+		} else {
+			$response_data[$rest_base] = []; // Ensure key exists even if no terms
+		}
+	}
+
+	// Replace author with _clutch_type node or null
+	$response_data['author'] =
+		$response_data['author'] !== 0
+			? [
+				'_clutch_type' => 'user',
+				'id' => $response_data['author'],
+			]
+			: null;
+
+	// Replace featured_media with _clutch_type node or null
+	$response_data['featured_media'] =
+		$response_data['featured_media'] !== 0
+			? [
+				'_clutch_type' => 'media',
+				'id' => $response_data['featured_media'],
+			]
+			: null;
+
+	// cleanup dates
+	$response_data['date'] = $response_data['date_gmt'];
+	unset($response_data['date_gmt']);
+
+	$response_data['modified'] = $response_data['modified_gmt'];
+	unset($response_data['modified_gmt']);
+
+	// drop _links
+	unset($response_data['_links']);
+
 	return $response_data;
 }
