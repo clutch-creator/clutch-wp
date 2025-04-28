@@ -36,6 +36,10 @@ function prepare_post_for_rest($postId, $response_data)
 	$taxonomies = get_object_taxonomies(get_post_type($postId), 'objects');
 
 	foreach ($taxonomies as $taxonomy) {
+		if (!$taxonomy->show_in_rest) {
+			continue;
+		}
+
 		$rest_base = $taxonomy->rest_base ?: $taxonomy->name;
 		$terms = get_the_terms($postId, $taxonomy->name);
 		if (!is_wp_error($terms) && !empty($terms)) {
