@@ -71,20 +71,31 @@ function prepare_post_for_rest($postId, $response_data)
 			: null;
 
 	// Replace featured_media with _clutch_type node or null
-	$response_data['featured_media'] =
-		$response_data['featured_media'] !== 0
-			? [
-				'_clutch_type' => 'media',
-				'id' => $response_data['featured_media'],
-			]
-			: null;
+	if (isset($response_data['featured_media'])) {
+		$response_data['featured_media'] =
+			$response_data['featured_media'] !== 0
+				? [
+					'_clutch_type' => 'media',
+					'id' => $response_data['featured_media'],
+				]
+				: null;
+	}
 
 	// cleanup dates
-	$response_data['date'] = $response_data['date_gmt'];
-	unset($response_data['date_gmt']);
+	if (isset($response_data['date'])) {
+		$response_data['date'] = [
+			'_clutch_type' => 'date',
+			'date' => $response_data['date_gmt'] ?: $response_data['date'],
+		];
+	}
 
-	$response_data['modified'] = $response_data['modified_gmt'];
-	unset($response_data['modified_gmt']);
+	if (isset($response_data['modified'])) {
+		$response_data['modified'] = [
+			'_clutch_type' => 'date',
+			'date' =>
+				$response_data['modified_gmt'] ?: $response_data['modified'],
+		];
+	}
 
 	// all content fields should just return the rendered content
 	if (isset($response_data['title'])) {
@@ -108,6 +119,8 @@ function prepare_post_for_rest($postId, $response_data)
 	unset(
 		$response_data['guid'],
 		$response_data['link'],
+		$response_data['modified_gmt'],
+		$response_data['date_gmt'],
 		$response_data['template'],
 		$response_data['ping_status'],
 		$response_data['_links'],
