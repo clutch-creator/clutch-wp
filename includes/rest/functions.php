@@ -86,9 +86,6 @@ function prepare_post_for_rest($postId, $response_data)
 	$response_data['modified'] = $response_data['modified_gmt'];
 	unset($response_data['modified_gmt']);
 
-	// drop _links
-	unset($response_data['_links']);
-
 	// all content fields should just return the rendered content
 	if (isset($response_data['title'])) {
 		$response_data['title'] = $response_data['title']['rendered'];
@@ -106,6 +103,16 @@ function prepare_post_for_rest($postId, $response_data)
 	if (isset($response_data['caption'])) {
 		$response_data['caption'] = $response_data['caption']['rendered'];
 	}
+
+	// Remove unnecessary keys
+	unset(
+		$response_data['guid'],
+		$response_data['link'],
+		$response_data['template'],
+		$response_data['ping_status'],
+		$response_data['_links'],
+		$response_data['_embedded']
+	);
 
 	return $response_data;
 }
