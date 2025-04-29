@@ -126,10 +126,19 @@ function prepare_post_for_rest($postId, $response_data)
 		$response_data['caption'] = $response_data['caption']['rendered'];
 	}
 
+	// link
+	if (isset($response_data['link'])) {
+		$permaInfo = get_permalink_info($response_data['link']);
+
+		$response_data['link'] = [
+			'_clutch_type' => 'link',
+			...$permaInfo,
+		];
+	}
+
 	// Remove unnecessary keys
 	unset(
 		$response_data['guid'],
-		$response_data['link'],
 		$response_data['modified_gmt'],
 		$response_data['date_gmt'],
 		$response_data['template'],
@@ -179,12 +188,18 @@ function prepare_term_for_rest($termId, $response_data)
 		}
 	}
 
+	// link
+	if (isset($response_data['link'])) {
+		$permaInfo = get_permalink_info($response_data['link']);
+
+		$response_data['link'] = [
+			'_clutch_type' => 'link',
+			...$permaInfo,
+		];
+	}
+
 	// Cleanup unnecessary keys
-	unset(
-		$response_data['link'],
-		$response_data['_links'],
-		$response_data['_embedded']
-	);
+	unset($response_data['_links'], $response_data['_embedded']);
 
 	return $response_data;
 }

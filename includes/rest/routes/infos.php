@@ -75,6 +75,7 @@ function get_permalink_info($url)
 			$response['details'] = [
 				'id' => $post->ID,
 				'name' => $post->post_name,
+				'post_type' => $post->post_type,
 				'rest_base' => $post_type->rest_base ?: $post_type->name,
 				'rest_namespace' => $post_type->rest_namespace ?: 'wp/v2',
 			];

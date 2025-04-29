@@ -147,7 +147,9 @@ function rest_get_terms(\WP_REST_Request $request)
 
 	$args = [
 		'taxonomy' => $taxonomy,
-		'hide_empty' => $request->get_param('hide_empty') === 'true',
+		'hide_empty' =>
+			$request->get_param('hide_empty') === 'true' ||
+			$request->get_param('hide_empty') === '1',
 		'orderby' => $request->get_param('order_by') ?: 'name',
 		'order' => strtoupper($request->get_param('order') ?: 'ASC'),
 		'number' => $per_page,
