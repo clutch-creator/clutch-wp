@@ -24,9 +24,11 @@ echo $icons['clutch']; ?>
 			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 echo $icons['clutch-text']; ?>
-			<span class="clt-text-small-bold clt-text-muted">WP Plugin - v<?php echo esc_html(
-   	CLUTCHWP_VERSION
-   ); ?></span>
+			<span class="clt-text-small-bold clt-text-muted">WP Plugin - v<?php
+   $plugin_data = get_plugin_data(CLUTCHWP_FILE);
+
+   echo esc_html($plugin_data['Version']);
+   ?></span>
 		</div>
 	</div>
 	<div class="clt-content">

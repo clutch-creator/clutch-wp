@@ -18,7 +18,6 @@ defined('WPINC') || exit();
 define('CLUTCHWP_FILE', __FILE__);
 define('CLUTCHWP_DIR', __DIR__);
 define('CLUTCHWP_URL', plugin_dir_url(__FILE__));
-define('CLUTCHWP_VERSION', '2.0.0');
 
 define('CLUTCHWP_PRIORITY', 1000);
 

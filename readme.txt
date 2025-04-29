@@ -60,6 +60,12 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 * Launched Clutch Integration plugin.
 * Enabled headless WordPress sync with Clutch.
 
+= 2.0.0 =
+* Filter and pagination posts rest route
+* Filter and pagination terms rest route
+* Metabox plugin better support
+* Fix displayed plugin version
+
 == Upgrade Notice ==
 
 = 1.0.0 =
