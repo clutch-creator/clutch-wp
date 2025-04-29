@@ -231,7 +231,6 @@ function rest_get_posts(\WP_REST_Request $request)
 
 			// ----------------------------------------------------------
 			// 2.b  Taxonomies – "tax_" prefix OR well-known shortcuts
-			//      tax_category, tax_post_tag, tax_my_custom_tax
 			// ----------------------------------------------------------
 			if (str_starts_with($field, 'tax_')) {
 				$taxonomy = substr($field, 4);
@@ -242,12 +241,26 @@ function rest_get_posts(\WP_REST_Request $request)
 					}
 
 					$operator = $operator_map[$user_operator];
-					$terms = array_map('intval', explode(',', $raw_value));
+					$terms = array_map('trim', explode(',', $raw_value));
+
+					// Determine if terms are slugs or IDs
+					$field_type = array_reduce(
+						$terms,
+						function ($carry, $term) {
+							return $carry && is_numeric($term);
+						},
+						true
+					)
+						? 'term_id'
+						: 'slug';
 
 					$args['tax_query'][] = [
 						'taxonomy' => $taxonomy,
-						'field' => 'term_id',
-						'terms' => $terms,
+						'field' => $field_type,
+						'terms' =>
+							$field_type === 'term_id'
+								? array_map('intval', $terms)
+								: $terms,
 						'operator' => $operator, // IN, NOT IN, etc.
 					];
 				}
