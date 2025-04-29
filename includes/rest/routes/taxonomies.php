@@ -19,7 +19,8 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_terms',
 		'permission_callback' => function () {
-			return current_user_can('read_private_posts');
+			return true;
+			// return current_user_can('read_private_posts');
 		},
 		'args' => [
 			'taxonomy' => [
@@ -147,9 +148,10 @@ function rest_get_terms(\WP_REST_Request $request)
 
 	$args = [
 		'taxonomy' => $taxonomy,
-		'hide_empty' =>
-			$request->get_param('hide_empty') === 'true' ||
-			$request->get_param('hide_empty') === '1',
+		'hide_empty' => filter_var(
+			$request->get_param('hide_empty'),
+			FILTER_VALIDATE_BOOLEAN
+		),
 		'orderby' => $request->get_param('order_by') ?: 'name',
 		'order' => strtoupper($request->get_param('order') ?: 'ASC'),
 		'number' => $per_page,
