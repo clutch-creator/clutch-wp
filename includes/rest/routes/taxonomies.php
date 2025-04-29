@@ -18,7 +18,9 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/terms', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_terms',
-		'permission_callback' => '__return_true',
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
 		'args' => [
 			'taxonomy' => [
 				'description' => 'Taxonomy slug',
@@ -56,7 +58,9 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/term', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_term',
-		'permission_callback' => '__return_true',
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
 		'args' => [
 			'taxonomy' => [
 				'description' => 'Taxonomy slug',
