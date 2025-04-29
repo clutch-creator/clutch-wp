@@ -233,18 +233,8 @@ function rest_get_posts(\WP_REST_Request $request)
 			// 2.b  Taxonomies – "tax_" prefix OR well-known shortcuts
 			//      tax_category, tax_post_tag, tax_my_custom_tax
 			// ----------------------------------------------------------
-			if (
-				str_starts_with($field, 'tax_') ||
-				in_array($field, ['categories', 'tags'], true)
-			) {
-				// Map shortcut names
-				if ('categories' === $field) {
-					$taxonomy = 'category';
-				} elseif ('tags' === $field) {
-					$taxonomy = 'post_tag';
-				} else {
-					$taxonomy = substr($field, 4);
-				}
+			if (str_starts_with($field, 'tax_')) {
+				$taxonomy = substr($field, 4);
 
 				foreach ($conditions as $user_operator => $raw_value) {
 					if (!isset($operator_map[$user_operator])) {
@@ -302,6 +292,17 @@ function rest_get_posts(\WP_REST_Request $request)
 						$compare = $operator_map[$user_operator] ?? '=';
 						$args['date_query'][] = [
 							'column' => 'post_date',
+							'compare' => $compare,
+							'value' => sanitize_text_field($raw_value),
+						];
+					}
+					break;
+
+				case 'modified':
+					foreach ($conditions as $user_operator => $raw_value) {
+						$compare = $operator_map[$user_operator] ?? '=';
+						$args['date_query'][] = [
+							'column' => 'post_modified',
 							'compare' => $compare,
 							'value' => sanitize_text_field($raw_value),
 						];
