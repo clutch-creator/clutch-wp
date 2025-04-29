@@ -28,9 +28,21 @@ function is_metabox_installed()
  * @param int $post_id The post ID.
  * @return mixed The formatted value.
  */
-function format_metabox_value_for_rest($field, $key, $post_id)
-{
-	$value = get_post_meta($post_id, $field['id']);
+function format_metabox_value_for_rest(
+	$field,
+	$key,
+	$post_id,
+	$object_type = 'post'
+) {
+	if ($object_type === 'user') {
+		$value = get_user_meta($post_id, $field['id']);
+	} elseif ($object_type === 'term') {
+		$value = get_term_meta($post_id, $field['id']);
+	} elseif ($object_type === 'comment') {
+		$value = get_comment_meta($post_id, $field['id']);
+	} else {
+		$value = get_post_meta($post_id, $field['id']);
+	}
 
 	if (!$field) {
 		// Default formatting if the field settings are not available
@@ -113,20 +125,21 @@ function format_metabox_value_for_rest($field, $key, $post_id)
  * @param int $post_id The post ID.
  * @return array The formatted Meta Box fields.
  */
-function get_metabox_fields_for_rest($post_id)
+function get_metabox_fields_for_rest($post_id, $object_type = 'post')
 {
 	if (is_metabox_installed() === false) {
 		return [];
 	}
 
-	$raw_meta_box_fields = rwmb_get_object_fields($post_id) ?: [];
+	$raw_meta_box_fields = rwmb_get_object_fields($post_id, $object_type) ?: [];
 	$formatted_meta_box_fields = [];
 
 	foreach ($raw_meta_box_fields as $key => $field) {
 		$formatted_meta_box_fields[$key] = format_metabox_value_for_rest(
 			$field,
 			$key,
-			$post_id
+			$post_id,
+			$object_type
 		);
 	}
 
@@ -140,13 +153,16 @@ function get_metabox_fields_for_rest($post_id)
  * @param int $post_id The post ID.
  * @return array The updated response data with Meta Box fields.
  */
-function apply_metabox_fields_on_response($response_data, $post_id)
-{
+function apply_metabox_fields_on_response(
+	$response_data,
+	$post_id,
+	$object_type = 'post'
+) {
 	if (is_metabox_installed() === false) {
 		return $response_data;
 	}
 
-	$meta_box_fields = get_metabox_fields_for_rest($post_id);
+	$meta_box_fields = get_metabox_fields_for_rest($post_id, $object_type);
 
 	if (empty($meta_box_fields)) {
 		return $response_data;

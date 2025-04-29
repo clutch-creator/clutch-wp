@@ -1,13 +1,22 @@
 <?php
 /**
- * This file defines custom REST API endpoints for Clutch.
- * It includes endpoints for retrieving plugin info, post types, taxonomies, and clearing cache.
+ * This file defines helper functions for preparing REST API responses in Clutch.
+ *
+ * @package Clutch\WP\Rest
  */
+
 namespace Clutch\WP\Rest;
 
 use function Clutch\WP\ACF\apply_acf_fields_on_reponse;
 use function Clutch\WP\MetaBox\apply_metabox_fields_on_response;
 
+/**
+ * Prepares a post object for REST API response.
+ *
+ * @param int   $postId The ID of the post being prepared.
+ * @param array $response_data The original response data.
+ * @return array The modified response data.
+ */
 function prepare_post_for_rest($postId, $response_data)
 {
 	// Apply ACF fields
@@ -126,6 +135,50 @@ function prepare_post_for_rest($postId, $response_data)
 		$response_data['_links'],
 		$response_data['_embedded']
 	);
+
+	return $response_data;
+}
+
+/**
+ * Prepares a term object for REST API response.
+ *
+ * @param int   $termId The ID of the term being prepared.
+ * @param array $response_data The original response data.
+ * @return array The modified response data.
+ */
+function prepare_term_for_rest($termId, $response_data)
+{
+	// Apply ACF fields
+	$response_data = apply_acf_fields_on_reponse(
+		$response_data,
+		'term_' . $termId
+	);
+
+	// Apply MetaBox fields
+	$response_data = apply_metabox_fields_on_response(
+		$response_data,
+		$termId,
+		'term'
+	);
+
+	// Add raw meta (respect show_in_rest, exclude keys starting with underscore)
+	$registered_meta = get_registered_meta_keys('term');
+	$all_meta = get_term_meta($termId);
+	$response_data['meta'] = [];
+
+	foreach ($all_meta as $key => $value) {
+		if (
+			!str_starts_with($key, '_') &&
+			(!empty($registered_meta[$key]['show_in_rest'])
+				? $registered_meta[$key]['show_in_rest']
+				: false)
+		) {
+			$response_data['meta'][$key] = $value;
+		}
+	}
+
+	// Cleanup unnecessary keys
+	unset($response_data['link'], $response_data['_links']);
 
 	return $response_data;
 }
