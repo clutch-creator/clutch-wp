@@ -178,7 +178,11 @@ function prepare_term_for_rest($termId, $response_data)
 	}
 
 	// Cleanup unnecessary keys
-	unset($response_data['link'], $response_data['_links']);
+	unset(
+		$response_data['link'],
+		$response_data['_links'],
+		$response_data['_embedded']
+	);
 
 	return $response_data;
 }
