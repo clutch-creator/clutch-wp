@@ -71,13 +71,15 @@ function prepare_post_for_rest($postId, $response_data)
 	}
 
 	// Replace author with _clutch_type node or null
-	$response_data['author'] =
-		$response_data['author'] !== 0
-			? [
-				'_clutch_type' => 'user',
-				'id' => $response_data['author'],
-			]
-			: null;
+	if (isset($response_data['author'])) {
+		$response_data['author'] =
+			$response_data['author'] !== 0
+				? [
+					'_clutch_type' => 'user',
+					'id' => $response_data['author'],
+				]
+				: null;
+	}
 
 	// Replace featured_media with _clutch_type node or null
 	if (isset($response_data['featured_media'])) {
