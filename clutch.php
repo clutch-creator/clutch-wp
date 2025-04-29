@@ -7,7 +7,7 @@
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  *
- * Version:           1.0.0
+ * Version:           2.0.0
  * Requires PHP:      7.4
  * Requires at least: 5.7
  *
@@ -18,6 +18,7 @@ defined('WPINC') || exit();
 define('CLUTCHWP_FILE', __FILE__);
 define('CLUTCHWP_DIR', __DIR__);
 define('CLUTCHWP_URL', plugin_dir_url(__FILE__));
+define('CLUTCHWP_VERSION', '2.0.0');
 
 define('CLUTCHWP_PRIORITY', 1000);
 
