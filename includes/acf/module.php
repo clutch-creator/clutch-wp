@@ -6,6 +6,8 @@
 
 namespace Clutch\WP\ACF;
 
+require_once __DIR__ . '/functions.php';
+
 if (!defined('ABSPATH')) {
 	exit();
 }
@@ -17,8 +19,7 @@ add_filter(
 			$user_values = is_array($value) ? $value : [$value];
 			$users = array_map(function ($user_id) {
 				return [
-					'_clt_acf' => true,
-					'type' => 'user',
+					'_clutch_type' => 'user',
 					'id' => $user_id,
 				];
 			}, $user_values);
@@ -30,8 +31,7 @@ add_filter(
 			$taxonomy_values = is_array($value) ? $value : [$value];
 			$terms = array_map(function ($term_id) use ($field) {
 				return [
-					'_clt_acf' => true,
-					'type' => 'taxonomy_term',
+					'_clutch_type' => 'taxonomy_term',
 					'rest_base' => $field['taxonomy'],
 					'id' => $term_id,
 				];
@@ -50,8 +50,7 @@ add_filter(
 				$post_type_object = get_post_type_object($post_type);
 
 				return [
-					'_clt_acf' => true,
-					'type' => 'post',
+					'_clutch_type' => 'post',
 					'id' => $post_id,
 					'rest_base' =>
 						$post_type_object->rest_base ?: $post_type_object->name,
@@ -70,8 +69,7 @@ add_filter(
 			$image_values = is_array($value) ? $value : [$value];
 			$images = array_map(function ($image_id) {
 				return [
-					'_clt_acf' => true,
-					'type' => 'media',
+					'_clutch_type' => 'media',
 					'id' => $image_id,
 				];
 			}, $image_values);

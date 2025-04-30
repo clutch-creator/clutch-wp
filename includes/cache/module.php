@@ -49,15 +49,11 @@ function flush_cache_on_post($post_id)
 	if (!$post) {
 		return;
 	}
-	$ptype_obj = get_post_type_object($post->post_type);
-	$rest_base = !empty($ptype_obj->rest_base)
-		? $ptype_obj->rest_base
-		: $ptype_obj->name;
 
 	$tags = [
-		$rest_base,
-		$rest_base . '-' . $post->post_name,
-		$rest_base . '-' . $post->ID,
+		$post->post_type,
+		$post->post_type . '-' . $post->post_name,
+		$post->post_type . '-' . $post->ID,
 	];
 
 	trigger_cache_invalidation($tags);

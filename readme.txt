@@ -3,7 +3,7 @@ Contributors: bruno12mota, lmcorreia
 Tags: headless, visual builder, clutch, design, performance
 Requires at least: 5.0
 Tested up to: 6.7
-Stable tag: 1.0.0
+Stable tag: 2.0.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -59,6 +59,12 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 = 1.0.0 =
 * Launched Clutch Integration plugin.
 * Enabled headless WordPress sync with Clutch.
+
+= 2.0.0 =
+* Filter and pagination posts rest route
+* Filter and pagination terms rest route
+* Metabox plugin better support
+* Fix displayed plugin version
 
 == Upgrade Notice ==
 
