@@ -59,10 +59,7 @@ function prepare_post_for_rest($postId, $response_data)
 				return [
 					'_clutch_type' => 'taxonomy_term',
 					'id' => $term->term_id,
-					'name' => $term->name,
-					'slug' => $term->slug,
 					'taxonomy' => $taxonomy->name,
-					'rest_base' => $rest_base,
 				];
 			}, $terms);
 		} else {

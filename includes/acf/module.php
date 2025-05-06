@@ -32,8 +32,8 @@ add_filter(
 			$terms = array_map(function ($term_id) use ($field) {
 				return [
 					'_clutch_type' => 'taxonomy_term',
-					'rest_base' => $field['taxonomy'],
 					'id' => $term_id,
+					'taxonomy' => $field['taxonomy'],
 				];
 			}, $taxonomy_values);
 
@@ -52,9 +52,7 @@ add_filter(
 				return [
 					'_clutch_type' => 'post',
 					'id' => $post_id,
-					'rest_base' =>
-						$post_type_object->rest_base ?: $post_type_object->name,
-					'rest_namespace' => $post_type_object->rest_namespace,
+					'post_type' => $post_type,
 				];
 			}, $post_ids);
 
