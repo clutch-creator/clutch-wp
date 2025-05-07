@@ -215,7 +215,7 @@ function rest_get_posts(\WP_REST_Request $request)
 
 					// For a "contains" request use LIKE and wrap the wildcards
 					if ('contains' === $user_operator) {
-						$value = '%' . esc_sql($value) . '%';
+						$value = esc_sql($value);
 					}
 
 					$args['meta_query'][] = [

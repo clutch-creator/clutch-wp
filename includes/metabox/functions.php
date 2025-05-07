@@ -82,9 +82,7 @@ function format_metabox_value_for_rest(
 				return [
 					'_clutch_type' => 'post',
 					'id' => $post_id,
-					'rest_base' =>
-						$post_type_object->rest_base ?: $post_type_object->name,
-					'rest_namespace' => $post_type_object->rest_namespace,
+					'post_type' => $post_type,
 				];
 			}, $post_ids);
 			return is_array($value) ? $formatted : $formatted[0];
