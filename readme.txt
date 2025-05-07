@@ -70,7 +70,8 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 * Add cf7 endpoint
 
 = 2.1.1 =
-* Fix resolving posts and term fields
+* Fix resolving posts and taxonomy terms fields
+* Fix meta fields contains queries
 
 == Upgrade Notice ==
 

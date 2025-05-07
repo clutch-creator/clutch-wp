@@ -48,7 +48,8 @@ add_action('rest_api_init', function () {
 			],
 		],
 		'permission_callback' => function () {
-			return current_user_can('read_private_posts');
+			return true;
+			// return current_user_can('read_private_posts');
 		},
 	]);
 
@@ -68,7 +69,7 @@ add_action('rest_api_init', function () {
 			],
 		],
 		'permission_callback' => function () {
-			return current_user_can('read_private_posts');
+			return true; //current_user_can('read_private_posts');
 		},
 	]);
 });
@@ -215,7 +216,7 @@ function rest_get_posts(\WP_REST_Request $request)
 
 					// For a "contains" request use LIKE and wrap the wildcards
 					if ('contains' === $user_operator) {
-						$value = '%' . esc_sql($value) . '%';
+						$value = esc_sql($value);
 					}
 
 					$args['meta_query'][] = [

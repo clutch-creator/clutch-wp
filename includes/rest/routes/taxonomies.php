@@ -213,7 +213,7 @@ function rest_get_terms(\WP_REST_Request $request)
 					}
 
 					if ('contains' === $user_operator) {
-						$value = '%' . esc_sql($value) . '%';
+						$value = esc_sql($value);
 					}
 
 					$args['meta_query'][] = [
