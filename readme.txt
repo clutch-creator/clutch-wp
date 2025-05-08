@@ -76,6 +76,7 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 = 2.1.2 =
 * Fix ordering by on posts rest endpoint
 * Better support for order by meta field
+* Ability to filter posts by id with eq,neq,in,nin operators
 
 == Upgrade Notice ==
 
