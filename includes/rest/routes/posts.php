@@ -421,6 +421,26 @@ function rest_get_posts(\WP_REST_Request $request)
 					}
 					break;
 
+				case 'id':
+					foreach ($conditions as $user_operator => $raw_value) {
+						$ids = array_map('intval', explode(',', $raw_value));
+						switch ($user_operator) {
+							case 'eq':
+								$args['post__in'] = $ids;
+								break;
+							case 'in':
+								$args['post__in'] = $ids;
+								break;
+							case 'neq':
+								$args['post__not_in'] = $ids;
+								break;
+							case 'nin':
+								$args['post__not_in'] = $ids;
+								break;
+						}
+					}
+					break;
+
 				default:
 					/*  Unknown field – throw an error here. */
 					return new \WP_Error(
