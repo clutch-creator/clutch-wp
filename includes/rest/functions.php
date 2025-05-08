@@ -8,6 +8,7 @@
 namespace Clutch\WP\Rest;
 
 use function Clutch\WP\ACF\apply_acf_fields_on_reponse;
+use function Clutch\WP\ACF\get_acf_post_type_meta_fields_meta_types;
 use function Clutch\WP\MetaBox\apply_metabox_fields_on_response;
 
 /**
@@ -199,4 +200,26 @@ function prepare_term_for_rest($termId, $response_data)
 	unset($response_data['_links'], $response_data['_embedded']);
 
 	return $response_data;
+}
+
+function get_post_type_meta_fields_types($post_type)
+{
+	$result = [];
+
+	// add registered meta fields
+	$metas = get_registered_meta_keys('post', $post_type);
+
+	foreach ($metas as $key => $meta) {
+		if (isset($meta['type'])) {
+			$result[$key] = $meta['type'];
+		}
+	}
+
+	// acf for some reason doesnt register the fields as meta
+	$acf_fields = get_acf_post_type_meta_fields_meta_types($post_type);
+
+	// merge acf fields which is already a key to type
+	$result = array_merge($result, $acf_fields);
+
+	return $result;
 }

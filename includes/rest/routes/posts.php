@@ -128,6 +128,7 @@ function rest_get_posts(\WP_REST_Request $request)
 	}
 
 	$default_status = ['inherit', 'publish'];
+	$order_by = $request->get_param('order_by') ?: 'date';
 
 	// ---------------------------------------------------------------------
 	// 1. Basic pagination / post-type args
@@ -140,11 +141,29 @@ function rest_get_posts(\WP_REST_Request $request)
 		'no_found_rows' => false,
 		'ignore_sticky_posts' => true,
 		'order' => strtoupper($request->get_param('order') ?: 'DESC'),
-		'order_by' => $request->get_param('order_by') ?: 'date',
+		'orderby' => $order_by,
 		// Place-holders for the dynamic parts we will build below
 		'meta_query' => [],
 		'tax_query' => [],
 	];
+
+	if (str_starts_with($order_by, 'meta_')) {
+		$meta_key = substr($order_by, 5);
+		$args['orderby'] = 'meta_value_num';
+		$args['meta_key'] = $meta_key;
+
+		// calculate the meta type
+		$registered = get_post_type_meta_fields_types($post_type);
+
+		$meta_type = 'string';
+		if (isset($registered[$meta_key])) {
+			$meta_type = $registered[$meta_key] ?: 'string';
+		}
+
+		if ($meta_type === 'integer' || $meta_type === 'number') {
+			$args['meta_type'] = 'NUMERIC';
+		}
+	}
 
 	// Check if drafts should be included
 	$include_drafts = $request->get_header('X-Draft-Mode');
