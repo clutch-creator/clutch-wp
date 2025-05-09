@@ -157,16 +157,13 @@ function prepare_post_for_rest($postId, $response_data)
  */
 function prepare_term_for_rest($termId, $response_data)
 {
-	// Apply filters for custom fields
-	$response_data = apply_filters(
-		'clutch/prepare_term_fields',
-		$response_data,
-		$termId
-	);
-
 	// Add raw meta (respect show_in_rest, exclude keys starting with underscore)
-	$registered_meta = get_registered_meta_keys('term');
+	$registered_meta = get_registered_meta_keys(
+		'term',
+		$response_data['taxonomy']
+	);
 	$all_meta = get_term_meta($termId);
+
 	$response_data['meta'] = [];
 
 	foreach ($all_meta as $key => $value) {
@@ -176,9 +173,16 @@ function prepare_term_for_rest($termId, $response_data)
 				? $registered_meta[$key]['show_in_rest']
 				: false)
 		) {
-			$response_data['meta'][$key] = $value;
+			$response_data['meta'][$key] = $value[0];
 		}
 	}
+
+	// Apply filters for custom fields
+	$response_data = apply_filters(
+		'clutch/prepare_term_fields',
+		$response_data,
+		$termId
+	);
 
 	// link
 	if (isset($response_data['link'])) {

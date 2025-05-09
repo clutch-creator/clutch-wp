@@ -104,17 +104,17 @@ function format_jetengine_value_for_rest($field, $value)
  * @param int $post_id The post ID.
  * @return array The updated response data with JetEngine meta fields.
  */
-function apply_jetengine_fields_on_response($response_data, $post_id)
-{
+function apply_jetengine_fields_on_response(
+	$response_data,
+	$context = 'post_type',
+	$type = 'post'
+) {
 	if (is_jetengine_installed() === false) {
 		return $response_data;
 	}
 
 	// https://gist.github.com/MjHead/5dac7f0182549b08cfc257d9ea6f14e3
-	$fields = jet_engine()->meta_boxes->get_fields_for_context(
-		'post_type',
-		$response_data['type']
-	);
+	$fields = jet_engine()->meta_boxes->get_fields_for_context($context, $type);
 	$jetengine_fields = [];
 
 	foreach ($fields as $field) {

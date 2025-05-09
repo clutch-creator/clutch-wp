@@ -15,7 +15,11 @@ if (!defined('ABSPATH')) {
 add_filter(
 	'clutch/prepare_post_fields',
 	function ($response_data, $post_id) {
-		return apply_jetengine_fields_on_response($response_data, $post_id);
+		return apply_jetengine_fields_on_response(
+			$response_data,
+			'post_type',
+			$response_data['type']
+		);
 	},
 	10,
 	2
@@ -24,7 +28,11 @@ add_filter(
 add_filter(
 	'clutch/prepare_term_fields',
 	function ($response_data, $term_id) {
-		return apply_jetengine_fields_on_response($response_data, $term_id);
+		return apply_jetengine_fields_on_response(
+			$response_data,
+			'taxonomy',
+			$response_data['taxonomy']
+		);
 	},
 	10,
 	2
