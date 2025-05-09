@@ -133,3 +133,19 @@ add_filter(
 	CLUTCHWP_PRIORITY,
 	4
 );
+
+add_filter(
+	'clutch/prepare_post_fields',
+	__NAMESPACE__ . '\\apply_acf_fields_on_reponse',
+	10,
+	2
+);
+
+add_filter(
+	'clutch/prepare_term_fields',
+	function ($response_data, $term_id) {
+		return apply_acf_fields_on_reponse($response_data, 'term_' . $term_id);
+	},
+	10,
+	2
+);

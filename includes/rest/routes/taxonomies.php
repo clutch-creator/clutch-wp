@@ -19,8 +19,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_terms',
 		'permission_callback' => function () {
-			return true;
-			// return current_user_can('read_private_posts');
+			return current_user_can('read_private_posts');
 		},
 		'args' => [
 			'taxonomy' => [
