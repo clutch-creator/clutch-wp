@@ -11,3 +11,23 @@ require_once __DIR__ . '/functions.php';
 if (!defined('ABSPATH')) {
 	exit();
 }
+
+add_filter(
+	'clutch/prepare_post_fields',
+	__NAMESPACE__ . '\\apply_metabox_fields_on_response',
+	10,
+	2
+);
+
+add_filter(
+	'clutch/prepare_term_fields',
+	function ($response_data, $term_id) {
+		return apply_metabox_fields_on_response(
+			$response_data,
+			$term_id,
+			'term'
+		);
+	},
+	10,
+	2
+);

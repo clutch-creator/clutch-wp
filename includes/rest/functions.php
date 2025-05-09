@@ -7,9 +7,7 @@
 
 namespace Clutch\WP\Rest;
 
-use function Clutch\WP\ACF\apply_acf_fields_on_reponse;
 use function Clutch\WP\ACF\get_acf_post_type_meta_fields_meta_types;
-use function Clutch\WP\MetaBox\apply_metabox_fields_on_response;
 
 /**
  * Prepares a post object for REST API response.
@@ -20,15 +18,17 @@ use function Clutch\WP\MetaBox\apply_metabox_fields_on_response;
  */
 function prepare_post_for_rest($postId, $response_data)
 {
-	// Apply ACF fields
-	$response_data = apply_acf_fields_on_reponse($response_data, $postId);
-
-	// Apply MetaBox fields
-	$response_data = apply_metabox_fields_on_response($response_data, $postId);
+	// Apply filters for custom fields
+	$response_data = apply_filters(
+		'clutch/prepare_post_fields',
+		$response_data,
+		$postId
+	);
 
 	// Add raw meta (respect show_in_rest, exclude keys starting with underscore)
-	$registered_meta = get_registered_meta_keys('post');
+	$registered_meta = get_registered_meta_keys('post', $response_data['type']);
 	$all_meta = get_post_meta($postId);
+
 	$response_data['meta'] = [];
 
 	foreach ($all_meta as $key => $value) {
@@ -38,7 +38,7 @@ function prepare_post_for_rest($postId, $response_data)
 				? $registered_meta[$key]['show_in_rest']
 				: false)
 		) {
-			$response_data['meta'][$key] = $value;
+			$response_data['meta'][$key] = $value[0];
 		}
 	}
 
@@ -157,17 +157,11 @@ function prepare_post_for_rest($postId, $response_data)
  */
 function prepare_term_for_rest($termId, $response_data)
 {
-	// Apply ACF fields
-	$response_data = apply_acf_fields_on_reponse(
+	// Apply filters for custom fields
+	$response_data = apply_filters(
+		'clutch/prepare_term_fields',
 		$response_data,
-		'term_' . $termId
-	);
-
-	// Apply MetaBox fields
-	$response_data = apply_metabox_fields_on_response(
-		$response_data,
-		$termId,
-		'term'
+		$termId
 	);
 
 	// Add raw meta (respect show_in_rest, exclude keys starting with underscore)
