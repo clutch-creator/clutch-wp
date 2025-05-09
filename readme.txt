@@ -3,7 +3,7 @@ Contributors: bruno12mota, lmcorreia
 Tags: headless, visual builder, clutch, design, performance
 Requires at least: 5.0
 Tested up to: 6.7
-Stable tag: 2.1.2
+Stable tag: 2.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -77,6 +77,11 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 * Fix ordering by on posts rest endpoint
 * Better support for order by meta field
 * Ability to filter posts by id with eq,neq,in,nin operators
+
+= 2.2.0 =
+* Fix meta fields on posts query
+* Fix meta fields on terms query
+* Support for jet engine meta fields on posts and terms queries
 
 == Upgrade Notice ==
 
