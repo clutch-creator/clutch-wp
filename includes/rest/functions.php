@@ -18,13 +18,6 @@ use function Clutch\WP\ACF\get_acf_post_type_meta_fields_meta_types;
  */
 function prepare_post_for_rest($postId, $response_data)
 {
-	// Apply filters for custom fields
-	$response_data = apply_filters(
-		'clutch/prepare_post_fields',
-		$response_data,
-		$postId
-	);
-
 	// Add raw meta (respect show_in_rest, exclude keys starting with underscore)
 	$registered_meta = get_registered_meta_keys('post', $response_data['type']);
 	$all_meta = get_post_meta($postId);
@@ -41,6 +34,13 @@ function prepare_post_for_rest($postId, $response_data)
 			$response_data['meta'][$key] = $value[0];
 		}
 	}
+
+	// Apply filters for custom fields
+	$response_data = apply_filters(
+		'clutch/prepare_post_fields',
+		$response_data,
+		$postId
+	);
 
 	// Add taxonomies directly to response_data using rest_base (e.g., tags, categories)
 	$taxonomies = get_object_taxonomies(get_post_type($postId), 'objects');
