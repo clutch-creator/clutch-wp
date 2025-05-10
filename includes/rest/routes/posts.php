@@ -9,6 +9,12 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/post-types', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_post_types',
+		'args' => [
+			'seo' => [
+				'description' => 'Include SEO data for post type archives',
+				'type' => 'boolean',
+			],
+		],
 	]);
 
 	register_rest_route('clutch/v1', '/posts', [
@@ -46,6 +52,10 @@ add_action('rest_api_init', function () {
 				'description' => 'Field to order posts by',
 				'type' => 'string',
 			],
+			'seo' => [
+				'description' => 'Include SEO data for posts',
+				'type' => 'boolean',
+			],
 		],
 		'permission_callback' => function () {
 			return current_user_can('read_private_posts');
@@ -66,6 +76,10 @@ add_action('rest_api_init', function () {
 				'type' => 'string',
 				'required' => false,
 			],
+			'seo' => [
+				'description' => 'Include SEO data for the post',
+				'type' => 'boolean',
+			],
 		],
 		'permission_callback' => function () {
 			return current_user_can('read_private_posts');
@@ -78,11 +92,15 @@ add_action('rest_api_init', function () {
  *
  * @return \WP_REST_Response A REST response containing post type data.
  */
-function rest_get_post_types()
+function rest_get_post_types(\WP_REST_Request $request)
 {
 	$post_types = get_post_types(
 		['public' => true, 'show_in_rest' => true],
 		'objects'
+	);
+	$include_seo = filter_var(
+		$request->get_param('seo'),
+		FILTER_VALIDATE_BOOLEAN
 	);
 	$response = [];
 
@@ -93,7 +111,7 @@ function rest_get_post_types()
 			'post_status' => 'publish',
 		]);
 
-		$response[] = [
+		$post_type_data = [
 			'name' => $post_type->name,
 			'description' => $post_type->description,
 			'label' => $post_type->label,
@@ -104,6 +122,20 @@ function rest_get_post_types()
 			'rest_namespace' => $post_type->rest_namespace ?: 'wp/v2',
 			'first_post_slug' => !empty($posts) ? $posts[0]->post_name : null,
 		];
+
+		// Add SEO data if requested
+		if (
+			$include_seo &&
+			function_exists('Clutch\\WP\\Integrations\\get_post_type_seo_data')
+		) {
+			$post_type_data[
+				'seo'
+			] = \Clutch\WP\Integrations\get_post_type_seo_data(
+				$post_type->name
+			);
+		}
+
+		$response[] = $post_type_data;
 	}
 
 	return new \WP_REST_Response($response);
@@ -126,6 +158,11 @@ function rest_get_posts(\WP_REST_Request $request)
 			['status' => 400]
 		);
 	}
+
+	$include_seo = filter_var(
+		$request->get_param('seo'),
+		FILTER_VALIDATE_BOOLEAN
+	);
 
 	$default_status = ['inherit', 'publish'];
 	$order_by = $request->get_param('order_by') ?: 'date';
@@ -510,7 +547,19 @@ function rest_get_posts(\WP_REST_Request $request)
 			$response
 		);
 
-		$data[] = prepare_post_for_rest($post->ID, $response_data);
+		$post_data = prepare_post_for_rest($post->ID, $response_data);
+
+		// Add SEO data if requested
+		if (
+			$include_seo &&
+			function_exists('Clutch\\WP\\Integrations\\get_post_seo_data')
+		) {
+			$post_data['seo'] = \Clutch\WP\Integrations\get_post_seo_data(
+				$post
+			);
+		}
+
+		$data[] = $post_data;
 	}
 
 	$response = [
@@ -535,6 +584,10 @@ function rest_get_post(\WP_REST_Request $request)
 	// ---------------------------------------------------------------------
 	$id = absint($request->get_param('id'));
 	$slug = sanitize_title($request->get_param('slug'));
+	$include_seo = filter_var(
+		$request->get_param('seo'),
+		FILTER_VALIDATE_BOOLEAN
+	);
 
 	if (!$id && !$slug) {
 		return new \WP_Error(
@@ -610,6 +663,14 @@ function rest_get_post(\WP_REST_Request $request)
 		->prepare_item_for_response($post, $request)
 		->get_data();
 	$data = prepare_post_for_rest($post->ID, $response);
+
+	// Add SEO data if requested
+	if (
+		$include_seo &&
+		function_exists('Clutch\\WP\\Integrations\\get_post_seo_data')
+	) {
+		$data['seo'] = \Clutch\WP\Integrations\get_post_seo_data($post);
+	}
 
 	return rest_ensure_response($data);
 }
