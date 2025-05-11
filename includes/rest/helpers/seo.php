@@ -1,8 +1,13 @@
 <?php
 /**
- * Core SEO integration for Clutch
+ * This file defines seo field on different objects for the REST API.
  */
-namespace Clutch\WP\Integrations;
+
+namespace Clutch\WP\Rest;
+
+if (!defined('ABSPATH')) {
+	exit();
+}
 
 /**
  * Get SEO data for a specific post
@@ -69,7 +74,7 @@ function get_post_seo_data($post = null)
 	];
 
 	// Allow plugins to modify SEO data through filter
-	return apply_filters('clutch_wp_post_seo_data', $seo_data, $post);
+	return apply_filters('clutch/prepare_post_seo', $seo_data, $post);
 }
 
 /**
@@ -139,7 +144,7 @@ function get_post_type_seo_data($post_type)
 
 	// Allow plugins to modify SEO data through filter
 	return apply_filters(
-		'clutch_wp_post_type_seo_data',
+		'clutch/prepare_post_type_seo',
 		$seo_data,
 		$post_type,
 		$post_type_obj

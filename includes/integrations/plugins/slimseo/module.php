@@ -7,8 +7,7 @@ namespace Clutch\WP\Integrations\Plugins\SlimSEO;
 /**
  * Initialize the SlimSEO integration
  */
-function init()
-{
+add_action('plugins_loaded', function () {
 	// Check if SlimSEO is active
 	if (!class_exists('SlimSEO\\Plugin')) {
 		return;
@@ -16,18 +15,18 @@ function init()
 
 	// Add filters to modify SEO data
 	add_filter(
-		'clutch_wp_post_seo_data',
+		'clutch/prepare_post_seo',
 		__NAMESPACE__ . '\\filter_post_seo_data',
 		10,
 		2
 	);
 	add_filter(
-		'clutch_wp_post_type_seo_data',
+		'clutch/prepare_post_type_seo',
 		__NAMESPACE__ . '\\filter_post_type_seo_data',
 		10,
 		3
 	);
-}
+});
 
 /**
  * Filter post SEO data with SlimSEO values
@@ -336,6 +335,3 @@ function slim_seo_replace_vars($string, $post = null, $context = [])
 		$string
 	);
 }
-
-// Initialize the integration
-init();

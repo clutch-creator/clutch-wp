@@ -5,10 +5,9 @@
 namespace Clutch\WP\Integrations\Plugins\Yoast;
 
 /**
- * Initialize the Yoast SEO integration
+ * Initialize the SlimSEO integration
  */
-function init()
-{
+add_action('plugins_loaded', function () {
 	// Check if Yoast SEO is active
 	if (!defined('WPSEO_VERSION')) {
 		return;
@@ -16,18 +15,18 @@ function init()
 
 	// Add filters to modify SEO data
 	add_filter(
-		'clutch_wp_post_seo_data',
+		'clutch/prepare_post_seo',
 		__NAMESPACE__ . '\\filter_post_seo_data',
 		10,
 		2
 	);
 	add_filter(
-		'clutch_wp_post_type_seo_data',
+		'clutch/prepare_post_type_seo',
 		__NAMESPACE__ . '\\filter_post_type_seo_data',
 		10,
 		3
 	);
-}
+});
 
 /**
  * Filter post SEO data with Yoast SEO values
