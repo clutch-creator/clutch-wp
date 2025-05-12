@@ -21,6 +21,8 @@ define('CLUTCHWP_URL', plugin_dir_url(__FILE__));
 
 define('CLUTCHWP_PRIORITY', 1000);
 
+require_once CLUTCHWP_DIR . '/includes/utils/functions.php';
+
 require_once CLUTCHWP_DIR . '/includes/integrations/module.php';
 require_once CLUTCHWP_DIR . '/includes/admin/module.php';
 require_once CLUTCHWP_DIR . '/includes/auth/module.php';
