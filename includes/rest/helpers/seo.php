@@ -129,15 +129,13 @@ function get_post_type_seo_data($post_type)
 			],
 		],
 		'schema' => [
-			[
-				'@context' => 'https://schema.org',
-				'@type' => 'CollectionPage',
-				'name' => $archive_title,
-				'description' => $post_type_obj->description
-					? $post_type_obj->description
-					: get_bloginfo('description'),
-				'url' => $archive_url,
-			],
+			'@context' => 'https://schema.org',
+			'@type' => 'CollectionPage',
+			'name' => $archive_title,
+			'description' => $post_type_obj->description
+				? $post_type_obj->description
+				: get_bloginfo('description'),
+			'url' => $archive_url,
 		],
 	];
 
@@ -211,14 +209,12 @@ function generate_default_jsonld($post)
 		: '';
 
 	$schema = [
-		[
-			'@context' => 'https://schema.org',
-			'@type' => $post->post_type === 'page' ? 'WebPage' : 'Article',
-			'headline' => $post->post_title,
-			'url' => $permalink,
-			'datePublished' => get_the_date('c', $post),
-			'dateModified' => get_the_modified_date('c', $post),
-		],
+		'@context' => 'https://schema.org',
+		'@type' => $post->post_type === 'page' ? 'WebPage' : 'Article',
+		'headline' => $post->post_title,
+		'url' => $permalink,
+		'datePublished' => get_the_date('c', $post),
+		'dateModified' => get_the_modified_date('c', $post),
 	];
 
 	// Add image if available

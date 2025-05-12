@@ -28,7 +28,23 @@ add_action('plugins_loaded', function () {
 		10,
 		3
 	);
+
+	add_filter(
+		'clutch/prepare_post_fields',
+		__NAMESPACE__ . '\\prepare_post_fields',
+		10,
+		1
+	);
 });
+
+function prepare_post_fields($response_data)
+{
+	// remove yoast fields from response
+	unset($response_data['yoast_head']);
+	unset($response_data['yoast_head_json']);
+
+	return $response_data;
+}
 
 /**
  * Filter post SEO data with Yoast SEO values
@@ -93,6 +109,7 @@ function filter_post_seo_data($seo_data, $post)
 				'width' => $img['width'] ?? null,
 				'height' => $img['height'] ?? null,
 				'alt' => $img['alt'] ?? '',
+				'type' => $img['type'] ?? '',
 			];
 		}
 	}
@@ -113,7 +130,9 @@ function filter_post_seo_data($seo_data, $post)
 		'locale' => $post_seo->open_graph_locale ?? get_locale(),
 		'published_time' => get_the_date(DATE_W3C, $post),
 		'modified_time' => get_the_modified_date(DATE_W3C, $post),
-		'author' => get_the_author_meta('display_name', $post->post_author),
+		'author' =>
+			$post_seo->post_author ??
+			get_the_author_meta('display_name', $post->post_author),
 		'image' => $og_images[0]['url'] ?? ($seo_data['og']['image'] ?? null),
 		'images' => !empty($og_images)
 			? $og_images
