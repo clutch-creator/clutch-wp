@@ -70,7 +70,7 @@ function get_post_seo_data($post = null)
 				'text' => $post->post_title,
 			],
 		],
-		'json_ld' => generate_default_jsonld($post),
+		'schema' => generate_default_jsonld($post),
 	];
 
 	// Allow plugins to modify SEO data through filter
@@ -117,7 +117,6 @@ function get_post_type_seo_data($post_type)
 		'robots' => [
 			'index' => 'index',
 			'follow' => 'follow',
-			'advanced' => [],
 		],
 		'breadcrumbs' => [
 			[
@@ -129,7 +128,7 @@ function get_post_type_seo_data($post_type)
 				'text' => $archive_title,
 			],
 		],
-		'json_ld' => [
+		'schema' => [
 			[
 				'@context' => 'https://schema.org',
 				'@type' => 'CollectionPage',
@@ -186,7 +185,7 @@ function get_default_seo_data()
 				'text' => $site_name,
 			],
 		],
-		'json_ld' => [
+		'schema' => [
 			[
 				'@context' => 'https://schema.org',
 				'@type' => 'WebSite',
