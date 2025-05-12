@@ -44,6 +44,12 @@ function get_post_seo_data($post = null)
 				30,
 				'...'
 			),
+			'url' => get_permalink($post),
+			'site_name' => get_bloginfo('name'),
+			'locale' => get_locale(),
+			'published_time' => get_the_date(DATE_W3C, $post),
+			'modified_time' => get_the_modified_date(DATE_W3C, $post),
+			'author' => get_the_author_meta('display_name', $post->post_author),
 			'image' => $image,
 		],
 		'twitter' => [
