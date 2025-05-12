@@ -4,6 +4,8 @@
  */
 namespace Clutch\WP\Integrations\Plugins\Yoast;
 
+use function Clutch\WP\Utils\first_non_empty_str;
+
 /**
  * Initialize the SlimSEO integration
  */
@@ -41,181 +43,133 @@ function filter_post_seo_data($seo_data, $post)
 		return $seo_data;
 	}
 
-	// Get Yoast meta data
-	$title = get_post_meta($post->ID, '_yoast_wpseo_title', true);
-	$description = get_post_meta($post->ID, '_yoast_wpseo_metadesc', true);
-	$canonical = get_post_meta($post->ID, '_yoast_wpseo_canonical', true);
-	$noindex = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_meta-robots-noindex',
-		true
-	);
-	$nofollow = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_meta-robots-nofollow',
-		true
-	);
-	$advanced_robots = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_meta-robots-adv',
-		true
-	);
-
-	// OpenGraph data
-	$og_title = get_post_meta($post->ID, '_yoast_wpseo_opengraph-title', true);
-	$og_description = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_opengraph-description',
-		true
-	);
-	$og_image_id = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_opengraph-image-id',
-		true
-	);
-	$og_image = get_post_meta($post->ID, '_yoast_wpseo_opengraph-image', true);
-
-	// Twitter data
-	$twitter_title = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_twitter-title',
-		true
-	);
-	$twitter_description = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_twitter-description',
-		true
-	);
-	$twitter_image_id = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_twitter-image-id',
-		true
-	);
-	$twitter_image = get_post_meta(
-		$post->ID,
-		'_yoast_wpseo_twitter-image',
-		true
-	);
-
-	// Apply title template if empty
-	if (empty($title)) {
-		$title = \WPSEO_Frontend::get_instance()->title($post->post_title);
-	} else {
-		$title = wpseo_replace_vars($title, $post);
+	//--------------------------------------------------------------
+	// 1. Try the “presentation” object (Yoast 14-24).
+	// https://developer.yoast.com/customization/apis/surfaces-api/
+	//--------------------------------------------------------------
+	if (!function_exists('YoastSEO')) {
+		// Yoast not active?
+		return $seo_data;
 	}
 
-	// Apply meta description template if empty
-	if (empty($description)) {
-		$description = \WPSEO_Frontend::get_instance()->metadesc(false);
-	} else {
-		$description = wpseo_replace_vars($description, $post);
+	$yoast = \YoastSEO();
+	$post_seo = $yoast->meta->for_post($post->ID);
+
+	if (!$post_seo) {
+		return $seo_data;
 	}
 
-	// Update SEO data array with Yoast values
-	if (!empty($title)) {
-		$seo_data['title'] = $title;
+	/* ---------------------------------------------------------------------
+	 * 1. Basic tags
+	 * ------------------------------------------------------------------ */
+	if (!empty($post_seo->title)) {
+		$seo_data['title'] = $post_seo->title;
 	}
 
-	if (!empty($description)) {
-		$seo_data['description'] = $description;
+	if (!empty($post_seo->description)) {
+		$seo_data['description'] = $post_seo->description;
 	}
 
-	if (!empty($canonical)) {
-		$seo_data['canonical'] = $canonical;
+	if (!empty($post_seo->canonical)) {
+		$seo_data['canonical'] = $post_seo->canonical;
 	}
 
-	// Update robots data
-	if ($noindex == 1) {
-		$seo_data['robots']['index'] = 'noindex';
-	}
+	/* ---------------------------------------------------------------------
+	 * 2. Robots
+	 * ------------------------------------------------------------------ */
+	$seo_data['robots'] = $post_seo->robots ?? $seo_data['robots'];
 
-	if ($nofollow == 1) {
-		$seo_data['robots']['follow'] = 'nofollow';
-	}
-
-	if (!empty($advanced_robots)) {
-		$advanced = explode(',', $advanced_robots);
-		$seo_data['robots']['advanced'] = array_filter($advanced);
-	}
-
-	// Update OpenGraph data
-	if (!empty($og_title)) {
-		$seo_data['og']['title'] = wpseo_replace_vars($og_title, $post);
-	} else {
-		$seo_data['og']['title'] = $seo_data['title'];
-	}
-
-	if (!empty($og_description)) {
-		$seo_data['og']['description'] = wpseo_replace_vars(
-			$og_description,
-			$post
-		);
-	} else {
-		$seo_data['og']['description'] = $seo_data['description'];
-	}
-
-	if (!empty($og_image_id)) {
-		$og_image = wp_get_attachment_image_url($og_image_id, 'full');
-	}
-
-	if (!empty($og_image)) {
-		$seo_data['og']['image'] = $og_image;
-	}
-
-	// Update Twitter data
-	if (!empty($twitter_title)) {
-		$seo_data['twitter']['title'] = wpseo_replace_vars(
-			$twitter_title,
-			$post
-		);
-	} else {
-		$seo_data['twitter']['title'] = $seo_data['og']['title'];
-	}
-
-	if (!empty($twitter_description)) {
-		$seo_data['twitter']['description'] = wpseo_replace_vars(
-			$twitter_description,
-			$post
-		);
-	} else {
-		$seo_data['twitter']['description'] = $seo_data['og']['description'];
-	}
-
-	if (!empty($twitter_image_id)) {
-		$twitter_image = wp_get_attachment_image_url($twitter_image_id, 'full');
-	}
-
-	if (!empty($twitter_image)) {
-		$seo_data['twitter']['image'] = $twitter_image;
-	} else {
-		$seo_data['twitter']['image'] = $seo_data['og']['image'];
-	}
-
-	// Get breadcrumbs
-	if (class_exists('WPSEO_Frontend')) {
-		$seo_data['breadcrumbs'] = get_yoast_breadcrumbs($post);
-	}
-
-	// Add schema data
-	if (class_exists('WPSEO_Schema')) {
-		// We can't fully extract Yoast's Schema output here, but we can note
-		// that Yoast handles this in its frontend output
-		$seo_data['json_ld'] = [
-			[
-				'@context' => 'https://schema.org',
-				'@type' => $post->post_type === 'page' ? 'WebPage' : 'Article',
-				'headline' => $seo_data['title'],
-				'description' => $seo_data['description'],
-				'url' => get_permalink($post),
-				'mainEntityOfPage' => get_permalink($post),
-				'datePublished' => get_the_date('c', $post),
-				'dateModified' => get_the_modified_date('c', $post),
-			],
-		];
-
-		if (!empty($seo_data['og']['image'])) {
-			$seo_data['json_ld'][0]['image'] = $seo_data['og']['image'];
+	/* ---------------------------------------------------------------------
+	 * 3.  Open-Graph
+	 * ------------------------------------------------------------------ */
+	$og_images = [];
+	if (
+		!empty($post_seo->open_graph_images) &&
+		is_array($post_seo->open_graph_images)
+	) {
+		foreach ($post_seo->open_graph_images as $img) {
+			$og_images[] = [
+				'url' => $img['url'] ?? '',
+				'width' => $img['width'] ?? null,
+				'height' => $img['height'] ?? null,
+				'alt' => $img['alt'] ?? '',
+			];
 		}
+	}
+
+	$seo_data['og'] = [
+		'title' =>
+			$post_seo->open_graph_title ??
+			($seo_data['og']['title'] ?? ($seo_data['title'] ?? '')),
+		'description' =>
+			$post_seo->open_graph_description ??
+			($seo_data['og']['description'] ??
+				($seo_data['description'] ?? '')),
+		'type' =>
+			$post_seo->open_graph_type ??
+			($seo_data['og']['type'] ?? 'article'),
+		'url' => get_permalink($post),
+		'site_name' => get_bloginfo('name'),
+		'locale' => $post_seo->open_graph_locale ?? get_locale(),
+		'published_time' => get_the_date(DATE_W3C, $post),
+		'modified_time' => get_the_modified_date(DATE_W3C, $post),
+		'author' => get_the_author_meta('display_name', $post->post_author),
+		'image' => $og_images[0]['url'] ?? ($seo_data['og']['image'] ?? null),
+		'images' => !empty($og_images)
+			? $og_images
+			: $seo_data['og']['images'] ?? [],
+	];
+
+	// var_dump($post_seo->twitter_title);
+	// var_dump($seo_data['twitter']['title']);
+
+	/* ---------------------------------------------------------------------
+	 * 4. Twitter
+	 * ------------------------------------------------------------------ */
+	$seo_data['twitter'] = [
+		'card' => first_non_empty_str(
+			$post_seo->twitter_card,
+			$seo_data['twitter']['card'] ?? 'summary_large_image'
+		),
+		'title' => first_non_empty_str(
+			$post_seo->twitter_title,
+			$seo_data['og']['title'] ?? '',
+			$seo_data['twitter']['title'] ?? ''
+		),
+		'description' => first_non_empty_str(
+			$post_seo->twitter_description,
+			$seo_data['og']['description'] ?? '',
+			$seo_data['twitter']['description'] ?? ''
+		),
+		'image' => first_non_empty_str(
+			$post_seo->twitter_image,
+			$seo_data['og']['image'] ?? '',
+			$seo_data['twitter']['image'] ?? ''
+		),
+		'site' => first_non_empty_str(
+			$post_seo->twitter_site,
+			$seo_data['og']['site_name'] ?? '',
+			get_option('twitter_site') ?? ''
+		),
+		'creator' => first_non_empty_str(
+			$post_seo->twitter_creator,
+			$seo_data['twitter']['creator'] ?? '',
+			get_option('twitter_creator') ?? ''
+		),
+	];
+
+	/* ---------------------------------------------------------------------
+	 * 5. Schema (json-ld)
+	 * ------------------------------------------------------------------ */
+	if ($post_seo->schema) {
+		$seo_data['schema'] = $post_seo->schema;
+	}
+
+	/* ---------------------------------------------------------------------
+	 * 6. Breadcrumbs
+	 * ------------------------------------------------------------------ */
+	if ($post_seo->breadcrumbs) {
+		$seo_data['breadcrumbs'] = $post_seo->breadcrumbs;
 	}
 
 	return $seo_data;
@@ -364,6 +318,3 @@ function get_yoast_breadcrumbs($post)
 
 	return $breadcrumbs;
 }
-
-// Initialize the integration
-init();
