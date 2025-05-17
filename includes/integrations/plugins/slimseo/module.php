@@ -26,6 +26,20 @@ add_action('plugins_loaded', function () {
 		10,
 		3
 	);
+
+	// Add filters for taxonomy SEO
+	add_filter(
+		'clutch/prepare_taxonomy_term_seo',
+		__NAMESPACE__ . '\\filter_taxonomy_term_seo_data',
+		10,
+		2
+	);
+	add_filter(
+		'clutch/prepare_taxonomy_archive_seo',
+		__NAMESPACE__ . '\\filter_taxonomy_archive_seo_data',
+		10,
+		3
+	);
 });
 
 /**
@@ -139,6 +153,113 @@ function filter_post_seo_data($seo_data, $post)
 
 		if (!empty($seo_data['og']['image'])) {
 			$seo_data['json_ld'][0]['image'] = $seo_data['og']['image'];
+		}
+	}
+
+	return $seo_data;
+}
+
+/**
+ * Filter taxonomy term SEO data with SlimSEO values
+ *
+ * @param array    $seo_data The default SEO data
+ * @param \\WP_Term $term     The taxonomy term object
+ * @return array Modified SEO data
+ */
+function filter_taxonomy_term_seo_data($seo_data, $term)
+{
+	if (!$term) {
+		return $seo_data;
+	}
+	$title = get_term_meta($term->term_id, 'slim_seo_title', true);
+	$description = get_term_meta($term->term_id, 'slim_seo_description', true);
+	$canonical = get_term_meta($term->term_id, 'slim_seo_canonical_url', true);
+	$robots = get_term_meta($term->term_id, 'slim_seo_robots', true);
+	$facebook_image = get_term_meta($term->term_id, 'slim_seo_facebook_image', true);
+	$twitter_image = get_term_meta($term->term_id, 'slim_seo_twitter_image', true);
+
+	if (!empty($title)) {
+		$title = slim_seo_replace_vars($title, null, ['term' => $term]);
+		$seo_data['title'] = $title;
+		$seo_data['og']['title'] = $title;
+		$seo_data['twitter']['title'] = $title;
+	}
+	if (!empty($description)) {
+		$description = slim_seo_replace_vars($description, null, ['term' => $term]);
+		$seo_data['description'] = $description;
+		$seo_data['og']['description'] = $description;
+		$seo_data['twitter']['description'] = $description;
+	}
+	if (!empty($canonical)) {
+		$seo_data['canonical'] = $canonical;
+	}
+	if (is_array($robots)) {
+		if (in_array('noindex', $robots, true)) {
+			$seo_data['robots']['index'] = 'noindex';
+		}
+		if (in_array('nofollow', $robots, true)) {
+			$seo_data['robots']['follow'] = 'nofollow';
+		}
+		$advanced = array_filter($robots, function ($dir) {
+			return !in_array($dir, ['noindex', 'nofollow', 'index', 'follow'], true);
+		});
+		if (!empty($advanced)) {
+			$seo_data['robots']['advanced'] = array_values($advanced);
+		}
+	}
+	if (!empty($facebook_image)) {
+		$seo_data['og']['image'] = $facebook_image;
+	}
+	if (!empty($twitter_image)) {
+		$seo_data['twitter']['image'] = $twitter_image;
+	} elseif (!empty($facebook_image)) {
+		$seo_data['twitter']['image'] = $facebook_image;
+	}
+
+	return $seo_data;
+}
+
+/**
+ * Filter taxonomy archive SEO data with SlimSEO values
+ *
+ * @param array  $seo_data     The default SEO data
+ * @param string $taxonomy     Taxonomy slug
+ * @param object $taxonomy_obj Taxonomy object
+ * @return array Modified SEO data
+ */
+function filter_taxonomy_archive_seo_data($seo_data, $taxonomy, $taxonomy_obj)
+{
+	$options = get_option('slim_seo');
+	if (empty($options)) {
+		return $seo_data;
+	}
+	$key_title = "title_{$taxonomy}_archive";
+	$key_desc = "description_{$taxonomy}_archive";
+	$key_robots = "robots_{$taxonomy}_archive";
+	if (!empty($options[$key_title])) {
+		$title = slim_seo_replace_vars($options[$key_title], null, ['taxonomy' => $taxonomy]);
+		$seo_data['title'] = $title;
+		$seo_data['og']['title'] = $title;
+		$seo_data['twitter']['title'] = $title;
+	}
+	if (!empty($options[$key_desc])) {
+		$desc = slim_seo_replace_vars($options[$key_desc], null, ['taxonomy' => $taxonomy]);
+		$seo_data['description'] = $desc;
+		$seo_data['og']['description'] = $desc;
+		$seo_data['twitter']['description'] = $desc;
+	}
+	if (!empty($options[$key_robots]) && is_array($options[$key_robots])) {
+		if (in_array('noindex', $options[$key_robots], true)) {
+			$seo_data['robots']['index'] = 'noindex';
+		}
+		if (in_array('nofollow', $options[$key_robots], true)) {
+			$seo_data['robots']['follow'] = 'nofollow';
+		}
+		$adv = array_filter($options[$key_robots], function ($dir) {
+			return !in_array($dir, ['noindex', 'nofollow', 'index', 'follow'], true);
+		});
+		if (!empty($adv)) {
+			$seo_data['robots']['advanced'] = array_values($adv);
 		}
 	}
 

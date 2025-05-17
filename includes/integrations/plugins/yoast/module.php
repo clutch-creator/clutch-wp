@@ -7,7 +7,7 @@ namespace Clutch\WP\Integrations\Plugins\Yoast;
 use function Clutch\WP\Utils\first_non_empty_str;
 
 /**
- * Initialize the SlimSEO integration
+ * Initialize the Yoast SEO integration
  */
 add_action('plugins_loaded', function () {
 	// Check if Yoast SEO is active
@@ -29,11 +29,25 @@ add_action('plugins_loaded', function () {
 		3
 	);
 
+   add_filter(
+       'clutch/prepare_post_fields',
+       __NAMESPACE__ . '\\prepare_post_fields',
+       10,
+       1
+   );
+
+	// Add filters for taxonomy SEO
 	add_filter(
-		'clutch/prepare_post_fields',
-		__NAMESPACE__ . '\\prepare_post_fields',
+		'clutch/prepare_taxonomy_term_seo',
+		__NAMESPACE__ . '\\filter_taxonomy_term_seo_data',
 		10,
-		1
+		2
+	);
+	add_filter(
+		'clutch/prepare_taxonomy_archive_seo',
+		__NAMESPACE__ . '\\filter_taxonomy_archive_seo_data',
+		10,
+		3
 	);
 });
 
@@ -226,5 +240,46 @@ function filter_post_type_seo_data($seo_data, $post_type)
 	$yoast = \YoastSEO();
 	$seo_yoast = $yoast->meta->for_post_type_archive($post_type);
 
-	return yoast_seo_to_common($seo_data, $seo_yoast);
+   return yoast_seo_to_common($seo_data, $seo_yoast);
+}
+
+/**
+ * Filter taxonomy term SEO data with Yoast SEO values
+ *
+ * @param array    $seo_data The default SEO data
+ * @param \WP_Term $term     The taxonomy term object
+ * @return array Modified SEO data
+ */
+function filter_taxonomy_term_seo_data($seo_data, $term)
+{
+	if (!function_exists('YoastSEO')) {
+		return $seo_data;
+	}
+	$yoast = \YoastSEO();
+	if (method_exists($yoast->meta, 'for_term')) {
+		$seo_yoast = $yoast->meta->for_term($term->term_id, $term->taxonomy);
+		return yoast_seo_to_common($seo_data, $seo_yoast);
+	}
+	return $seo_data;
+}
+
+/**
+ * Filter taxonomy archive SEO data with Yoast SEO values
+ *
+ * @param array  $seo_data      The default SEO data
+ * @param string $taxonomy      Taxonomy slug
+ * @param object $taxonomy_obj  Taxonomy object
+ * @return array Modified SEO data
+ */
+function filter_taxonomy_archive_seo_data($seo_data, $taxonomy, $taxonomy_obj)
+{
+	if (!function_exists('YoastSEO')) {
+		return $seo_data;
+	}
+	$yoast = \YoastSEO();
+	if (method_exists($yoast->meta, 'for_term_archive')) {
+		$seo_yoast = $yoast->meta->for_term_archive($taxonomy);
+		return yoast_seo_to_common($seo_data, $seo_yoast);
+	}
+	return $seo_data;
 }
