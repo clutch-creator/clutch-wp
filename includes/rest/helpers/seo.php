@@ -155,6 +155,129 @@ function get_post_type_seo_data($post_type)
 }
 
 /**
+ * Get SEO data for a specific taxonomy term
+ *
+ * @param \WP_Term|int $term Term object or term ID.
+ * @return array Standardized SEO data
+ */
+function get_taxonomy_term_seo_data($term)
+{
+	$term = get_term($term);
+
+	if (!$term || is_wp_error($term)) {
+		return get_default_seo_data();
+	}
+
+	$term_link = get_term_link($term);
+	$seo_data = [
+		'title' => $term->name,
+		'description' => $term->description ?: get_bloginfo('description'),
+		'canonical' => $term_link,
+		'og' => [
+			'title' => $term->name,
+			'description' => $term->description ?: get_bloginfo('description'),
+			'image' => '',
+		],
+		'twitter' => [
+			'title' => $term->name,
+			'description' => $term->description ?: get_bloginfo('description'),
+			'image' => '',
+		],
+		'robots' => [
+			'index' => 'index',
+			'follow' => 'follow',
+		],
+		'breadcrumbs' => [
+			[
+				'url' => home_url(),
+				'text' => get_bloginfo('name'),
+			],
+			[
+				'url' => $term_link,
+				'text' => $term->name,
+			],
+		],
+		'schema' => [
+			'@context' => 'https://schema.org',
+			'@type' => 'Thing',
+			'name' => $term->name,
+			'description' => $term->description ?: get_bloginfo('description'),
+			'url' => $term_link,
+		],
+	];
+
+	// Allow plugins to modify SEO data through filter
+	return apply_filters('clutch/prepare_taxonomy_term_seo', $seo_data, $term);
+}
+
+/**
+ * Get SEO data for a taxonomy archive
+ *
+ * @param string $taxonomy Taxonomy name.
+ * @return array Standardized SEO data
+ */
+function get_taxonomy_archive_seo_data($taxonomy)
+{
+	$taxonomy_obj = get_taxonomy($taxonomy);
+
+	if (!$taxonomy_obj) {
+		return get_default_seo_data();
+	}
+
+	$archive_url = get_term_link($taxonomy);
+	$archive_title = $taxonomy_obj->label;
+
+	$seo_data = [
+		'title' => $archive_title,
+		'description' =>
+			$taxonomy_obj->description ?: get_bloginfo('description'),
+		'canonical' => $archive_url,
+		'og' => [
+			'title' => $archive_title,
+			'description' =>
+				$taxonomy_obj->description ?: get_bloginfo('description'),
+			'image' => '',
+		],
+		'twitter' => [
+			'title' => $archive_title,
+			'description' =>
+				$taxonomy_obj->description ?: get_bloginfo('description'),
+			'image' => '',
+		],
+		'robots' => [
+			'index' => 'index',
+			'follow' => 'follow',
+		],
+		'breadcrumbs' => [
+			[
+				'url' => home_url(),
+				'text' => get_bloginfo('name'),
+			],
+			[
+				'url' => $archive_url,
+				'text' => $archive_title,
+			],
+		],
+		'schema' => [
+			'@context' => 'https://schema.org',
+			'@type' => 'CollectionPage',
+			'name' => $archive_title,
+			'description' =>
+				$taxonomy_obj->description ?: get_bloginfo('description'),
+			'url' => $archive_url,
+		],
+	];
+
+	// Allow plugins to modify SEO data through filter
+	return apply_filters(
+		'clutch/prepare_taxonomy_archive_seo',
+		$seo_data,
+		$taxonomy,
+		$taxonomy_obj
+	);
+}
+
+/**
  * Get default SEO data (fallback)
  *
  * @return array Standardized SEO data
