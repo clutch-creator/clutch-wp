@@ -77,14 +77,15 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 * Fix ordering by on posts rest endpoint
 * Better support for order by meta field
 * Ability to filter posts by id with eq,neq,in,nin operators
-= 2.3.0 =
-* Add SEO support for posts and taxonomies via Yoast and SlimSEO integrations
-* Expose SEO data in REST endpoints with `seo` parameter
 
 = 2.2.0 =
 * Fix meta fields on posts query
 * Fix meta fields on terms query
 * Support for jet engine meta fields on posts and terms queries
+
+= 2.3.0 =
+* Add SEO support for posts and taxonomies via Yoast and SlimSEO integrations
+* Expose SEO data in REST endpoints with `seo` parameter
 
 == Upgrade Notice ==
 
