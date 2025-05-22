@@ -7,7 +7,7 @@
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  *
- * Version:           2.2.0
+ * Version:           2.3.0
  * Requires PHP:      7.4
  * Requires at least: 5.7
  *
@@ -20,6 +20,8 @@ define('CLUTCHWP_DIR', __DIR__);
 define('CLUTCHWP_URL', plugin_dir_url(__FILE__));
 
 define('CLUTCHWP_PRIORITY', 1000);
+
+require_once CLUTCHWP_DIR . '/includes/utils/functions.php';
 
 require_once CLUTCHWP_DIR . '/includes/integrations/module.php';
 require_once CLUTCHWP_DIR . '/includes/admin/module.php';
