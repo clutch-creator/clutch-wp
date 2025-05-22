@@ -52,7 +52,7 @@ add_action('rest_api_init', function () {
 			],
 		],
 		'permission_callback' => function () {
-			return true; // current_user_can('read_private_posts');
+			return current_user_can('read_private_posts');
 		},
 	]);
 
@@ -76,7 +76,7 @@ add_action('rest_api_init', function () {
 			],
 		],
 		'permission_callback' => function () {
-			return true; // current_user_can('read_private_posts');
+			return current_user_can('read_private_posts');
 		},
 	]);
 });

@@ -173,10 +173,17 @@ function filter_taxonomy_term_seo_data($seo_data, $term)
 	}
 	$title = get_term_meta($term->term_id, 'slim_seo_title', true);
 	$description = get_term_meta($term->term_id, 'slim_seo_description', true);
-	$canonical = get_term_meta($term->term_id, 'slim_seo_canonical_url', true);
 	$robots = get_term_meta($term->term_id, 'slim_seo_robots', true);
-	$facebook_image = get_term_meta($term->term_id, 'slim_seo_facebook_image', true);
-	$twitter_image = get_term_meta($term->term_id, 'slim_seo_twitter_image', true);
+	$facebook_image = get_term_meta(
+		$term->term_id,
+		'slim_seo_facebook_image',
+		true
+	);
+	$twitter_image = get_term_meta(
+		$term->term_id,
+		'slim_seo_twitter_image',
+		true
+	);
 
 	if (!empty($title)) {
 		$title = slim_seo_replace_vars($title, null, ['term' => $term]);
@@ -185,13 +192,12 @@ function filter_taxonomy_term_seo_data($seo_data, $term)
 		$seo_data['twitter']['title'] = $title;
 	}
 	if (!empty($description)) {
-		$description = slim_seo_replace_vars($description, null, ['term' => $term]);
+		$description = slim_seo_replace_vars($description, null, [
+			'term' => $term,
+		]);
 		$seo_data['description'] = $description;
 		$seo_data['og']['description'] = $description;
 		$seo_data['twitter']['description'] = $description;
-	}
-	if (!empty($canonical)) {
-		$seo_data['canonical'] = $canonical;
 	}
 	if (is_array($robots)) {
 		if (in_array('noindex', $robots, true)) {
@@ -201,7 +207,11 @@ function filter_taxonomy_term_seo_data($seo_data, $term)
 			$seo_data['robots']['follow'] = 'nofollow';
 		}
 		$advanced = array_filter($robots, function ($dir) {
-			return !in_array($dir, ['noindex', 'nofollow', 'index', 'follow'], true);
+			return !in_array(
+				$dir,
+				['noindex', 'nofollow', 'index', 'follow'],
+				true
+			);
 		});
 		if (!empty($advanced)) {
 			$seo_data['robots']['advanced'] = array_values($advanced);
@@ -237,13 +247,17 @@ function filter_taxonomy_archive_seo_data($seo_data, $taxonomy, $taxonomy_obj)
 	$key_desc = "description_{$taxonomy}_archive";
 	$key_robots = "robots_{$taxonomy}_archive";
 	if (!empty($options[$key_title])) {
-		$title = slim_seo_replace_vars($options[$key_title], null, ['taxonomy' => $taxonomy]);
+		$title = slim_seo_replace_vars($options[$key_title], null, [
+			'taxonomy' => $taxonomy,
+		]);
 		$seo_data['title'] = $title;
 		$seo_data['og']['title'] = $title;
 		$seo_data['twitter']['title'] = $title;
 	}
 	if (!empty($options[$key_desc])) {
-		$desc = slim_seo_replace_vars($options[$key_desc], null, ['taxonomy' => $taxonomy]);
+		$desc = slim_seo_replace_vars($options[$key_desc], null, [
+			'taxonomy' => $taxonomy,
+		]);
 		$seo_data['description'] = $desc;
 		$seo_data['og']['description'] = $desc;
 		$seo_data['twitter']['description'] = $desc;
@@ -256,7 +270,11 @@ function filter_taxonomy_archive_seo_data($seo_data, $taxonomy, $taxonomy_obj)
 			$seo_data['robots']['follow'] = 'nofollow';
 		}
 		$adv = array_filter($options[$key_robots], function ($dir) {
-			return !in_array($dir, ['noindex', 'nofollow', 'index', 'follow'], true);
+			return !in_array(
+				$dir,
+				['noindex', 'nofollow', 'index', 'follow'],
+				true
+			);
 		});
 		if (!empty($adv)) {
 			$seo_data['robots']['advanced'] = array_values($adv);

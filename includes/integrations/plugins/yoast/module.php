@@ -29,12 +29,12 @@ add_action('plugins_loaded', function () {
 		3
 	);
 
-   add_filter(
-       'clutch/prepare_post_fields',
-       __NAMESPACE__ . '\\prepare_post_fields',
-       10,
-       1
-   );
+	add_filter(
+		'clutch/prepare_post_fields',
+		__NAMESPACE__ . '\\prepare_post_fields',
+		10,
+		1
+	);
 
 	// Add filters for taxonomy SEO
 	add_filter(
@@ -75,10 +75,6 @@ function yoast_seo_to_common($seo_result, $seo_yoast)
 
 	if (!empty($seo_yoast->description)) {
 		$seo_result['description'] = $seo_yoast->description;
-	}
-
-	if (!empty($seo_yoast->canonical)) {
-		$seo_result['canonical'] = $seo_yoast->canonical;
 	}
 
 	/* ---------------------------------------------------------------------
@@ -130,10 +126,12 @@ function yoast_seo_to_common($seo_result, $seo_yoast)
 		$seo_result['og']['author'] ?? ''
 	);
 
-	$seo_result['og']['image'] = first_non_empty_str(
-		$og_images[0]['url'],
-		$seo_result['og']['image'] ?? null
-	);
+	if (!empty($og_images)) {
+		$seo_result['og']['image'] = first_non_empty_str(
+			$og_images[0]['url'],
+			$seo_result['og']['image'] ?? null
+		);
+	}
 
 	$seo_result['og']['images'] = !empty($og_images)
 		? $og_images
@@ -240,7 +238,7 @@ function filter_post_type_seo_data($seo_data, $post_type)
 	$yoast = \YoastSEO();
 	$seo_yoast = $yoast->meta->for_post_type_archive($post_type);
 
-   return yoast_seo_to_common($seo_data, $seo_yoast);
+	return yoast_seo_to_common($seo_data, $seo_yoast);
 }
 
 /**

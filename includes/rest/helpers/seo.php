@@ -97,7 +97,16 @@ function get_post_type_seo_data($post_type)
 		return get_default_seo_data();
 	}
 
-	$archive_url = get_post_type_archive_link($post_type);
+	$archive_url = [
+		'_clutch_type' => 'link',
+		'object_type' => 'post',
+		'details' => [
+			'name' => $post_type_obj->name,
+			'post_type' => $post_type,
+		],
+	];
+
+	get_post_type_archive_link($post_type);
 	$archive_title = $post_type_obj->label;
 
 	$seo_data = [
@@ -224,7 +233,16 @@ function get_taxonomy_archive_seo_data($taxonomy)
 		return get_default_seo_data();
 	}
 
-	$archive_url = get_term_link($taxonomy);
+	$archive_url = [
+		'_clutch_type' => 'link',
+		'object_type' => 'taxonomy',
+		'details' => [
+			'id' => $taxonomy_obj->name,
+			'name' => $taxonomy_obj->name,
+			'rest_base' => $taxonomy_obj->rest_base ?: $taxonomy_obj->name,
+			'rest_namespace' => $taxonomy_obj->rest_namespace ?: 'wp/v2',
+		],
+	];
 	$archive_title = $taxonomy_obj->label;
 
 	$seo_data = [
