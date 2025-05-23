@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
 	exit();
 }
 
+require_once __DIR__ . '/helpers/seo.php';
+
 /**
  * Include helper functions for REST API.
  */

@@ -51,6 +51,10 @@ add_action('rest_api_init', function () {
 				'description' => 'Field to order by',
 				'type' => 'string',
 			],
+			'seo' => [
+				'description' => 'Include SEO data',
+				'type' => 'boolean',
+			],
 		],
 	]);
 
@@ -76,6 +80,10 @@ add_action('rest_api_init', function () {
 				'description' => 'Term slug',
 				'type' => 'string',
 				'required' => false,
+			],
+			'seo' => [
+				'description' => 'Include SEO data',
+				'type' => 'boolean',
 			],
 		],
 	]);
@@ -157,6 +165,11 @@ function rest_get_terms(\WP_REST_Request $request)
 		'offset' => $offset,
 		'meta_query' => ['relation' => 'AND'],
 	];
+
+	$include_seo = filter_var(
+		$request->get_param('seo'),
+		FILTER_VALIDATE_BOOLEAN
+	);
 
 	/* --------------------------------------------------------------- */
 	/* 2. Map “friendly” operators to SQL                              */
@@ -317,11 +330,17 @@ function rest_get_terms(\WP_REST_Request $request)
 	$total_items = (int) (new \WP_Term_Query($count_args))->get_terms();
 	$total_pages = $per_page ? (int) ceil($total_items / $per_page) : 1;
 
-	return rest_ensure_response([
+	$response = [
 		'terms' => $data,
 		'total_count' => (int) $total_items,
 		'total_pages' => (int) $total_pages,
-	]);
+	];
+
+	if ($include_seo) {
+		$response['seo'] = get_taxonomy_archive_seo_data($taxonomy);
+	}
+
+	return rest_ensure_response($response);
 }
 
 /**
@@ -364,11 +383,20 @@ function rest_get_term(\WP_REST_Request $request)
 		);
 	}
 
+	$include_seo = filter_var(
+		$request->get_param('seo'),
+		FILTER_VALIDATE_BOOLEAN
+	);
+
 	$controller = new \WP_REST_Terms_Controller($taxonomy);
 	$response = $controller->prepare_item_for_response($term, $request);
 	$responseData = $response->get_data();
+	$term_data = prepare_term_for_rest($term->term_id, $responseData);
 
-	return rest_ensure_response(
-		prepare_term_for_rest($term->term_id, $responseData)
-	);
+	// Include SEO data if requested
+	if ($include_seo) {
+		$term_data['seo'] = get_taxonomy_term_seo_data($term);
+	}
+
+	return rest_ensure_response($term_data);
 }

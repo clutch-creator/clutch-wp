@@ -100,11 +100,15 @@ add_filter(
  */
 function format_blocks(&$blocks)
 {
-	foreach ($blocks as &$block) {
+	foreach ($blocks as $index => &$block) {
 		// Format inner blocks recursively
 		if ($block['innerBlocks']) {
 			format_blocks($block['innerBlocks']);
 		}
+
+		// Tag block as Clutch block
+		$block['_clutch_type'] = 'block';
+		$block['id'] = $index;
 
 		// Initialize block attributes as empty object if not set or empty array
 		if (!$block['attrs']) {
@@ -134,10 +138,7 @@ function include_raw_post_content($response, $postId)
 		$response['blocks'] = parse_blocks($response['content']['raw']);
 	} else {
 		$raw_content = get_post_field('post_content', $postId);
-		$response['blocks'] = [
-			'_clutch_type' => 'blocks',
-			'blocks' => parse_blocks($raw_content),
-		];
+		$response['blocks'] = parse_blocks($raw_content);
 	}
 
 	// Format blocks for use within Clutch
