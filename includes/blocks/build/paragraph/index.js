@@ -72,10 +72,8 @@ function ParagraphBlock({
     acc[clutchClass] = className?.split(' ').includes(clutchClass);
     return acc;
   }, {});
-
-  // @todo: Pass these through PHP when the page loads instead, possibly through
-  // the block editor context (may need to register a custom entity/store).
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    // Get available classes from the REST API (requires edit_posts permission)
     _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_4__({
       path: 'clutch/v1/block-styles'
     }).then(setAvailableClasses);
@@ -93,6 +91,7 @@ function ParagraphBlock({
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.ToggleControl, {
               label: label,
               checked: classesMap[clutchClass],
+              __nextHasNoMarginBottom: true,
               onChange: state => {
                 classesMap[clutchClass] = state;
                 setAttributes({
@@ -152,7 +151,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ save)
 /* harmony export */ });
-/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! clsx */ "./node_modules/clsx/dist/clsx.mjs");
+/* harmony import */ var clsx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! clsx */ "./node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
@@ -390,10 +389,10 @@ function initBlock(block) {
 
 /***/ }),
 
-/***/ "./node_modules/@wordpress/icons/build-module/library/paragraph.js":
-/*!*************************************************************************!*\
-  !*** ./node_modules/@wordpress/icons/build-module/library/paragraph.js ***!
-  \*************************************************************************/
+/***/ "./node_modules/.pnpm/@wordpress+icons@10.23.0_react@18.3.1/node_modules/@wordpress/icons/build-module/library/paragraph.js":
+/*!**********************************************************************************************************************************!*\
+  !*** ./node_modules/.pnpm/@wordpress+icons@10.23.0_react@18.3.1/node_modules/@wordpress/icons/build-module/library/paragraph.js ***!
+  \**********************************************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -421,10 +420,10 @@ const paragraph = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__
 
 /***/ }),
 
-/***/ "./node_modules/clsx/dist/clsx.mjs":
-/*!*****************************************!*\
-  !*** ./node_modules/clsx/dist/clsx.mjs ***!
-  \*****************************************/
+/***/ "./node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs":
+/*!***********************************************************************!*\
+  !*** ./node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs ***!
+  \***********************************************************************/
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -627,7 +626,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   settings: () => (/* binding */ settings)
 /* harmony export */ });
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/paragraph.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/.pnpm/@wordpress+icons@10.23.0_react@18.3.1/node_modules/@wordpress/icons/build-module/library/paragraph.js");
 /* harmony import */ var _utils_init_block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/init-block.js */ "./blocks-src/utils/init-block.js");
 /* harmony import */ var _edit_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./edit.js */ "./blocks-src/paragraph/edit.js");
 /* harmony import */ var _block_json__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./block.json */ "./blocks-src/paragraph/block.json");

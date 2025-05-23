@@ -49,9 +49,8 @@ function ParagraphBlock({
 		{}
 	);
 
-	// @todo: Pass these through PHP when the page loads instead, possibly through
-	// the block editor context (may need to register a custom entity/store).
 	useEffect(() => {
+		// Get available classes from the REST API (requires edit_posts permission)
 		apiFetch({
 			path: 'clutch/v1/block-styles',
 		}).then(setAvailableClasses);
@@ -69,6 +68,7 @@ function ParagraphBlock({
 										key={clutchClass}
 										label={label}
 										checked={classesMap[clutchClass]}
+										__nextHasNoMarginBottom
 										onChange={(state) => {
 											classesMap[clutchClass] = state;
 

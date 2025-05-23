@@ -6,25 +6,12 @@
 
 namespace Clutch\WP\Blocks;
 
+define('CLUTCH_BLOCK_STYLES_HANDLE', 'clutch-block-styles');
+define('CLUTCH_BLOCK_VARIABLES_HANDLE', 'clutch-block-variables');
+
 if (!defined('ABSPATH')) {
 	exit();
 }
-
-// register custom post type to store custom block styles
-function register_clutch_block_styles_post_type()
-{
-	register_post_type('clutch_block_styles', [
-		'labels' => [
-			'name' => __('Clutch Block Styles', 'clutch-wp'),
-			'singular_name' => __('Clutch Block Style', 'clutch-wp'),
-		],
-		'public' => false,
-		'show_in_rest' => false,
-		'supports' => false,
-	]);
-}
-
-add_action('init', __NAMESPACE__ . '\\register_clutch_block_styles_post_type');
 
 /**
  * Registers Clutch blocks using the metadata loaded from the `block.json` file.
@@ -54,42 +41,36 @@ function register_clutch_blocks()
 
 add_action('init', __NAMESPACE__ . '\\register_clutch_blocks');
 
-/**
- * Register custom block styles for clutch/blocks as set in the custom post type
+/*
+ * Fetches theme CSS from the frontend and enqueue it in the editor to be used
+ * for block styles.
  */
-function register_clutch_block_styles()
+function enqueue_clutch_styles()
 {
-	// @todo: get list of blocks from each block's block.json file
-	$clutch_blocks = ['clutch/paragraph'];
-	$block_styles = get_posts([
-		'post_type' => 'clutch_block_styles',
-		'posts_per_page' => -1,
-		'post_status' => 'publish',
-	]);
+	// Retrieve the selected host from user meta
+	$selected_host = get_user_meta(
+		get_current_user_id(),
+		'selected_clutch_host',
+		true
+	);
 
-	// @todo optimize by retrieving style_classname and post_content in a single WP_query
-	foreach ($block_styles as $block_style) {
-		$block_style_classname = get_post_meta(
-			$block_style->ID,
-			'style_classname',
-			true
-		);
+	$clutch_variables_url = esc_url($selected_host) . '/clutch/variables.css';
+	$clutch_classes_url = esc_url($selected_host) . '/clutch/classes.css';
 
-		register_block_style($clutch_blocks, [
-			'name' => $block_style_classname,
-			'label' => $block_style->post_title,
-			'is_default' => false,
-			'inline_style' =>
-				'.wp-block:is(.' .
-				$block_style_classname .
-				') { ' .
-				$block_style->post_content .
-				' }',
-		]);
-	}
+	wp_enqueue_style(
+		CLUTCH_BLOCK_VARIABLES_HANDLE,
+		$clutch_variables_url,
+		[],
+		time()
+	);
+	wp_enqueue_style(
+		CLUTCH_BLOCK_STYLES_HANDLE,
+		$clutch_classes_url,
+		[CLUTCH_BLOCK_VARIABLES_HANDLE],
+		time()
+	);
 }
-
-add_action('init', __NAMESPACE__ . '\\register_clutch_block_styles');
+add_action('enqueue_block_assets', __NAMESPACE__ . '\\enqueue_clutch_styles');
 
 /**
  * Whitelists specific blocks for use in the editor.
@@ -112,4 +93,62 @@ add_filter(
 	__NAMESPACE__ . '\\whitelist_editor_blocks',
 	10,
 	0
+);
+
+/**
+ * Recursively formats a list of parsed blocks for easy use within Clutch.
+ */
+function format_blocks(&$blocks)
+{
+	foreach ($blocks as &$block) {
+		// Format inner blocks recursively
+		if ($block['innerBlocks']) {
+			format_blocks($block['innerBlocks']);
+		}
+
+		// Initialize block attributes as empty object if not set or empty array
+		if (!$block['attrs']) {
+			$block['attrs'] = new \stdClass();
+		}
+
+		if (
+			$block['blockName'] === 'core/image' &&
+			isset($block['attrs']['id'])
+		) {
+			// Tag image as Clutch media
+			$block['attrs']['_clutch_type'] = 'media';
+		}
+	}
+}
+
+/**
+ * Include RAW post content in REST API response.
+ */
+function include_raw_post_content($response, $postId)
+{
+	// Initialize blocks array
+	$response['blocks'] = [];
+
+	// Extract blocks from the raw post content
+	if (isset($response['content'], $response['content']['raw'])) {
+		$response['blocks'] = parse_blocks($response['content']['raw']);
+	} else {
+		$raw_content = get_post_field('post_content', $postId);
+		$response['blocks'] = [
+			'_clutch_type' => 'blocks',
+			'blocks' => parse_blocks($raw_content),
+		];
+	}
+
+	// Format blocks for use within Clutch
+	format_blocks($response['blocks']);
+
+	return $response;
+}
+
+add_filter(
+	'clutch/prepare_post_fields',
+	__NAMESPACE__ . '\\include_raw_post_content',
+	10,
+	2
 );
