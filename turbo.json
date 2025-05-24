@@ -1,0 +1,12 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "test": {},
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {}
+  }
+}

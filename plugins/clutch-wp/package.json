@@ -1,0 +1,25 @@
+{
+	"name": "clutch-wp",
+	"version": "2.2.0",
+	"description": "Clutch wordpress plugin",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"prettier": "prettier --check .",
+		"prettier:fix": "prettier --check --write .",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"package": "mkdir -p dist && zip -r dist/clutch-wp.zip . -x@.zipignore",
+		"build": "wp-scripts build --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build",
+		"start": "wp-scripts start --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "GPL-2.0",
+	"devDependencies": {
+		"@prettier/plugin-php": "^0.22.4",
+		"@wordpress/icons": "^10.18.0",
+		"@wordpress/prettier-config": "^4.18.0",
+		"@wordpress/scripts": "^30.11.0",
+		"prettier": "^3.5.2"
+	}
+}

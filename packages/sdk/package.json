@@ -1,0 +1,17 @@
+{
+  "name": "@clutch-wp/sdk",
+  "version": "2.2.0",
+  "description": "Clutch wordpress sdk",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "@clutch-wp/eslint-config": "workspace:*",
+    "eslint": "^9.20.0"
+  }
+}
