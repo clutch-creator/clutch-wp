@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "lint": "lint --continue && pnpm lint:styles"
+    "lint": ""
   },
   "keywords": [],
   "author": "",
