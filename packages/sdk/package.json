@@ -5,9 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "lint": ""
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
-  "license": "GPL-2.0"
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "@clutch-wp/eslint-config": "workspace:*",
+    "eslint": "^9.20.0"
+  }
 }

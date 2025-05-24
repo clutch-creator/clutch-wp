@@ -4,8 +4,9 @@
   "description": "Clutch wordpress plugin",
   "main": "index.js",
   "type": "module",
+  "packageManager": "bun@1.2.14",
   "scripts": {
-    "lint": "turbo run lint --continue && pnpm lint:styles"
+    "lint": "turbo run lint --continue"
   },
   "keywords": [],
   "author": "",
