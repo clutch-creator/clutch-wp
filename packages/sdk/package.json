@@ -1,0 +1,13 @@
+{
+  "name": "@clutch-wp/sdk",
+  "version": "2.2.0",
+  "description": "Clutch wordpress sdk",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "lint --continue && pnpm lint:styles"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-2.0"
+}

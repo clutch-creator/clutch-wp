@@ -1,34 +1,24 @@
-# Composer
-composer.phar
-/vendor/
-
-# Logs
-logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Coverage directory used by tools like istanbul
-coverage
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
+coverage/
+dist/
+build/
 node_modules/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Output of `npm pack`
-*.tgz
-
-# Output of `wp-scripts plugin-zip`
-*.zip
-
-# dotenv environment variables file
+.happypack
+dump.rdb
+.vscode/
+**/.tern-port
+.tern-project
+.serverless/
 .env
+.*cache
+.DS_Store
+.tsconfig-lint.json
+.turbo
+.swc
+globalConfig.json
+_archive/
+/marketplace/
+*.tsbuildinfo
+junit.xml
+out/
+binaries/
