@@ -5,13 +5,16 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch"
   },
   "keywords": [],
   "author": "",
   "license": "GPL-2.0",
   "devDependencies": {
     "@clutch-wp/eslint-config": "workspace:*",
-    "eslint": "^9.20.0"
+    "eslint": "^9.20.0",
+    "typescript": "^5.6.0"
   }
 }
