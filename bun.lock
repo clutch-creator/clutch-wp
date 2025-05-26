@@ -27,9 +27,13 @@
     "packages/sdk": {
       "name": "@clutch-wp/sdk",
       "version": "2.2.0",
+      "dependencies": {
+        "wp-types": "^4.68.0",
+      },
       "devDependencies": {
         "@clutch-wp/eslint-config": "workspace:*",
         "eslint": "^9.20.0",
+        "typescript": "^5.6.0",
       },
     },
     "plugins/clutch-wp": {
@@ -2480,6 +2484,8 @@
     "wildcard": ["wildcard@2.0.1", "", {}, "sha512-CC1bOL87PIWSBhDcTrdeLo6eGT7mCFtrg0uIJtqJUFyK+eJnzl8A1niH56uu7KMa5XFrtiV+AQuHO3n7DsHnLQ=="],
 
     "word-wrap": ["word-wrap@1.2.5", "", {}, "sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA=="],
+
+    "wp-types": ["wp-types@4.68.0", "", { "dependencies": { "typescript": ">=4" } }, "sha512-b4E861y0BzNUJSWH2i1/ArTISI87qdadEO0qBJRocJ0L95P8gaa7r4RXQHMIfBpFnQy0NToMrnN8Qb3rWP2Vjg=="],
 
     "wrap-ansi": ["wrap-ansi@7.0.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
 

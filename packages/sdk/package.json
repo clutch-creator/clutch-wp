@@ -12,6 +12,9 @@
   "keywords": [],
   "author": "",
   "license": "GPL-2.0",
+  "dependencies": {
+    "wp-types": "^4.68.0"
+  },
   "devDependencies": {
     "@clutch-wp/eslint-config": "workspace:*",
     "eslint": "^9.20.0",

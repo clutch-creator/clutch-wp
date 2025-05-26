@@ -18,7 +18,13 @@ export class Resolver {
 
   private headers: Headers | undefined;
 
-  constructor() {
+  private authToken?: string;
+
+  private forceDraftMode?: boolean;
+
+  constructor(authToken?: string, forceDraftMode?: boolean) {
+    this.authToken = authToken;
+    this.forceDraftMode = forceDraftMode;
     this.headers = {
       "Content-Type": "application/json",
     };
@@ -76,7 +82,10 @@ export class Resolver {
 
   async isInDraftMode(): Promise<boolean> {
     if (this.inDraftMode === undefined) {
-      this.inDraftMode = isClutchDraftMode() || (await draftMode()).isEnabled;
+      this.inDraftMode =
+        this.forceDraftMode ||
+        isClutchDraftMode() ||
+        (await draftMode()).isEnabled;
     }
 
     return this.inDraftMode;
@@ -85,11 +94,21 @@ export class Resolver {
   async getHeaders(): Promise<Headers> {
     this.headers = this.headers || {};
 
-    if (!this.headers?.Authorization) {
-      const cookieStore = await cookies();
-      const authToken =
-        cookieStore.get("wpAuthToken")?.value ||
-        process.env[PluginEnv.WP_AUTH_TOKEN];
+    if (!this.headers.Authorization) {
+      let { authToken } = this;
+
+      if (!authToken) {
+        try {
+          const cookieStore = await cookies();
+
+          authToken =
+            cookieStore.get("wpAuthToken")?.value ||
+            process.env[PluginEnv.WP_AUTH_TOKEN];
+        } catch (e) {
+          // Cookies might not be available in all environments
+          authToken = process.env[PluginEnv.WP_AUTH_TOKEN];
+        }
+      }
 
       if (authToken) {
         this.headers.Authorization = `Bearer ${authToken}`;
