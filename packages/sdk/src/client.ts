@@ -1,4 +1,4 @@
-import { WP_REST_API_Search_Results } from "wp-types";
+import { WP_REST_API_Search_Results, WP_REST_API_User } from "wp-types";
 import { resolveClutchFields } from "./resolvers/clutch-nodes";
 import { resolveMenu } from "./resolvers/menus";
 import { resolvePost, resolvePosts } from "./resolvers/posts";
@@ -58,17 +58,24 @@ export class WordPressHttpClient {
   private defaultResolver: Resolver;
 
   constructor(config: WordPressClientConfig) {
+    const {
+      cacheDisabled = false,
+      draftMode = false,
+      revalidate = 3600,
+      ...restConfig
+    } = config;
+
     this.config = {
-      cacheDisabled: false,
-      draftMode: false,
-      revalidate: 3600, // 1 hour default
-      ...config,
+      cacheDisabled,
+      draftMode,
+      revalidate,
+      ...restConfig,
     };
     this.defaultResolver = this.createResolver();
   }
 
   private createResolver(): Resolver {
-    return new Resolver(this.config.authToken, this.config.draftMode);
+    return new Resolver(this);
   }
 
   private async wpPluginGet<T>(
@@ -77,26 +84,31 @@ export class WordPressHttpClient {
     tags: string[] = [],
     headers?: Record<string, string>
   ): Promise<T | undefined> {
+    const {
+      apiUrl,
+      cacheDisabled,
+      draftMode,
+      headers: configHeaders,
+      authToken,
+      revalidate,
+    } = this.config;
     const processedParams = getProcessedParams(params);
 
     try {
-      const url = urlJoin(this.config.apiUrl, `/wp-json/clutch/v1/${path}`);
-      const cache =
-        this.config.cacheDisabled || this.config.draftMode
-          ? "no-cache"
-          : "default";
+      const url = urlJoin(apiUrl, `/wp-json/clutch/v1/${path}`);
+      const cache = cacheDisabled || draftMode ? "no-cache" : "default";
 
       const requestHeaders: Record<string, string> = {
         "Content-Type": "application/json",
-        ...this.config.headers,
+        ...configHeaders,
         ...headers,
       };
 
-      if (this.config.authToken) {
-        requestHeaders.Authorization = `Bearer ${this.config.authToken}`;
+      if (authToken) {
+        requestHeaders.Authorization = `Bearer ${authToken}`;
       }
 
-      if (this.config.draftMode) {
+      if (draftMode) {
         requestHeaders["X-Draft-Mode"] = "true";
       }
 
@@ -109,10 +121,10 @@ export class WordPressHttpClient {
       };
 
       // Add Next.js specific options if available
-      if (typeof window === "undefined" && this.config.revalidate) {
+      if (typeof window === "undefined" && revalidate) {
         fetchOptions.next = {
           tags: ["wordpress", ...tags],
-          revalidate: this.config.revalidate,
+          revalidate,
         };
       }
 
@@ -134,36 +146,43 @@ export class WordPressHttpClient {
     tags: string[] = [],
     headers?: Record<string, string>
   ): Promise<T | undefined> {
+    const {
+      apiUrl,
+      cacheDisabled,
+      draftMode,
+      headers: configHeaders,
+      revalidate,
+    } = this.config;
+
     const fetchOptions: RequestInit & {
       next?: { tags: string[]; revalidate: number };
     } = {
-      cache:
-        this.config.cacheDisabled || this.config.draftMode
-          ? "no-cache"
-          : "default",
+      cache: cacheDisabled || draftMode ? "no-cache" : "default",
       headers: {
         "Content-Type": "application/json",
-        ...this.config.headers,
+        ...configHeaders,
         ...headers,
       },
     };
 
     // Add Next.js specific options if available
-    if (typeof window === "undefined" && this.config.revalidate) {
+    if (typeof window === "undefined" && revalidate) {
       fetchOptions.next = {
         tags: ["wordpress", ...tags],
-        revalidate: this.config.revalidate,
+        revalidate,
       };
     }
 
-    return wpApiGet(this.config.apiUrl, path, params, fetchOptions);
+    return wpApiGet(apiUrl, path, params, fetchOptions);
   }
 
   /**
    * Validate if the WordPress URL is accessible
    */
   async isValidUrl(): Promise<boolean> {
-    return wpIsValidUrl(this.config.apiUrl);
+    const { apiUrl } = this.config;
+
+    return wpIsValidUrl(apiUrl);
   }
 
   /**
@@ -296,7 +315,9 @@ export class WordPressHttpClient {
     _resolver?: Resolver
   ): Promise<UserResult[]> {
     const resolver = _resolver || this.createResolver();
-    const users = await this.wpGet<unknown[]>("users", args, ["users"]);
+    const users = await this.wpGet<WP_REST_API_User[]>("users", args, [
+      "users",
+    ]);
 
     return resolveUsers(users, resolver);
   }
@@ -314,7 +335,7 @@ export class WordPressHttpClient {
     if (existingPromise) return existingPromise as Promise<UserResult | null>;
 
     return resolver.addAssetPromise("users", slug, async () => {
-      const users = await this.wpGet<unknown[]>("users", { slug }, [
+      const users = await this.wpGet<WP_REST_API_User[]>("users", { slug }, [
         `users-${slug}`,
       ]);
 
@@ -339,7 +360,7 @@ export class WordPressHttpClient {
     if (existingPromise) return existingPromise as Promise<UserResult | null>;
 
     return resolver.addAssetPromise("users", id, async () => {
-      const user = await this.wpGet<unknown>(`users/${id}`, {}, [
+      const user = await this.wpGet<WP_REST_API_User>(`users/${id}`, {}, [
         `users-${id}`,
       ]);
 
@@ -369,9 +390,7 @@ export class WordPressHttpClient {
     if (!response) {
       return {
         terms: [],
-
         total_count: 0,
-
         total_pages: 0,
       };
     }
@@ -402,7 +421,8 @@ export class WordPressHttpClient {
 
     const existingPromise = resolver.getAssetPromise(taxonomy, slug);
 
-    if (existingPromise) return existingPromise;
+    if (existingPromise)
+      return existingPromise as Promise<TaxonomyTermResult | null>;
 
     return resolver.addAssetPromise(taxonomy, slug, async () => {
       const headers = await resolver.getHeaders();
@@ -418,7 +438,7 @@ export class WordPressHttpClient {
       );
 
       return term ? await resolveTaxonomyTerm(term, resolver) : null;
-    });
+    }) as Promise<TaxonomyTermResult | null>;
   }
 
   async fetchTaxonomyTermById(
@@ -433,7 +453,8 @@ export class WordPressHttpClient {
 
     const existingPromise = resolver.getAssetPromise(taxonomy, id);
 
-    if (existingPromise) return existingPromise;
+    if (existingPromise)
+      return existingPromise as Promise<TaxonomyTermResult | null>;
 
     return resolver.addAssetPromise(taxonomy, id, async () => {
       const headers = await resolver.getHeaders();
@@ -449,7 +470,7 @@ export class WordPressHttpClient {
       );
 
       return term ? await resolveTaxonomyTerm(term, resolver) : null;
-    });
+    }) as Promise<TaxonomyTermResult | null>;
   }
 
   // Search Methods
@@ -464,7 +485,7 @@ export class WordPressHttpClient {
       []
     );
 
-    return resolveSearchResults(results, resolver);
+    return resolveSearchResults(results || [], resolver);
   }
 
   // Menus Methods
@@ -479,7 +500,7 @@ export class WordPressHttpClient {
     // check if resolver is already resolving/resolved this resource
     const existingPromise = resolver.getAssetPromise("menus", id);
 
-    if (existingPromise) return existingPromise;
+    if (existingPromise) return existingPromise as Promise<MenuResult | null>;
 
     return resolver.addAssetPromise("menus", id, async () => {
       const menu = await this.wpPluginGet<MenuResponse>(`menus/${id}`, {}, [
@@ -491,6 +512,12 @@ export class WordPressHttpClient {
       }
 
       return null;
-    });
+    }) as Promise<MenuResult | null>;
+  }
+
+  async isInDraftMode(): Promise<boolean> {
+    const { draftMode } = this.config;
+
+    return draftMode || (await draftMode()).isEnabled;
   }
 }

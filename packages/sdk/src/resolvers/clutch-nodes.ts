@@ -1,6 +1,3 @@
-import { fetchPostById } from "../fetchers/posts";
-import { fetchTaxonomyTermById } from "../fetchers/taxonomies";
-import { fetchUserById } from "../fetchers/users";
 import {
   checkForLinksInString,
   resolveLinkFromInfo,
@@ -57,20 +54,27 @@ function isClutchField(value: unknown): value is TClutchField {
 }
 
 async function resolveClutchField(value: TClutchField, resolver: Resolver) {
+  const client = resolver.getClient();
+
   if (value._clutch_type === "media") {
-    return fetchPostById("attachment", value.id, false, resolver);
+    return client.fetchPostById("attachment", value.id, false, resolver);
   }
 
   if (value._clutch_type === "user") {
-    return fetchUserById(value.id, resolver);
+    return client.fetchUserById(value.id, resolver);
   }
 
   if (value._clutch_type === "post") {
-    return fetchPostById(value.post_type, value.id, false, resolver);
+    return client.fetchPostById(value.post_type, value.id, false, resolver);
   }
 
   if (value._clutch_type === "taxonomy_term") {
-    return fetchTaxonomyTermById(value.taxonomy, value.id, false, resolver);
+    return client.fetchTaxonomyTermById(
+      value.taxonomy,
+      value.id,
+      false,
+      resolver
+    );
   }
 
   if (value._clutch_type === "date") {

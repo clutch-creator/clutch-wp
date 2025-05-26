@@ -1,23 +1,30 @@
-import { WP_REST_API_Search_Result } from 'wp-types';
-import { fetchPostById } from '../fetchers/posts';
-import { fetchTaxonomyTermById } from '../fetchers/taxonomies';
-import { Resolver } from './resolver';
-import { SearchResut } from './types';
+import { WP_REST_API_Search_Result } from "wp-types";
+import { Resolver } from "./resolver";
+import { SearchResut } from "./types";
 
 export async function resolveSearchResult(
   searchResult: WP_REST_API_Search_Result,
-  resolver: Resolver,
+  resolver: Resolver
 ): Promise<SearchResut | undefined> {
-  const { id, type } = searchResult;
-  const restLink = searchResult._links?.['self']?.[0]?.href;
-  const restBase = restLink?.split('/wp/v2/')?.[1]?.split('/')[0];
+  const client = resolver.getClient();
 
-  if (type === 'post') {
-    return fetchPostById(restBase, id, false, resolver);
+  const { id, type } = searchResult;
+  const restLink = searchResult._links?.["self"]?.[0]?.href;
+  const restBase = restLink?.split("/wp/v2/")?.[1]?.split("/")[0];
+
+  if (type === "post") {
+    return client.fetchPostById(restBase, id, false, resolver) as Promise<
+      SearchResut | undefined
+    >;
   }
 
-  if (type === 'term') {
-    return fetchTaxonomyTermById(restBase, id, false, resolver);
+  if (type === "term") {
+    return client.fetchTaxonomyTermById(
+      restBase,
+      id,
+      false,
+      resolver
+    ) as Promise<SearchResut | undefined>;
   }
 
   return undefined;
@@ -25,10 +32,10 @@ export async function resolveSearchResult(
 
 export async function resolveSearchResults(
   searchResults: WP_REST_API_Search_Result[],
-  resolver: Resolver,
+  resolver: Resolver
 ): Promise<SearchResut[]> {
   const resolvedResults = await Promise.all(
-    searchResults.map((result) => resolveSearchResult(result, resolver)),
+    searchResults.map((result) => resolveSearchResult(result, resolver))
   );
 
   return resolvedResults.filter((res) => !!res);

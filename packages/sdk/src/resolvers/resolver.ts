@@ -1,7 +1,6 @@
-import { cookies, draftMode } from "next/headers";
+import { cookies } from "next/headers";
 import { TWpTemplateList } from "../../plugin/types";
-import { PluginEnv } from "../statics.ts";
-import { isClutchDraftMode } from "../wordpress";
+import type { WordPressHttpClient } from "../client";
 
 type Headers = Record<string, string>;
 
@@ -18,13 +17,10 @@ export class Resolver {
 
   private headers: Headers | undefined;
 
-  private authToken?: string;
+  private client: WordPressHttpClient;
 
-  private forceDraftMode?: boolean;
-
-  constructor(authToken?: string, forceDraftMode?: boolean) {
-    this.authToken = authToken;
-    this.forceDraftMode = forceDraftMode;
+  constructor(client: WordPressHttpClient) {
+    this.client = client;
     this.headers = {
       "Content-Type": "application/json",
     };
@@ -82,10 +78,7 @@ export class Resolver {
 
   async isInDraftMode(): Promise<boolean> {
     if (this.inDraftMode === undefined) {
-      this.inDraftMode =
-        this.forceDraftMode ||
-        isClutchDraftMode() ||
-        (await draftMode()).isEnabled;
+      this.inDraftMode = await this.client.isInDraftMode();
     }
 
     return this.inDraftMode;
@@ -93,20 +86,16 @@ export class Resolver {
 
   async getHeaders(): Promise<Headers> {
     this.headers = this.headers || {};
+    let { authToken } = this.client.getConfig();
 
     if (!this.headers.Authorization) {
-      let { authToken } = this;
-
       if (!authToken) {
         try {
           const cookieStore = await cookies();
 
-          authToken =
-            cookieStore.get("wpAuthToken")?.value ||
-            process.env[PluginEnv.WP_AUTH_TOKEN];
+          authToken = cookieStore.get("wpAuthToken")?.value;
         } catch (e) {
           // Cookies might not be available in all environments
-          authToken = process.env[PluginEnv.WP_AUTH_TOKEN];
         }
       }
 
@@ -122,5 +111,9 @@ export class Resolver {
     }
 
     return this.headers;
+  }
+
+  getClient(): WordPressHttpClient {
+    return this.client;
   }
 }
