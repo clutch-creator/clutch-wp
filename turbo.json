@@ -1,6 +1,14 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "WORDPRESS_URL",
+    "NODE_ENV",
+    "WORDPRESS_CACHE_DISABLED",
+    "NEXT_PUBLIC_WEBSITE_URL",
+    "WORDPRESS_DRAFT_MODE",
+    "WORDPRESS_AUTH_TOKEN"
+  ],
   "tasks": {
     "test": {},
     "test:watch": {

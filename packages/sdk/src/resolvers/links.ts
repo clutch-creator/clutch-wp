@@ -1,8 +1,8 @@
-import { TWpTemplate, WpPageType } from '../../plugin/types';
-import { wpGetUrl, wpPluginGet } from '../wordpress';
-import { TPermalinkInfo } from './types.ts';
+import { TWpTemplate, WpPageType } from "../../plugin/types";
+import { wpGetUrl, wpPluginGet } from "../wordpress";
+import { TPermalinkInfo } from "./types";
 
-const SKIP_PATHS = ['wp-admin', 'wp-content', 'wp-json'];
+const SKIP_PATHS = ["wp-admin", "wp-content", "wp-json"];
 
 type TLinkOptions = {
   absolute?: boolean;
@@ -11,18 +11,18 @@ type TLinkOptions = {
 
 export async function getPermalinkInfo(
   url: string,
-  relativePath: string,
+  relativePath: string
 ): Promise<TPermalinkInfo | undefined> {
   const wpUrl = wpGetUrl();
 
-  const cacheKey = relativePath.replace(/\//g, '-').slice(0, -1);
+  const cacheKey = relativePath.replace(/\//g, "-").slice(0, -1);
   const res = await wpPluginGet<TPermalinkInfo>(
     wpUrl,
-    'permalink-info',
+    "permalink-info",
     {
       url,
     },
-    ['permalinks', `perma-${cacheKey}`],
+    ["permalinks", `perma-${cacheKey}`]
   );
 
   return res;
@@ -31,69 +31,72 @@ export async function getPermalinkInfo(
 export function resolveLinkFromInfo(
   permalinkInfo: TPermalinkInfo,
   templates: TWpTemplate[],
-  linkOptions?: TLinkOptions,
+  linkOptions?: TLinkOptions
 ): string | undefined {
   let matchedPath;
 
   if (!permalinkInfo) return matchedPath;
 
   switch (permalinkInfo.object_type) {
-    case 'post': {
+    case "post": {
       const { name, post_type } = permalinkInfo.details;
       const postTypeTemplates = templates.filter(
-        (t) => t.type === WpPageType.POST_TYPE && t.name === post_type,
+        (t) => t.type === WpPageType.POST_TYPE && t.name === post_type
       );
       const singleSpecific = postTypeTemplates.find(
         (t) =>
           t.type === WpPageType.POST_TYPE &&
-          t.template === 'SINGLE_SPECIFIC' &&
-          t.slug === name,
+          t.template === "SINGLE_SPECIFIC" &&
+          t.slug === name
       );
 
       if (singleSpecific) {
         matchedPath = singleSpecific.path;
       } else {
         const singleAny = postTypeTemplates.find(
-          (t) => t.template === 'SINGLE_ANY',
+          (t) => t.template === "SINGLE_ANY"
         );
 
-        if (singleAny) matchedPath = singleAny.path.replace('[slug]', name);
+        if (singleAny) matchedPath = singleAny.path.replace("[slug]", name);
         else {
           const archive = postTypeTemplates.find(
-            (t) => t.template === 'ARCHIVE',
+            (t) => t.template === "ARCHIVE"
           );
+
           if (archive) matchedPath = archive.path;
         }
       }
       break;
     }
-    case 'taxonomy': {
+
+    case "taxonomy": {
       const { name } = permalinkInfo.details;
       const taxTemplates = templates.filter(
-        (t) => t.type === 'taxonomy' && t.name === name,
+        (t) => t.type === "taxonomy" && t.name === name
       );
-      const archive = taxTemplates.find((t) => t.template === 'ARCHIVE');
+      const archive = taxTemplates.find((t) => t.template === "ARCHIVE");
 
       if (archive) matchedPath = archive.path;
       break;
     }
-    case 'taxonomy_term': {
+    case "taxonomy_term": {
       const { name, taxonomy_name } = permalinkInfo.details;
       const taxTemplates = templates.filter(
-        (t) => t.type === 'taxonomy' && t.name === taxonomy_name,
+        (t) => t.type === "taxonomy" && t.name === taxonomy_name
       );
-      const singleAny = taxTemplates.find((t) => t.template === 'SINGLE_ANY');
+      const singleAny = taxTemplates.find((t) => t.template === "SINGLE_ANY");
 
-      if (singleAny) matchedPath = singleAny.path.replace('[slug]', name);
+      if (singleAny) matchedPath = singleAny.path.replace("[slug]", name);
 
       break;
     }
+
     default:
       break;
   }
 
   if (!matchedPath) {
-    matchedPath = '/';
+    matchedPath = "/";
   }
 
   if (linkOptions?.absolute) {
@@ -117,15 +120,15 @@ export function resolveLinkFromInfo(
  */
 export async function resolveLink(
   url: string,
-  linkOptions?: TLinkOptions,
+  linkOptions?: TLinkOptions
 ): Promise<string> {
   const wpUrl = wpGetUrl();
 
   if (!wpUrl) return url;
 
-  let relativePath = url.replace(wpUrl, '');
+  let relativePath = url.replace(wpUrl, "");
 
-  if (relativePath.startsWith('/')) {
+  if (relativePath.startsWith("/")) {
     relativePath = relativePath.substring(1);
   }
 
@@ -134,16 +137,17 @@ export async function resolveLink(
   }
 
   const permalinkInfo = await getPermalinkInfo(url, relativePath);
-  const { templates } = await import('clutch/wp-templates.json');
+  const { templates } = await import("clutch/wp-templates.json");
 
   return resolveLinkFromInfo(permalinkInfo, templates, linkOptions);
 }
 
 export async function resolveLinksInHtmlStr(
   content: string,
-  linkOptions?: TLinkOptions,
+  linkOptions?: TLinkOptions
 ): Promise<string> {
   const wpUrl = wpGetUrl();
+
   if (!wpUrl) return content;
 
   const pattern = /(['"])(https?:\/\/[^'"]+)(['"])/g;
@@ -154,12 +158,13 @@ export async function resolveLinksInHtmlStr(
     const resolvedLink = link.startsWith(wpUrl)
       ? await resolveLink(link, linkOptions)
       : link;
+
     return { match, fullMatch, resolvedLink, p1, p3 };
   });
 
   const resolved = await Promise.all(replacements);
 
-  let newContent = '';
+  let newContent = "";
   let lastIndex = 0;
 
   for (const { match, fullMatch, resolvedLink, p1, p3 } of resolved) {
@@ -169,12 +174,13 @@ export async function resolveLinksInHtmlStr(
   }
 
   newContent += content.slice(lastIndex);
+
   return newContent;
 }
 
 export async function resolveLinksInString(
   str: string,
-  linkOptions?: TLinkOptions,
+  linkOptions?: TLinkOptions
 ): Promise<string> {
   const wpUrl = wpGetUrl();
 
@@ -188,5 +194,5 @@ export async function resolveLinksInString(
 export function checkForLinksInString(str: string) {
   const wpUrl = wpGetUrl();
 
-  return typeof str === 'string' && str.includes(wpUrl);
+  return typeof str === "string" && str.includes(wpUrl);
 }

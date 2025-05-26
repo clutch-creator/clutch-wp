@@ -53,3 +53,60 @@ export type TFilter = {
 };
 
 export type TFilters = TFilter[];
+
+// Fetch function argument types
+export type FetchPostsArgs = {
+  post_type?: string;
+  page?: number;
+  per_page?: number;
+  search?: string;
+  slug?: string;
+  status?: string;
+  author?: number;
+  categories?: number[];
+  tags?: number[];
+  orderby?: string;
+  order?: "asc" | "desc";
+  filters?: TFilters;
+  [key: string]: unknown;
+};
+
+export type FetchUsersArgs = {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  exclude?: number[];
+  include?: number[];
+  offset?: number;
+  orderby?: string;
+  order?: "asc" | "desc";
+  slug?: string;
+  roles?: string[];
+  [key: string]: unknown;
+};
+
+export type FetchTaxonomyTermsArgs = {
+  taxonomy?: string;
+  page?: number;
+  per_page?: number;
+  search?: string;
+  exclude?: number[];
+  include?: number[];
+  order?: "asc" | "desc";
+  orderby?: string;
+  hide_empty?: boolean;
+  parent?: number;
+  post?: number;
+  slug?: string;
+  filters?: TFilters;
+  [key: string]: unknown;
+};
+
+export type FetchSearchArgs = {
+  search?: string;
+  type?: string;
+  subtype?: string;
+  page?: number;
+  per_page?: number;
+  [key: string]: unknown;
+};

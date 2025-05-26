@@ -1,12 +1,12 @@
-import { cookies, draftMode } from 'next/headers';
-import { TWpTemplateList } from '../../plugin/types';
-import { PluginEnv } from '../statics.ts';
-import { isClutchDraftMode } from '../wordpress';
+import { cookies, draftMode } from "next/headers";
+import { TWpTemplateList } from "../../plugin/types";
+import { PluginEnv } from "../statics.ts";
+import { isClutchDraftMode } from "../wordpress";
 
 type Headers = Record<string, string>;
 
 export class Resolver {
-  private assetsPromises: Record<string, Record<string, Promise<any>>> = {};
+  private assetsPromises: Record<string, Record<string, Promise<unknown>>> = {};
 
   private waitPromises: Promise<void>[] = [];
 
@@ -20,22 +20,22 @@ export class Resolver {
 
   constructor() {
     this.headers = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
   }
 
   getAssetPromise(
     typeName: string,
-    id: string | number,
-  ): Promise<any> | undefined {
+    id: string | number
+  ): Promise<unknown> | undefined {
     return this.assetsPromises[typeName]?.[id];
   }
 
   addAssetPromise(
     typeName: string,
     id: string | number,
-    promiseFn: () => Promise<any>,
-  ): Promise<any> {
+    promiseFn: () => Promise<unknown>
+  ): Promise<unknown> {
     this.assetsPromises[typeName] = this.assetsPromises[typeName] || {};
     this.assetsPromises[typeName][id] =
       this.assetsPromises[typeName][id] || promiseFn();
@@ -47,12 +47,13 @@ export class Resolver {
     this.waitPromises.push(fn());
   }
 
-  waitPromise(promise: Promise<any>) {
-    this.waitPromises.push(promise);
+  waitPromise(promise: Promise<unknown>) {
+    this.waitPromises.push(promise.then(() => undefined));
   }
 
   async waitAll() {
     const promises = this.waitPromises;
+
     this.waitPromises = [];
 
     await Promise.all(promises);
@@ -61,12 +62,12 @@ export class Resolver {
   async getTemplates(): Promise<TWpTemplateList> {
     if (!this.loadedTemplates) {
       try {
-        const { templates } = await import('clutch/wp-templates.json');
+        const { templates } = await import("clutch/wp-templates.json");
 
         this.templates = templates as TWpTemplateList;
         this.loadedTemplates = true;
       } catch (e) {
-        console.error('Error loading templates', e);
+        // Error loading templates - using empty array
       }
     }
 
@@ -87,7 +88,7 @@ export class Resolver {
     if (!this.headers?.Authorization) {
       const cookieStore = await cookies();
       const authToken =
-        cookieStore.get('wpAuthToken')?.value ||
+        cookieStore.get("wpAuthToken")?.value ||
         process.env[PluginEnv.WP_AUTH_TOKEN];
 
       if (authToken) {
@@ -98,7 +99,7 @@ export class Resolver {
     const draftMode = await this.isInDraftMode();
 
     if (draftMode) {
-      this.headers['X-Draft-Mode'] = 'true';
+      this.headers["X-Draft-Mode"] = "true";
     }
 
     return this.headers;

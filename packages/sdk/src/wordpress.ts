@@ -1,7 +1,7 @@
-import { PluginEnv } from './statics';
+import { PluginEnv } from "./statics";
 
 export type TParams = {
-  [key: string]: string | number | boolean | string[] | number[];
+  [key: string]: string | number | boolean | string[] | number[] | unknown;
 };
 
 export function wpGetUrl() {
@@ -10,15 +10,15 @@ export function wpGetUrl() {
 
 export function isCacheDisabled() {
   return (
-    process.env.NODE_ENV === 'development' &&
-    process.env.WORDPRESS_CACHE_DISABLED === 'true'
+    process.env.NODE_ENV === "development" &&
+    process.env.WORDPRESS_CACHE_DISABLED === "true"
   );
 }
 
 export function isClutchDraftMode() {
   return (
-    process.env.NODE_ENV === 'development' &&
-    process.env[PluginEnv.DRAFT_MODE] === 'true'
+    process.env.NODE_ENV === "development" &&
+    process.env[PluginEnv.DRAFT_MODE] === "true"
   );
 }
 
@@ -26,7 +26,7 @@ export function urlJoin(url: string, path: string): string {
   return new URL(path, url).href;
 }
 
-export function getProcessedParams(params: TParams): URLSearchParams {
+export function getProcessedParams(params?: TParams): URLSearchParams {
   const urlParams = new URLSearchParams();
 
   if (!params) return urlParams;
@@ -34,7 +34,7 @@ export function getProcessedParams(params: TParams): URLSearchParams {
   Object.keys(params).forEach((key) => {
     let val = params[key];
 
-    if (typeof val === 'number' || typeof val === 'boolean')
+    if (typeof val === "number" || typeof val === "boolean")
       val = val.toString();
 
     if (Array.isArray(val))
@@ -42,7 +42,7 @@ export function getProcessedParams(params: TParams): URLSearchParams {
         urlParams.append(key, v.toString());
       });
 
-    if (typeof val === 'string') urlParams.append(key, val);
+    if (typeof val === "string") urlParams.append(key, val);
   });
 
   return urlParams;
@@ -52,8 +52,8 @@ export async function wpApiGet<T>(
   wpUrl: string,
   path: string,
   params?: TParams,
-  fetchOptions?: RequestInit,
-): Promise<T> {
+  fetchOptions?: RequestInit
+): Promise<T | undefined> {
   const processedParams = getProcessedParams(params);
 
   try {
@@ -63,8 +63,7 @@ export async function wpApiGet<T>(
     const response = await fetch(`${url}?${processedParams}`, fetchOptions);
 
     if (!response.ok) {
-      console.error(response);
-      throw new Error('Network response was not ok');
+      throw new Error("Network response was not ok");
     }
 
     return response.json();
@@ -77,12 +76,16 @@ export async function wpGet<T>(
   path: string,
   params?: TParams,
   tags: string[] = [],
-  headers?: HeadersInit,
-): Promise<T> {
-  return wpApiGet(wpGetUrl(), path, params, {
-    cache: isCacheDisabled() || isClutchDraftMode() ? 'no-cache' : 'default',
+  headers?: HeadersInit
+): Promise<T | undefined> {
+  const wpUrl = wpGetUrl();
+
+  if (!wpUrl) return undefined;
+
+  return wpApiGet(wpUrl, path, params, {
+    cache: isCacheDisabled() || isClutchDraftMode() ? "no-cache" : "default",
     next: {
-      tags: ['wordpress', ...tags],
+      tags: ["wordpress", ...tags],
       // revalidate every hour by default
       revalidate: 60 * 60,
     },
@@ -95,8 +98,8 @@ export async function wpPluginGet<T>(
   path: string,
   params: TParams,
   tags: string[] = [],
-  headers?: HeadersInit,
-): Promise<T> {
+  headers?: HeadersInit
+): Promise<T | undefined> {
   const processedParams = getProcessedParams(params);
 
   try {
@@ -104,9 +107,9 @@ export async function wpPluginGet<T>(
 
     // get posts using WordPress fetch api
     const response = await fetch(`${url}?${processedParams}`, {
-      cache: isCacheDisabled() || isClutchDraftMode() ? 'no-cache' : 'default',
+      cache: isCacheDisabled() || isClutchDraftMode() ? "no-cache" : "default",
       next: {
-        tags: ['wordpress', ...tags],
+        tags: ["wordpress", ...tags],
         // revalidate every hour by default
         revalidate: 60 * 60,
       },
@@ -114,7 +117,7 @@ export async function wpPluginGet<T>(
     });
 
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error("Network response was not ok");
     }
 
     return response.json();
@@ -128,7 +131,7 @@ export async function wpIsValidUrl(wpUrl: string): Promise<boolean> {
     const url = urlJoin(wpUrl, `/wp-json/wp/v2/statuses`);
 
     const response = await fetch(url, {
-      cache: 'no-cache',
+      cache: "no-cache",
     });
 
     return response.ok;

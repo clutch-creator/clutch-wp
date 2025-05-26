@@ -1,26 +1,26 @@
-import { resolveClutchFields } from '../resolvers/clutch-nodes';
-import { Resolver } from '../resolvers/resolver';
+import { resolveClutchFields } from "../resolvers/clutch-nodes";
+import { Resolver } from "../resolvers/resolver";
 import {
   resolveTaxonomyTerm,
   resolveTaxonomyTerms,
-} from '../resolvers/taxonomies';
+} from "../resolvers/taxonomies";
 import {
   TaxonomyTermResult,
   TermRestResult,
   TermsRestResult,
   TermsResult,
-} from '../resolvers/types';
-import { WPIdFilter } from '../types';
-import { wpGetUrl, wpPluginGet } from '../wordpress';
+} from "../resolvers/types";
+import { FetchTaxonomyTermsArgs, WPIdFilter } from "../types";
+import { wpGetUrl, wpPluginGet } from "../wordpress";
 
 export async function fetchTaxonomyTerms(
-  args: any,
-  _resolver?: Resolver,
+  args: FetchTaxonomyTermsArgs,
+  _resolver?: Resolver
 ): Promise<TermsResult> {
   const resolver = _resolver || new Resolver();
   const url = wpGetUrl();
   const headers = await resolver.getHeaders();
-  const taxonomy = args.taxonomy || 'category';
+  const taxonomy = args.taxonomy || "category";
 
   if (!url)
     return {
@@ -31,10 +31,10 @@ export async function fetchTaxonomyTerms(
 
   const response = await wpPluginGet<TermsRestResult>(
     url,
-    'terms',
+    "terms",
     args,
     [taxonomy],
-    headers,
+    headers
   );
   const resTerms = await resolveTaxonomyTerms(response.terms, resolver);
 
@@ -55,7 +55,7 @@ export async function fetchTaxonomyTermBySlug(
   taxonomy: string,
   slug: string,
   includeSeo: boolean = false,
-  _resolver?: Resolver,
+  _resolver?: Resolver
 ): Promise<TaxonomyTermResult | null> {
   const url = wpGetUrl();
 
@@ -71,14 +71,14 @@ export async function fetchTaxonomyTermBySlug(
     const headers = await resolver.getHeaders();
     const term = await wpPluginGet<TermRestResult>(
       url,
-      'term',
+      "term",
       {
         slug,
         taxonomy,
         seo: includeSeo,
       },
       [`${taxonomy}-${slug}`],
-      headers,
+      headers
     );
 
     return term ? await resolveTaxonomyTerm(term, resolver) : null;
@@ -89,7 +89,7 @@ export async function fetchTaxonomyTermById(
   taxonomy: string,
   id: WPIdFilter,
   includeSeo: boolean = false,
-  _resolver?: Resolver,
+  _resolver?: Resolver
 ): Promise<TaxonomyTermResult | null> {
   const url = wpGetUrl();
 
@@ -105,14 +105,14 @@ export async function fetchTaxonomyTermById(
     const headers = await resolver.getHeaders();
     const term = await wpPluginGet<TermRestResult>(
       url,
-      'term',
+      "term",
       {
         id,
         taxonomy,
         seo: includeSeo,
       },
       [`${taxonomy}-${id}`],
-      headers,
+      headers
     );
 
     return term ? await resolveTaxonomyTerm(term, resolver) : null;
