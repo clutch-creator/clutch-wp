@@ -1,0 +1,33 @@
+{
+  "name": "@clutch-wp/react",
+  "version": "2.2.0",
+  "description": "React hooks and context for Clutch WordPress SDK",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "wordpress",
+    "clutch"
+  ],
+  "author": "",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "@clutch-wp/sdk": "workspace:*",
+    "wp-types": "^4.68.0"
+  },
+  "devDependencies": {
+    "@clutch-wp/eslint-config": "workspace:*",
+    "@types/react": "^18.0.0",
+    "eslint": "^9.20.0",
+    "typescript": "^5.6.0"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0"
+  }
+}
