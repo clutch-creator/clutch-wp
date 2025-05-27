@@ -6,7 +6,8 @@
   "type": "module",
   "packageManager": "bun@1.2.14",
   "scripts": {
-    "lint": "turbo run lint --continue"
+    "lint": "turbo run lint --continue",
+    "build": "turbo run build"
   },
   "keywords": [],
   "author": "",
