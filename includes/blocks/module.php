@@ -13,25 +13,17 @@ if (!defined('ABSPATH')) {
 	exit();
 }
 
-/**
- * Registers Clutch blocks using the metadata loaded from the `block.json` file.
- * Behind the scenes, it registers also all assets so they can be enqueued
- * through the block editor in the corresponding context.
- *
- * @see https://developer.wordpress.org/reference/functions/register_block_type/
- */
-function register_clutch_blocks()
+function register_blocks_in_directory($path)
 {
-	// Define the base directory path.
-	$base_dir = __DIR__ . '/build';
+	$directory = trailingslashit($path);
 
 	// Check if the directory exists.
-	if (!is_dir($base_dir)) {
+	if (!is_dir($directory)) {
 		return;
 	}
 
 	// Scan the directory for subdirectories (each representing a block).
-	$block_dirs = array_filter(glob($base_dir . '/*'), 'is_dir');
+	$block_dirs = array_filter(glob($directory . '*'), 'is_dir');
 
 	foreach ($block_dirs as $dir) {
 		// Register the block using the block.json file.
@@ -39,7 +31,147 @@ function register_clutch_blocks()
 	}
 }
 
-add_action('init', __NAMESPACE__ . '\\register_clutch_blocks');
+/**
+ * Registers Clutch blocks using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function register_clutch_primitive_blocks()
+{
+	// Define the base directory path.
+	$primitives_dir = __DIR__ . '/build';
+
+	register_blocks_in_directory($primitives_dir);
+}
+
+add_action('init', __NAMESPACE__ . '\\register_clutch_primitive_blocks');
+
+/**
+ * Registers Clutch blocks using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function register_clutch_component_blocks()
+{
+	// Define the base directory for base assets.
+	$base_assets_dir = trailingslashit(__DIR__ . '/clutch-gen');
+
+	// Define the directory where components will be stored.
+	$upload_dir = wp_upload_dir();
+	$blocks_destination_dir =
+		trailingslashit($upload_dir['basedir']) . 'clutch/blocks';
+
+	// Retrieve the selected host from user meta
+	$selected_host = get_user_meta(
+		get_current_user_id(),
+		'selected_clutch_host',
+		true
+	);
+
+	// Fetch components from remote json file
+	$json_url = esc_url($selected_host) . '/clutch/components.json';
+	$json_content = @file_get_contents($json_url);
+
+	if ($json_content) {
+		// Decode the JSON content
+		$components = json_decode($json_content);
+
+		foreach ($components as $component_id => $component) {
+			// Ensure block name follows the WordPress naming convention.
+			$unique_id = 'composition-' . str_replace('_', '-', $component_id);
+
+			// Define the path to the block directory.
+			$block_dir = trailingslashit($blocks_destination_dir) . $unique_id;
+
+			// Create the directory if it doesn't exist and copy base assets.
+			if (!is_dir($block_dir)) {
+				mkdir($block_dir, 0755, true);
+			}
+
+			// Copy the base assets from the build directory to the block directory.
+			$base_assets = glob($base_assets_dir . '*');
+			foreach ($base_assets as $asset) {
+				$dest = trailingslashit($block_dir) . basename($asset);
+				copy($asset, $dest);
+			}
+
+			// Modify the block.json file with the component data.
+			$block_json_path = trailingslashit($block_dir) . 'block.json';
+			if (file_exists($block_json_path)) {
+				$block_json = json_decode(
+					file_get_contents($block_json_path),
+					true
+				);
+
+				if ($block_json) {
+					// Update the block name and title.
+					$block_json['name'] = 'clutch/' . $unique_id;
+					$block_json['title'] = $component->name;
+
+					// Ensure attributes is an object even if empty.
+					$block_json['attributes'] = new \stdClass();
+
+					// Map properties to attributes object.
+					if (
+						isset($component->properties) &&
+						is_array($component->properties)
+					) {
+						foreach ($component->properties as $property) {
+							// Ensure the property has a name and control.
+							if (
+								isset($property->name) &&
+								isset($property->control)
+							) {
+								$block_json['attributes']->{$property->name} = [
+									'type' => 'string',
+								];
+							}
+						}
+					}
+
+					// Save the updated block.json file.
+					file_put_contents(
+						$block_json_path,
+						json_encode(
+							$block_json,
+							JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+						)
+					);
+				}
+
+				// Modify the block's index.js file to include the component data.
+				$index_js_path = trailingslashit($block_dir) . 'index.js';
+				if (file_exists($index_js_path)) {
+					$index_js_content = file_get_contents($index_js_path);
+
+					// Replace the placeholder with the component data.
+					$index_js_content = str_replace(
+						'CLUTCH_BLOCK_NAME',
+						$block_json['name'],
+						$index_js_content
+					);
+					$index_js_content = str_replace(
+						'CLUTCH_BLOCK_TITLE',
+						$block_json['title'],
+						$index_js_content
+					);
+
+					// Save the modified index.js file.
+					file_put_contents($index_js_path, $index_js_content);
+				}
+			}
+		}
+	}
+
+	// Register all new and existing blocks in the components directory.
+	register_blocks_in_directory($blocks_destination_dir);
+}
+
+add_action('init', __NAMESPACE__ . '\\register_clutch_component_blocks');
 
 /*
  * Fetches theme CSS from the frontend and enqueue it in the editor to be used
@@ -79,13 +211,24 @@ add_action('enqueue_block_assets', __NAMESPACE__ . '\\enqueue_clutch_styles');
  */
 function whitelist_editor_blocks()
 {
-	return [
+	$registered_block_types = \WP_Block_Type_Registry::get_instance()->get_all_registered();
+
+	$allowed_blocks = [
 		'core/heading',
 		'core/image',
 		'core/list',
 		'core/list-item',
-		'clutch/paragraph',
 	];
+
+	// Add all Clutch blocks to the allowed blocks list.
+	foreach ($registered_block_types as $block_name => $block_type) {
+		if (strpos($block_name, 'clutch/') === 0) {
+			$allowed_blocks[] = $block_name;
+		}
+	}
+
+	// Merge allowed core blocks with Clutch blocks.
+	return $allowed_blocks;
 }
 
 add_filter(
@@ -100,7 +243,7 @@ add_filter(
  */
 function format_blocks(&$blocks)
 {
-	foreach ($blocks as $index => &$block) {
+	foreach ($blocks as &$block) {
 		// Format inner blocks recursively
 		if ($block['innerBlocks']) {
 			format_blocks($block['innerBlocks']);
@@ -108,7 +251,6 @@ function format_blocks(&$blocks)
 
 		// Tag block as Clutch block
 		$block['_clutch_type'] = 'block';
-		$block['id'] = $index;
 
 		// Initialize block attributes as empty object if not set or empty array
 		if (!$block['attrs']) {
@@ -150,6 +292,55 @@ function include_raw_post_content($response, $postId)
 add_filter(
 	'clutch/prepare_post_fields',
 	__NAMESPACE__ . '\\include_raw_post_content',
+	10,
+	2
+);
+
+/**
+ * Modify the source URL for enqueued assets stored in the uploads directory.
+ *
+ * Filters the source URL of specific enqueued styles and scripts to correct their paths,
+ * focusing on assets that include "clutch/blocks" in their URL.
+ *
+ * @param string $src    The source URL of the enqueued asset.
+ * @param string $handle The asset's registered handle.
+ *
+ * @return string        Modified or original source URL.
+ *
+ * @see https://github.com/WordPress/wordpress-develop/blob/6.3/src/wp-includes/blocks.php#L149-L165C3
+ */
+function correct_asset_src_for_uploads_dir($src, $handle)
+{
+	// Check for the presence of "clutch/blocks" in the src.
+	if (strpos($src, 'clutch/blocks') !== false) {
+		// Extract the specific block directory.
+		preg_match('#clutch/blocks/([^/]+)#', $src, $matches);
+
+		if (isset($matches[1])) {
+			$uploads_dir = wp_upload_dir();
+			$base_url = trailingslashit($uploads_dir['baseurl']);
+
+			$correct_src =
+				$base_url .
+				'clutch/blocks/' .
+				$matches[1] .
+				'/' .
+				wp_basename($src);
+			return $correct_src;
+		}
+	}
+
+	return $src;
+}
+add_filter(
+	'style_loader_src',
+	__NAMESPACE__ . '\\correct_asset_src_for_uploads_dir',
+	10,
+	2
+);
+add_filter(
+	'script_loader_src',
+	__NAMESPACE__ . '\\correct_asset_src_for_uploads_dir',
 	10,
 	2
 );
