@@ -1,6 +1,6 @@
 {
 	"name": "clutch-wp",
-	"version": "2.2.0",
+	"version": "2.4.0",
 	"description": "Clutch wordpress plugin",
 	"main": "index.js",
 	"type": "module",
@@ -17,9 +17,19 @@
 	"license": "GPL-2.0",
 	"devDependencies": {
 		"@prettier/plugin-php": "^0.22.4",
+		"@wordpress/api-fetch": "^7.24.0",
+		"@wordpress/block-editor": "^14.19.0",
+		"@wordpress/blocks": "^14.13.0",
+		"@wordpress/components": "^29.10.0",
+		"@wordpress/compose": "^7.24.0",
+		"@wordpress/data": "^10.24.0",
+		"@wordpress/element": "^6.24.0",
+		"@wordpress/i18n": "^5.24.0",
 		"@wordpress/icons": "^10.18.0",
+		"@wordpress/keycodes": "^4.24.0",
 		"@wordpress/prettier-config": "^4.18.0",
 		"@wordpress/scripts": "^30.11.0",
+		"clsx": "^2.1.1",
 		"prettier": "^3.5.2"
 	}
 }
