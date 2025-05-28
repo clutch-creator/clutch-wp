@@ -3,7 +3,7 @@ Contributors: bruno12mota, lmcorreia
 Tags: headless, visual builder, clutch, design, performance
 Requires at least: 5.0
 Tested up to: 6.7
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -86,6 +86,10 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 = 2.3.0 =
 * Add SEO support for posts and taxonomies via Yoast and SlimSEO integrations
 * Expose SEO data in REST endpoints with `seo` parameter
+
+= 2.4.0 =
+* Remove text block styles registration endpoint in favor of remote sourcing
+* Add dynamic block registration based on frontend provided schema
 
 == Upgrade Notice ==
 
