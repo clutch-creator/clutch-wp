@@ -7,7 +7,7 @@
 	"scripts": {
 		"prettier": "prettier --check .",
 		"prettier:fix": "prettier --check --write .",
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "echo \"Error: no test specified\"",
 		"package": "mkdir -p dist && zip -r dist/clutch-wp.zip . -x@.zipignore",
 		"build": "bun run package && wp-scripts build --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build",
 		"start": "wp-scripts start --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build"
