@@ -3,6 +3,7 @@
   "version": "2.2.0",
   "description": "React hooks and context for Clutch WordPress SDK",
   "main": "dist/index.js",
+  "types": "src/index.ts",
   "type": "module",
   "scripts": {
     "build": "swc src --out-dir dist --source-maps --config-file ./.swcrc --delete-dir-on-start",

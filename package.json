@@ -7,7 +7,9 @@
   "packageManager": "bun@1.2.14",
   "scripts": {
     "lint": "turbo run lint --continue",
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test"
   },
   "keywords": [],
   "author": "",

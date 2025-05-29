@@ -2,7 +2,8 @@
   "name": "@clutch-wp/sdk",
   "version": "2.2.0",
   "description": "Clutch wordpress sdk",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
   "type": "module",
   "scripts": {
     "lint": "eslint .",
