@@ -2,9 +2,9 @@ name: Checks
 
 on:
   push:
-    branches: [main, stable]
+    branches: [main]
   pull_request:
-    branches: [main, stable]
+    types: [opened, reopened]
 
 env:
   BUN_VERSION: "1.2.14"
