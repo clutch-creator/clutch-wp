@@ -9,12 +9,17 @@
     "lint": "turbo run lint --continue",
     "build": "turbo run build",
     "type-check": "turbo run type-check",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=!clutch-wp && changeset publish"
   },
   "keywords": [],
   "author": "",
   "license": "GPL-2.0",
   "devDependencies": {
+    "@changesets/changelog-git": "^0.2.1",
+    "@changesets/cli": "^2.29.4",
     "turbo": "^2.5.3"
   },
   "workspaces": [

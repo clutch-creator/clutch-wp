@@ -20,6 +20,13 @@
       "persistent": true
     },
     "lint": {},
-    "type-check": {}
+    "type-check": {},
+    "version-packages": {
+      "cache": false
+    },
+    "release": {
+      "cache": false,
+      "dependsOn": ["build"]
+    }
   }
 }

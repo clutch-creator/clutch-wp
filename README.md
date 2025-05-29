@@ -70,14 +70,13 @@ This monorepo contains the following packages:
 
 ## 🚀 Deployment
 
-This project uses GitHub Actions for automated releases:
+This project uses [Changesets](https://github.com/changesets/changesets) for automated versioning and publishing:
 
-1. Create a version tag: `git tag v1.0.0`
-2. Push the tag: `git push origin v1.0.0`
+1. Create a changeset: `bun run changeset`
+2. Push changes to `main` branch
 3. GitHub Actions will automatically:
-   - Build all packages
-   - Publish NPM packages
-   - Create GitHub release with WordPress plugin zip
+   - Create a "Release PR" with version updates
+   - When merged, publish NPM packages and create GitHub releases
 
 ## 🤝 Contributing
 
@@ -90,9 +89,10 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 3. Make your changes
 4. Run tests: `bun run test`
 5. Run linting: `bun run lint`
-6. Commit your changes: `git commit -m 'feat: add amazing feature'`
-7. Push to your branch: `git push origin feature/amazing-feature`
-8. Create a Pull Request
+6. **Create a changeset**: `bun run changeset` (if your changes should trigger a release)
+7. Commit your changes: `git commit -m 'feat: add amazing feature'`
+8. Push to your branch: `git push origin feature/amazing-feature`
+9. Create a Pull Request
 
 ## 📄 License
 

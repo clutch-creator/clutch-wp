@@ -2,46 +2,28 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*" # Triggers on version tags like v1.0.0, v2.1.3, etc.
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 env:
   BUN_VERSION: "1.2.14"
 
 permissions:
-  contents: write # Required for creating releases
+  contents: write
+  pull-requests: write
+  id-token: write
 
 jobs:
-  validate-tag:
-    name: Validate Release Tag
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      is-prerelease: ${{ steps.version.outputs.is-prerelease }}
-    steps:
-      - name: Extract version from tag
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-          # Check if it's a prerelease (contains alpha, beta, rc, etc.)
-          if [[ $VERSION =~ (alpha|beta|rc|pre) ]]; then
-            echo "is-prerelease=true" >> $GITHUB_OUTPUT
-          else
-            echo "is-prerelease=false" >> $GITHUB_OUTPUT
-          fi
-
-          echo "Releasing version: $VERSION"
-
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: [validate-tag]
     steps:
-      - name: Checkout code
+      - name: Checkout Repo
         uses: actions/checkout@v4
         with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
 
       - name: Setup Bun
@@ -49,94 +31,45 @@ jobs:
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: bun install --frozen-lockfile
 
       - name: Lint
         run: bun run lint
 
-      - name: Type check
+      - name: Type Check
         run: bun run type-check
 
-      - name: Run tests
+      - name: Run Tests
         run: bun run test
 
-      - name: Build packages
-        run: bun run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
         with:
-          name: build-artifacts
-          path: |
-            packages/*/dist
-            plugins/clutch-wp/dist/clutch-wp.zip
-          retention-days: 7
+          publish: bun run release
+          version: bun run version-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Configure NPM authentication
+      - name: Add plugin asset to release
+        if: steps.changesets.outputs.published == 'true' && contains(fromJSON(steps.changesets.outputs.publishedPackages).*.name, 'clutch-wp')
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          echo "@clutch-wp:registry=https://registry.npmjs.org/" >> ~/.npmrc
+          set -e
+          cd plugins/clutch-wp
+          bun run build
 
-      - name: Publish Packages
-        run: |
-          bun run version ${{ needs.validate-tag.outputs.version }} --no-git-tag-version
-          bun run publish --provenance --access public
+          # Get the latest release tag created by changesets
+          LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
 
-      - name: Generate Changelog
-        id: changelog
-        uses: requarks/changelog-action@v1
-        with:
-          token: ${{ github.token }}
-          tag: ${{ github.ref_name }}
-          writeToFile: false
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ needs.validate-tag.outputs.version }}
-          body: |
-            ## 🚀 Release ${{ needs.validate-tag.outputs.version }}
-
-            ### 📦 NPM Packages Published
-            - `@clutch-wp/sdk@${{ needs.validate-tag.outputs.version }}`
-            - `@clutch-wp/react@${{ needs.validate-tag.outputs.version }}`
-
-            ### 🔧 WordPress Plugin
-            Download the WordPress plugin zip file from the assets below.
-
-            ### 📝 Changes
-            ${{ steps.changelog.outputs.changes }}
-
-            ---
-          files: |
-            plugins/clutch-wp/dist/clutch-wp.zip
-          prerelease: ${{ needs.validate-tag.outputs.is-prerelease }}
-          draft: false
-          generate_release_notes: true
-
-  notify-success:
-    name: Notify Success
-    runs-on: ubuntu-latest
-    needs: [validate-tag, release]
-    if: success()
-    steps:
-      - name: Success notification
-        run: |
-          echo "✅ Release ${{ needs.validate-tag.outputs.version }} completed successfully!"
-          echo "📦 NPM packages published"
-          echo "🎉 GitHub release created with WordPress plugin asset"
-          echo "🔗 Release URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
-
-  notify-failure:
-    name: Notify Failure
-    runs-on: ubuntu-latest
-    needs: [validate-tag, release]
-    if: failure()
-    steps:
-      - name: Failure notification
-        run: |
-          echo "❌ Release ${{ needs.validate-tag.outputs.version }} failed!"
-          echo "Please check the workflow logs for details."
-          exit 1
+          if [ -n "$LATEST_TAG" ]; then
+            # Upload the plugin zip to the release
+            gh release upload "$LATEST_TAG" dist/clutch-wp.zip --clobber
+            echo "✅ Uploaded clutch-wp.zip to release $LATEST_TAG"
+          else
+            echo "❌ No release found to upload asset to"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

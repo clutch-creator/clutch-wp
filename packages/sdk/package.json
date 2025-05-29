@@ -3,8 +3,15 @@
   "version": "2.2.0",
   "description": "Clutch wordpress sdk",
   "main": "dist/index.js",
-  "types": "src/index.ts",
+  "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "swc src --out-dir dist --source-maps --config-file ./.swcrc --delete-dir-on-start && tsc --emitDeclarationOnly",
     "lint": "eslint .",
