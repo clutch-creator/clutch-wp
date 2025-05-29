@@ -60,7 +60,6 @@ jobs:
 
       - name: Run tests
         run: bun run test
-        continue-on-error: true
 
       - name: Build packages
         run: bun run build
@@ -84,6 +83,14 @@ jobs:
           bun run version ${{ needs.validate-tag.outputs.version }} --no-git-tag-version
           bun run publish --provenance --access public
 
+      - name: Generate Changelog
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
+          writeToFile: false
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -100,6 +107,7 @@ jobs:
             Download the WordPress plugin zip file from the assets below.
 
             ### 📝 Changes
+            ${{ steps.changelog.outputs.changes }}
 
             ---
           files: |
