@@ -11,7 +11,7 @@ import { paragraph as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import initBlock from '../utils/init-block.js';
+import initBlock from '../../utils/init-block.js';
 import edit from './edit.js';
 import metadata from './block.json';
 import save from './save.js';
