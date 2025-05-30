@@ -65,7 +65,7 @@ This monorepo contains the following packages:
 
 - `bun run build` - Build all packages
 - `bun run lint` - Lint all packages
-- `bun run type-check` - Type check all packages
+- `bun run check-types` - Type check all packages
 - `bun run test` - Run tests across all packages
 
 ## 🚀 Deployment

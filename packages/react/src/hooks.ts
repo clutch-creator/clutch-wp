@@ -69,7 +69,7 @@ export function usePosts(args: FetchPostsArgs) {
     } finally {
       setLoading(false);
     }
-  }, [client, JSON.stringify(args)]);
+  }, [args, client]);
 
   useEffect(() => {
     fetchPosts();
@@ -140,7 +140,7 @@ export function useUsers(args: FetchUsersArgs) {
     } finally {
       setLoading(false);
     }
-  }, [client, JSON.stringify(args)]);
+  }, [args, client]);
 
   useEffect(() => {
     fetchUsers();
@@ -215,7 +215,7 @@ export function useTaxonomyTerms(args: FetchTaxonomyTermsArgs) {
     } finally {
       setLoading(false);
     }
-  }, [client, JSON.stringify(args)]);
+  }, [args, client]);
 
   useEffect(() => {
     fetchTerms();
@@ -369,7 +369,6 @@ export function useDraftMode() {
 
         setIsDraftMode(result);
       } catch (err) {
-        console.warn("Failed to check draft mode:", err);
         setIsDraftMode(false);
       } finally {
         setLoading(false);

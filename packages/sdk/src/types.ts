@@ -1,4 +1,4 @@
-import { WpPageType, WpPageView } from "./statics.ts";
+import { WpPageType, WpPageView } from "./statics";
 
 export type WPId = number;
 

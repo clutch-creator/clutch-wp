@@ -13,10 +13,10 @@
     "access": "public"
   },
   "scripts": {
-    "build": "swc src --out-dir dist --source-maps --config-file ./.swcrc --delete-dir-on-start && tsc --emitDeclarationOnly",
+    "build": "swc src --out-dir dist --config-file ./.swcrc --delete-dir-on-start --strip-leading-paths && tsc --emitDeclarationOnly --outDir dist",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit",
-    "type-check:watch": "tsc --noEmit --watch"
+    "check-types": "tsc --noEmit",
+    "check-types:watch": "tsc --noEmit --watch"
   },
   "keywords": [
     "react",

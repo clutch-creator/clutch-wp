@@ -1,5 +1,5 @@
 import { WP_REST_API_Search_Results, WP_REST_API_User } from "wp-types";
-import { getProcessedUrlSearchParams, urlJoin } from "./helpers.ts";
+import { getProcessedUrlSearchParams, urlJoin } from "./helpers";
 import { resolveClutchFields } from "./resolvers/clutch-nodes";
 import { resolveMenu } from "./resolvers/menus";
 import { Resolver } from "./resolvers/resolver";

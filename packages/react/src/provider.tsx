@@ -31,11 +31,11 @@ export function WordPressProvider({
     const checkConnection = async () => {
       try {
         const isValid = await client.isValidUrl();
+
         if (isMounted) {
           setIsConnected(isValid);
         }
       } catch (error) {
-        console.warn("WordPress connection check failed:", error);
         if (isMounted) {
           setIsConnected(false);
         }

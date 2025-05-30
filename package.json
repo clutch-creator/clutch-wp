@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "turbo run lint --continue",
     "build": "turbo run build",
-    "type-check": "turbo run type-check",
+    "check-types": "turbo run check-types",
     "test": "turbo run test",
     "changeset": "changeset",
     "version-packages": "changeset version",

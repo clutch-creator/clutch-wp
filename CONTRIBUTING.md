@@ -30,7 +30,7 @@ Please make sure to run the tests before you commit your changes. You can run th
 
 ```bash
 bun run lint
-bun run type-check
+bun run check-types
 ```
 
 ### Tests

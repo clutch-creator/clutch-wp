@@ -1,4 +1,4 @@
-import { TParams } from "./types.ts";
+import { TParams } from "./types";
 
 export function generateRandomToken() {
   const array = new Uint8Array(32); // 32 bytes = 256 bits

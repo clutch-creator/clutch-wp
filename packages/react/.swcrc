@@ -20,5 +20,6 @@
     "type": "es6"
   },
   "isModule": true,
-  "minify": false
+  "minify": false,
+  "sourceMaps": true
 }
