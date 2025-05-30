@@ -4,9 +4,15 @@ import { resolveClutchFields } from "./resolvers/clutch-nodes";
 import { resolveMenu } from "./resolvers/menus";
 import { Resolver } from "./resolvers/resolver";
 import { resolveSearchResults } from "./resolvers/search";
+import { resolveUser, resolveUsers } from "./resolvers/users";
 import {
+  FetchPostsArgs,
+  FetchSearchArgs,
+  FetchTaxonomyTermsArgs,
+  FetchUsersArgs,
   MenuResponse,
   MenuResult,
+  PluginInfoResponse,
   PostRestResult,
   PostResult,
   PostsRestResult,
@@ -16,17 +22,9 @@ import {
   TermRestResult,
   TermsRestResult,
   TermsResult,
-  UserResult,
-} from "./resolvers/types";
-import { resolveUser, resolveUsers } from "./resolvers/users";
-import {
-  FetchPostsArgs,
-  FetchSearchArgs,
-  FetchTaxonomyTermsArgs,
-  FetchUsersArgs,
-  PluginInfoResponse,
   TParams,
   TWpTemplateList,
+  UserResult,
   VersionValidationResult,
   WPIdFilter,
 } from "./types";

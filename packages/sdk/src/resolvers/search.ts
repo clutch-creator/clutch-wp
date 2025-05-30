@@ -1,6 +1,6 @@
 import { WP_REST_API_Search_Result } from "wp-types";
+import { SearchResut } from "../types";
 import { Resolver } from "./resolver";
-import { SearchResut } from "./types";
 
 export async function resolveSearchResult(
   searchResult: WP_REST_API_Search_Result,

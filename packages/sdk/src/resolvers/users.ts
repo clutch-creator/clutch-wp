@@ -1,8 +1,8 @@
 import { WP_REST_API_User, WP_REST_API_Users } from "wp-types";
+import { UserResult } from "../types";
 import { resolveClutchFields } from "./clutch-nodes";
 import { resolveLink } from "./links";
 import { Resolver } from "./resolver";
-import { UserResult } from "./types";
 
 const REMOVE_PROPS = ["_links", "_embedded"];
 

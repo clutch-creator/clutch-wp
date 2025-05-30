@@ -1,12 +1,12 @@
-import { TWpTemplateList } from "../types";
-import { resolveLinkFromInfo } from "./links";
-import { Resolver } from "./resolver";
 import {
   MenuItemResponse,
   MenuItemResult,
   MenuResponse,
   MenuResult,
-} from "./types";
+  TWpTemplateList,
+} from "../types";
+import { resolveLinkFromInfo } from "./links";
+import { Resolver } from "./resolver";
 
 export function resolveMenuItem(
   menuItemResponse: MenuItemResponse,

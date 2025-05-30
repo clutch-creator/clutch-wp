@@ -1,10 +1,10 @@
+import { TPermalinkInfo } from "../types";
 import {
   checkForLinksInString,
   resolveLinkFromInfo,
   resolveLinksInString,
 } from "./links";
 import { Resolver } from "./resolver";
-import { TPermalinkInfo } from "./types";
 
 type TClutchFieldBase = {
   _clutch_type: string;

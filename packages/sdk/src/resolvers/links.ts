@@ -1,11 +1,11 @@
 import { WpPageType, WpPageView } from "../statics";
 import {
+  TPermalinkInfo,
   TWpTemplate,
   TWpTemplatePostType,
   TWpTemplateTaxonomy,
 } from "../types";
 import { Resolver } from "./resolver";
-import { TPermalinkInfo } from "./types";
 
 const SKIP_PATHS = ["wp-admin", "wp-content", "wp-json"];
 
