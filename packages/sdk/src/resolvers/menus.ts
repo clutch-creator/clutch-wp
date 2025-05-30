@@ -1,21 +1,21 @@
-import { TWpTemplateList } from '../../plugin/types';
-import { resolveLinkFromInfo } from './links';
-import { Resolver } from './resolver';
+import { TWpTemplateList } from "../types";
+import { resolveLinkFromInfo } from "./links";
+import { Resolver } from "./resolver";
 import {
   MenuItemResponse,
   MenuItemResult,
   MenuResponse,
   MenuResult,
-} from './types';
+} from "./types";
 
 export function resolveMenuItem(
   menuItemResponse: MenuItemResponse,
-  templates: TWpTemplateList,
+  templates: TWpTemplateList
 ): MenuItemResult {
   const { url_info, children, ...menu } = menuItemResponse;
   const draftMenu: MenuItemResult = {
     ...menu,
-    url: resolveLinkFromInfo(url_info, templates),
+    url: resolveLinkFromInfo(url_info, templates) || "",
     children: children.map((child) => resolveMenuItem(child, templates)),
   };
 
@@ -24,9 +24,9 @@ export function resolveMenuItem(
 
 export async function resolveMenu(
   menuResponse: MenuResponse,
-  resolver: Resolver,
+  resolver: Resolver
 ): Promise<MenuResult> {
-  const templates = await resolver.getTemplates();
+  const templates = resolver.getPages();
 
   const draftMenu: MenuResult = {
     ...menuResponse,
@@ -40,7 +40,7 @@ export async function resolveMenu(
 
 export async function resolveMenus(
   menus: MenuResponse[] | undefined,
-  resolver: Resolver,
+  resolver: Resolver
 ): Promise<MenuResult[]> {
   if (!menus?.length) return [];
 

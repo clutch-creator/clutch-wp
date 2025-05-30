@@ -1,14 +1,14 @@
-import { WP_REST_API_User, WP_REST_API_Users } from 'wp-types';
-import { resolveClutchFields } from './clutch-nodes';
-import { resolveLink } from './links';
-import { Resolver } from './resolver';
-import { UserResult } from './types';
+import { WP_REST_API_User, WP_REST_API_Users } from "wp-types";
+import { resolveClutchFields } from "./clutch-nodes";
+import { resolveLink } from "./links";
+import { Resolver } from "./resolver";
+import { UserResult } from "./types";
 
-const REMOVE_PROPS = ['_links', '_embedded'];
+const REMOVE_PROPS = ["_links", "_embedded"];
 
 export async function resolveUser(
   user: WP_REST_API_User,
-  resolver: Resolver,
+  resolver: Resolver
 ): Promise<UserResult> {
   const draftUser: Partial<UserResult> = { ...user };
 
@@ -18,12 +18,14 @@ export async function resolveUser(
 
   if (draftUser.link)
     resolver.waitUntil(async () => {
-      draftUser.link = await resolveLink(draftUser.link, resolver);
+      if (draftUser.link)
+        draftUser.link = await resolveLink(draftUser.link, resolver);
     });
 
   if (draftUser.url)
     resolver.waitUntil(async () => {
-      draftUser.url = await resolveLink(draftUser.url, resolver);
+      if (draftUser.url)
+        draftUser.url = await resolveLink(draftUser.url, resolver);
     });
 
   // Resolve all clutch nodes
@@ -36,7 +38,7 @@ export async function resolveUser(
 
 export async function resolveUsers(
   users: WP_REST_API_Users | undefined,
-  resolver: Resolver,
+  resolver: Resolver
 ): Promise<UserResult[]> {
   if (!users?.length) return [];
 

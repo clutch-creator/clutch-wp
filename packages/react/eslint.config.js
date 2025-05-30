@@ -1,9 +1,9 @@
-import react from "@clutch-wp/eslint-config/react.js";
+import { reactConfig } from "@clutch-wp/eslint-config/react";
 import js from "@eslint/js";
 
 export default [
   js.configs.recommended,
-  ...react,
+  ...reactConfig,
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {

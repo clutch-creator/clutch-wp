@@ -21,3 +21,19 @@ export enum FilterOperator {
 }
 
 export const FILTER_OPERATORS = Object.values(FilterOperator);
+
+export enum WpPageType {
+  POST_TYPE = "post-type",
+  TAXONOMY = "taxonomy",
+  FRONT_PAGE = "front-page",
+  SEARCH = "search",
+  NOT_FOUND = "not-found",
+  AUTHOR = "author",
+  NONE = "none",
+}
+
+export enum WpPageView {
+  ARCHIVE = "ARCHIVE",
+  SINGLE_ANY = "SINGLE_ANY",
+  SINGLE_SPECIFIC = "SINGLE_SPECIFIC",
+}

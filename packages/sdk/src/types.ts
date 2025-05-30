@@ -1,3 +1,5 @@
+import { WpPageType, WpPageView } from "./statics.ts";
+
 export type WPId = number;
 
 export type WPIdFilter = string | number;
@@ -53,6 +55,10 @@ export type TFilter = {
 };
 
 export type TFilters = TFilter[];
+
+export type TParams = {
+  [key: string]: string | number | boolean | string[] | number[] | unknown;
+};
 
 // Fetch function argument types
 export type FetchPostsArgs = {
@@ -110,3 +116,70 @@ export type FetchSearchArgs = {
   per_page?: number;
   [key: string]: unknown;
 };
+
+export type TWpTemplateViewArchive = {
+  template: WpPageView.ARCHIVE;
+};
+
+export type TWpTemplateViewSingleAny = {
+  template: WpPageView.SINGLE_ANY;
+  slug?: string;
+};
+
+export type TWpTemplateViewSingleSpecific = {
+  template: WpPageView.SINGLE_SPECIFIC;
+  slug?: string;
+};
+
+export type TWpTemplateView =
+  | TWpTemplateViewArchive
+  | TWpTemplateViewSingleAny
+  | TWpTemplateViewSingleSpecific;
+
+export type TWpTemplatePostType = {
+  type: WpPageType.POST_TYPE;
+  name: string;
+  path: string;
+} & TWpTemplateView;
+
+export type TWpTemplateTaxonomy = {
+  type: WpPageType.TAXONOMY;
+  name: string;
+  path: string;
+} & TWpTemplateView;
+
+export type TWpTemplateFrontPage = {
+  type: WpPageType.FRONT_PAGE;
+  path: string;
+};
+
+export type TWpTemplateNone = {
+  type: WpPageType.NONE;
+  path: string;
+};
+
+export type TWpTemplateAuthor = {
+  type: WpPageType.AUTHOR;
+  path: string;
+};
+
+export type TWpTemplateSearch = {
+  type: WpPageType.SEARCH;
+  path: string;
+};
+
+export type TWpTemplateNotFound = {
+  type: WpPageType.NOT_FOUND;
+  path: string;
+};
+
+export type TWpTemplate =
+  | TWpTemplatePostType
+  | TWpTemplateTaxonomy
+  | TWpTemplateFrontPage
+  | TWpTemplateNone
+  | TWpTemplateAuthor
+  | TWpTemplateSearch
+  | TWpTemplateNotFound;
+
+export type TWpTemplateList = TWpTemplate[];

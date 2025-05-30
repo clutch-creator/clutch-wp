@@ -27,7 +27,7 @@
   "author": "",
   "license": "GPL-2.0",
   "dependencies": {
-    "@clutch-wp/sdk": "workspace:*",
+    "@clutch-wp/sdk": "workspace:^",
     "@swc/helpers": "^0.5.17",
     "wp-types": "^4.68.0"
   },

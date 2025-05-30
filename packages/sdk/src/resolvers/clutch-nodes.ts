@@ -82,14 +82,14 @@ async function resolveClutchField(value: TClutchField, resolver: Resolver) {
   }
 
   if (value._clutch_type === "link") {
-    const templates = await resolver.getTemplates();
+    const templates = resolver.getPages();
 
     return resolveLinkFromInfo(value, templates);
   }
 }
 
 function traverseClutchFields(
-  fieldValue: Record<string, unknown>,
+  fieldValue: unknown,
   resolver: Resolver
 ): undefined {
   if (!fieldValue) return;
@@ -109,9 +109,12 @@ function traverseClutchFields(
       });
     } else if (isObject) {
       traverseClutchFields(value as Record<string, unknown>, resolver);
-    } else if (typeof value === "string" && checkForLinksInString(value)) {
+    } else if (
+      typeof value === "string" &&
+      checkForLinksInString(value, resolver)
+    ) {
       resolver.waitUntil(async () => {
-        const resolvedValue = await resolveLinksInString(value);
+        const resolvedValue = await resolveLinksInString(value, resolver);
         const mutableFieldValue = fieldValue as Record<string, unknown>;
 
         mutableFieldValue[key] = resolvedValue;
@@ -120,11 +123,13 @@ function traverseClutchFields(
   });
 }
 
-export async function resolveClutchFields(
-  acfValue: Record<string, unknown>,
+export async function resolveClutchFields<T = unknown>(
+  acfValue: unknown,
   resolver: Resolver
-): Promise<void> {
+): Promise<T> {
   traverseClutchFields(acfValue, resolver);
 
   await resolver.waitAll();
+
+  return acfValue as T;
 }

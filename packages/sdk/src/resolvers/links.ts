@@ -1,5 +1,10 @@
-import { TWpTemplate, WpPageType } from "../../plugin/types";
-import { wpGetUrl, wpPluginGet } from "../wordpress";
+import { WpPageType, WpPageView } from "../statics";
+import {
+  TWpTemplate,
+  TWpTemplatePostType,
+  TWpTemplateTaxonomy,
+} from "../types";
+import { Resolver } from "./resolver";
 import { TPermalinkInfo } from "./types";
 
 const SKIP_PATHS = ["wp-admin", "wp-content", "wp-json"];
@@ -10,19 +15,31 @@ type TLinkOptions = {
 };
 
 export async function getPermalinkInfo(
+  resolver: Resolver,
   url: string,
   relativePath: string
 ): Promise<TPermalinkInfo | undefined> {
-  const wpUrl = wpGetUrl();
-
   const cacheKey = relativePath.replace(/\//g, "-").slice(0, -1);
-  const res = await wpPluginGet<TPermalinkInfo>(
-    wpUrl,
+  const client = resolver.getClient();
+  const headers = await resolver.getHeaders();
+
+  // Use explicit typing to access the private method
+  const clientWithPrivateMethod = client as unknown as {
+    wpPluginGet<T>(
+      path: string,
+      params: Record<string, unknown>,
+      tags: string[],
+      headers?: Record<string, string>
+    ): Promise<T | undefined>;
+  };
+
+  const res = await clientWithPrivateMethod.wpPluginGet<TPermalinkInfo>(
     "permalink-info",
     {
       url,
     },
-    ["permalinks", `perma-${cacheKey}`]
+    ["permalinks", `perma-${cacheKey}`],
+    headers
   );
 
   return res;
@@ -41,26 +58,24 @@ export function resolveLinkFromInfo(
     case "post": {
       const { name, post_type } = permalinkInfo.details;
       const postTypeTemplates = templates.filter(
-        (t) => t.type === WpPageType.POST_TYPE && t.name === post_type
+        (t): t is TWpTemplatePostType =>
+          t.type === WpPageType.POST_TYPE && t.name === post_type
       );
       const singleSpecific = postTypeTemplates.find(
-        (t) =>
-          t.type === WpPageType.POST_TYPE &&
-          t.template === "SINGLE_SPECIFIC" &&
-          t.slug === name
+        (t) => t.template === WpPageView.SINGLE_SPECIFIC && t.slug === name
       );
 
       if (singleSpecific) {
         matchedPath = singleSpecific.path;
       } else {
         const singleAny = postTypeTemplates.find(
-          (t) => t.template === "SINGLE_ANY"
+          (t) => t.template === WpPageView.SINGLE_ANY
         );
 
         if (singleAny) matchedPath = singleAny.path.replace("[slug]", name);
         else {
           const archive = postTypeTemplates.find(
-            (t) => t.template === "ARCHIVE"
+            (t) => t.template === WpPageView.ARCHIVE
           );
 
           if (archive) matchedPath = archive.path;
@@ -72,9 +87,12 @@ export function resolveLinkFromInfo(
     case "taxonomy": {
       const { name } = permalinkInfo.details;
       const taxTemplates = templates.filter(
-        (t) => t.type === "taxonomy" && t.name === name
+        (t): t is TWpTemplateTaxonomy =>
+          t.type === WpPageType.TAXONOMY && t.name === name
       );
-      const archive = taxTemplates.find((t) => t.template === "ARCHIVE");
+      const archive = taxTemplates.find(
+        (t) => t.template === WpPageView.ARCHIVE
+      );
 
       if (archive) matchedPath = archive.path;
       break;
@@ -82,9 +100,12 @@ export function resolveLinkFromInfo(
     case "taxonomy_term": {
       const { name, taxonomy_name } = permalinkInfo.details;
       const taxTemplates = templates.filter(
-        (t) => t.type === "taxonomy" && t.name === taxonomy_name
+        (t): t is TWpTemplateTaxonomy =>
+          t.type === WpPageType.TAXONOMY && t.name === taxonomy_name
       );
-      const singleAny = taxTemplates.find((t) => t.template === "SINGLE_ANY");
+      const singleAny = taxTemplates.find(
+        (t) => t.template === WpPageView.SINGLE_ANY
+      );
 
       if (singleAny) matchedPath = singleAny.path.replace("[slug]", name);
 
@@ -120,9 +141,35 @@ export function resolveLinkFromInfo(
  */
 export async function resolveLink(
   url: string,
+  resolver: Resolver,
+  linkOptions?: TLinkOptions
+): Promise<string>;
+export async function resolveLink(
+  url: string,
+  linkOptions?: TLinkOptions
+): Promise<string>;
+export async function resolveLink(
+  url: string,
+  resolverOrOptions?: Resolver | TLinkOptions,
   linkOptions?: TLinkOptions
 ): Promise<string> {
-  const wpUrl = wpGetUrl();
+  // Handle overloaded parameters
+  let resolver: Resolver | undefined;
+  let options: TLinkOptions | undefined;
+
+  if (resolverOrOptions && "getPages" in resolverOrOptions) {
+    resolver = resolverOrOptions;
+    options = linkOptions;
+  } else {
+    options = resolverOrOptions as TLinkOptions;
+  }
+
+  // If no resolver provided, return original url (backward compatibility)
+  if (!resolver) {
+    return url;
+  }
+
+  const wpUrl = resolver.getClient().getConfig().apiUrl;
 
   if (!wpUrl) return url;
 
@@ -136,17 +183,59 @@ export async function resolveLink(
     return url;
   }
 
-  const permalinkInfo = await getPermalinkInfo(url, relativePath);
-  const { templates } = await import("clutch/wp-templates.json");
+  const permalinkInfo = await getPermalinkInfo(resolver, url, relativePath);
 
-  return resolveLinkFromInfo(permalinkInfo, templates, linkOptions);
+  // Get templates from resolver if provided, otherwise fallback to empty array
+  let templates: TWpTemplate[];
+
+  if (resolver) {
+    templates = resolver.getPages();
+  } else {
+    // Fallback: when no resolver is provided, use empty array
+    // This maintains backward compatibility but templates won't be resolved
+    templates = [];
+  }
+
+  if (!permalinkInfo) {
+    return url;
+  }
+
+  const resolvedPath = resolveLinkFromInfo(permalinkInfo, templates, options);
+
+  return resolvedPath || url;
 }
 
 export async function resolveLinksInHtmlStr(
   content: string,
+  resolver: Resolver,
+  linkOptions?: TLinkOptions
+): Promise<string>;
+export async function resolveLinksInHtmlStr(
+  content: string,
+  linkOptions?: TLinkOptions
+): Promise<string>;
+export async function resolveLinksInHtmlStr(
+  content: string,
+  resolverOrOptions?: Resolver | TLinkOptions,
   linkOptions?: TLinkOptions
 ): Promise<string> {
-  const wpUrl = wpGetUrl();
+  // Handle overloaded parameters
+  let resolver: Resolver | undefined;
+  let options: TLinkOptions | undefined;
+
+  if (resolverOrOptions && "getPages" in resolverOrOptions) {
+    resolver = resolverOrOptions;
+    options = linkOptions;
+  } else {
+    options = resolverOrOptions as TLinkOptions;
+  }
+
+  // If no resolver provided, return original content (backward compatibility)
+  if (!resolver) {
+    return content;
+  }
+
+  const wpUrl = resolver.getClient().getConfig().apiUrl;
 
   if (!wpUrl) return content;
 
@@ -155,9 +244,17 @@ export async function resolveLinksInHtmlStr(
 
   const replacements = matches.map(async (match) => {
     const [fullMatch, p1, link, p3] = match;
-    const resolvedLink = link.startsWith(wpUrl)
-      ? await resolveLink(link, linkOptions)
-      : link;
+    let resolvedLink: string;
+
+    if (link.startsWith(wpUrl)) {
+      if (resolver) {
+        resolvedLink = await resolveLink(link, resolver, options);
+      } else {
+        resolvedLink = await resolveLink(link, options);
+      }
+    } else {
+      resolvedLink = link;
+    }
 
     return { match, fullMatch, resolvedLink, p1, p3 };
   });
@@ -180,19 +277,52 @@ export async function resolveLinksInHtmlStr(
 
 export async function resolveLinksInString(
   str: string,
+  resolver: Resolver,
+  linkOptions?: TLinkOptions
+): Promise<string>;
+export async function resolveLinksInString(
+  str: string,
+  linkOptions?: TLinkOptions
+): Promise<string>;
+export async function resolveLinksInString(
+  str: string,
+  resolverOrOptions?: Resolver | TLinkOptions,
   linkOptions?: TLinkOptions
 ): Promise<string> {
-  const wpUrl = wpGetUrl();
+  // Handle overloaded parameters
+  let resolver: Resolver | undefined;
+  let options: TLinkOptions | undefined;
 
-  if (str.startsWith(wpUrl)) {
-    return resolveLink(str, linkOptions);
+  if (resolverOrOptions && "getPages" in resolverOrOptions) {
+    resolver = resolverOrOptions;
+    options = linkOptions;
+  } else {
+    options = resolverOrOptions as TLinkOptions;
   }
 
-  return resolveLinksInHtmlStr(str, linkOptions);
+  // If no resolver provided, just return the string (backward compatibility)
+  if (!resolver) {
+    return str;
+  }
+
+  const wpUrl = resolver.getClient().getConfig().apiUrl;
+
+  if (str.startsWith(wpUrl)) {
+    return resolveLink(str, resolver, options);
+  }
+
+  return resolveLinksInHtmlStr(str, resolver, options);
 }
 
-export function checkForLinksInString(str: string) {
-  const wpUrl = wpGetUrl();
+export function checkForLinksInString(
+  str: string,
+  resolver?: Resolver
+): boolean {
+  if (!resolver) {
+    return false; // Can't check without resolver (backward compatibility)
+  }
+
+  const wpUrl = resolver.getClient().getConfig().apiUrl;
 
   return typeof str === "string" && str.includes(wpUrl);
 }

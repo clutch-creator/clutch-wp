@@ -26,12 +26,3 @@ export type {
 
 // Resolver export for advanced usage
 export { Resolver } from "./resolvers/resolver";
-
-// WordPress utility functions
-export {
-  getProcessedParams,
-  urlJoin,
-  wpApiGet,
-  wpIsValidUrl,
-  type TParams,
-} from "./wordpress";

@@ -35,6 +35,7 @@ export function useWordPress(): WordPressContextValue {
  */
 export function useWordPressClient(): WordPressHttpClient {
   const { client } = useWordPress();
+
   return client;
 }
 
@@ -43,6 +44,7 @@ export function useWordPressClient(): WordPressHttpClient {
  */
 export function useIsConnected(): boolean {
   const { isConnected } = useWordPress();
+
   return isConnected;
 }
 
@@ -60,6 +62,7 @@ export function usePosts(args: FetchPostsArgs) {
       setLoading(true);
       setError(null);
       const result = await client.fetchPosts(args);
+
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch posts"));
@@ -92,6 +95,7 @@ export function usePost(
     if (!slug) {
       setData(null);
       setLoading(false);
+
       return;
     }
 
@@ -99,6 +103,7 @@ export function usePost(
       setLoading(true);
       setError(null);
       const result = await client.fetchPostBySlug(postType, slug, includeSeo);
+
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch post"));
@@ -128,6 +133,7 @@ export function useUsers(args: FetchUsersArgs) {
       setLoading(true);
       setError(null);
       const result = await client.fetchUsers(args);
+
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch users"));
@@ -159,6 +165,7 @@ export function useUser(
     if (!identifier) {
       setData(null);
       setLoading(false);
+
       return;
     }
 
@@ -169,6 +176,7 @@ export function useUser(
         type === "slug"
           ? await client.fetchUserBySlug(String(identifier))
           : await client.fetchUserById(identifier);
+
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch user"));
@@ -198,6 +206,7 @@ export function useTaxonomyTerms(args: FetchTaxonomyTermsArgs) {
       setLoading(true);
       setError(null);
       const result = await client.fetchTaxonomyTerms(args);
+
       setData(result);
     } catch (err) {
       setError(
@@ -233,6 +242,7 @@ export function useTaxonomyTerm(
     if (!taxonomy || !identifier) {
       setData(null);
       setLoading(false);
+
       return;
     }
 
@@ -251,6 +261,7 @@ export function useTaxonomyTerm(
               identifier,
               includeSeo
             );
+
       setData(result);
     } catch (err) {
       setError(
@@ -281,6 +292,7 @@ export function useSearch(args: FetchSearchArgs) {
     if (!args.search) {
       setData([]);
       setLoading(false);
+
       return;
     }
 
@@ -288,13 +300,14 @@ export function useSearch(args: FetchSearchArgs) {
       setLoading(true);
       setError(null);
       const result = await client.fetchSearchResults(args);
+
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to search"));
     } finally {
       setLoading(false);
     }
-  }, [client, JSON.stringify(args)]);
+  }, [args, client]);
 
   useEffect(() => {
     search();
@@ -316,6 +329,7 @@ export function useMenu(id: WPIdFilter) {
     if (!id) {
       setData(null);
       setLoading(false);
+
       return;
     }
 
@@ -323,6 +337,7 @@ export function useMenu(id: WPIdFilter) {
       setLoading(true);
       setError(null);
       const result = await client.fetchMenuById(id);
+
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch menu"));
@@ -351,6 +366,7 @@ export function useDraftMode() {
       try {
         setLoading(true);
         const result = await client.isInDraftMode();
+
         setIsDraftMode(result);
       } catch (err) {
         console.warn("Failed to check draft mode:", err);

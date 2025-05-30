@@ -1,13 +1,9 @@
 import { WP_REST_API_Search_Results, WP_REST_API_User } from "wp-types";
+import { getProcessedUrlSearchParams, urlJoin } from "./helpers.ts";
 import { resolveClutchFields } from "./resolvers/clutch-nodes";
 import { resolveMenu } from "./resolvers/menus";
-import { resolvePost, resolvePosts } from "./resolvers/posts";
 import { Resolver } from "./resolvers/resolver";
 import { resolveSearchResults } from "./resolvers/search";
-import {
-  resolveTaxonomyTerm,
-  resolveTaxonomyTerms,
-} from "./resolvers/taxonomies";
 import {
   MenuResponse,
   MenuResult,
@@ -28,19 +24,16 @@ import {
   FetchSearchArgs,
   FetchTaxonomyTermsArgs,
   FetchUsersArgs,
+  TParams,
+  TWpTemplateList,
   WPIdFilter,
 } from "./types";
-import {
-  getProcessedParams,
-  TParams,
-  urlJoin,
-  wpApiGet,
-  wpIsValidUrl,
-} from "./wordpress";
 
 export interface WordPressClientConfig {
   /** The WordPress site URL (e.g., https://example.com) */
   apiUrl: string;
+  /** WordPress pages/templates configuration */
+  pages: TWpTemplateList;
   /** Optional authentication token */
   authToken?: string;
   /** Whether to disable caching (useful for development) */
@@ -92,7 +85,7 @@ export class WordPressHttpClient {
       authToken,
       revalidate,
     } = this.config;
-    const processedParams = getProcessedParams(params);
+    const processedParams = getProcessedUrlSearchParams(params);
 
     try {
       const url = urlJoin(apiUrl, `/wp-json/clutch/v1/${path}`);
@@ -173,7 +166,22 @@ export class WordPressHttpClient {
       };
     }
 
-    return wpApiGet(apiUrl, path, params, fetchOptions);
+    const processedParams = getProcessedUrlSearchParams(params);
+
+    try {
+      const url = urlJoin(apiUrl, `/wp-json/wp/v2/${path}`);
+
+      // get posts using WordPress fetch api
+      const response = await fetch(`${url}?${processedParams}`, fetchOptions);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      return response.json();
+    } catch (err) {
+      return undefined;
+    }
   }
 
   /**
@@ -182,7 +190,17 @@ export class WordPressHttpClient {
   async isValidUrl(): Promise<boolean> {
     const { apiUrl } = this.config;
 
-    return wpIsValidUrl(apiUrl);
+    try {
+      const url = urlJoin(apiUrl, `/wp-json/wp/v2/statuses`);
+
+      const response = await fetch(url, {
+        cache: "no-cache",
+      });
+
+      return response.ok;
+    } catch (err) {
+      return false;
+    }
   }
 
   /**
@@ -224,19 +242,7 @@ export class WordPressHttpClient {
       };
     }
 
-    const resPosts = await resolvePosts(postsResponse.posts, resolver);
-
-    const res = {
-      ...postsResponse,
-      posts: resPosts,
-    };
-
-    // resolve nodes in seo
-    if (res.seo) {
-      await resolver.waitPromise(resolveClutchFields(res.seo, resolver));
-    }
-
-    return res;
+    return resolveClutchFields<PostsResult>(postsResponse, resolver);
   }
 
   async fetchPostBySlug(
@@ -250,7 +256,10 @@ export class WordPressHttpClient {
     const resolver = _resolver || this.createResolver();
 
     // check if resolver is already resolving/resolved this resource
-    const existingPromise = resolver.getAssetPromise(postType, slug);
+    const existingPromise = resolver.getAssetPromise<PostResult | null>(
+      postType,
+      slug
+    );
 
     if (existingPromise) return existingPromise as Promise<PostResult | null>;
 
@@ -267,11 +276,11 @@ export class WordPressHttpClient {
       );
 
       if (postResponse) {
-        return resolvePost(postResponse, resolver);
+        return resolveClutchFields<PostResult>(postResponse, resolver);
       }
 
       return null;
-    }) as Promise<PostResult | null>;
+    });
   }
 
   async fetchPostById(
@@ -285,9 +294,9 @@ export class WordPressHttpClient {
     const resolver = _resolver || this.createResolver();
 
     // check if resolver is already resolving/resolved this resource
-    const existingPromise = resolver.getAssetPromise(postType, id);
+    const existingPromise = resolver.getAssetPromise<PostResult>(postType, id);
 
-    if (existingPromise) return existingPromise as Promise<PostResult | null>;
+    if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise(postType, id, async () => {
       const headers = await resolver.getHeaders();
@@ -302,11 +311,11 @@ export class WordPressHttpClient {
       );
 
       if (postResponse) {
-        return resolvePost(postResponse, resolver);
+        return resolveClutchFields<PostResult>(postResponse, resolver);
       }
 
       return null;
-    }) as Promise<PostResult | null>;
+    });
   }
 
   // Users Methods
@@ -330,9 +339,9 @@ export class WordPressHttpClient {
 
     const resolver = _resolver || this.createResolver();
 
-    const existingPromise = resolver.getAssetPromise("users", slug);
+    const existingPromise = resolver.getAssetPromise<UserResult>("users", slug);
 
-    if (existingPromise) return existingPromise as Promise<UserResult | null>;
+    if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise("users", slug, async () => {
       const users = await this.wpGet<WP_REST_API_User[]>("users", { slug }, [
@@ -344,7 +353,7 @@ export class WordPressHttpClient {
       }
 
       return null;
-    }) as Promise<UserResult | null>;
+    });
   }
 
   async fetchUserById(
@@ -355,9 +364,9 @@ export class WordPressHttpClient {
 
     const resolver = _resolver || this.createResolver();
 
-    const existingPromise = resolver.getAssetPromise("users", id);
+    const existingPromise = resolver.getAssetPromise<UserResult>("users", id);
 
-    if (existingPromise) return existingPromise as Promise<UserResult | null>;
+    if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise("users", id, async () => {
       const user = await this.wpGet<WP_REST_API_User>(`users/${id}`, {}, [
@@ -369,7 +378,7 @@ export class WordPressHttpClient {
       }
 
       return null;
-    }) as Promise<UserResult | null>;
+    });
   }
 
   // Taxonomies Methods
@@ -395,18 +404,7 @@ export class WordPressHttpClient {
       };
     }
 
-    const resTerms = await resolveTaxonomyTerms(response.terms, resolver);
-    const res = {
-      ...response,
-      terms: resTerms,
-    };
-
-    // resolve nodes in seo
-    if (res.seo) {
-      await resolver.waitPromise(resolveClutchFields(res.seo, resolver));
-    }
-
-    return res;
+    return resolveClutchFields<TermsResult>(response, resolver);
   }
 
   async fetchTaxonomyTermBySlug(
@@ -419,10 +417,12 @@ export class WordPressHttpClient {
 
     const resolver = _resolver || this.createResolver();
 
-    const existingPromise = resolver.getAssetPromise(taxonomy, slug);
+    const existingPromise = resolver.getAssetPromise<TaxonomyTermResult>(
+      taxonomy,
+      slug
+    );
 
-    if (existingPromise)
-      return existingPromise as Promise<TaxonomyTermResult | null>;
+    if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise(taxonomy, slug, async () => {
       const headers = await resolver.getHeaders();
@@ -437,8 +437,12 @@ export class WordPressHttpClient {
         headers
       );
 
-      return term ? await resolveTaxonomyTerm(term, resolver) : null;
-    }) as Promise<TaxonomyTermResult | null>;
+      if (term) {
+        return resolveClutchFields<TaxonomyTermResult>(term, resolver);
+      }
+
+      return null;
+    });
   }
 
   async fetchTaxonomyTermById(
@@ -451,10 +455,12 @@ export class WordPressHttpClient {
 
     const resolver = _resolver || this.createResolver();
 
-    const existingPromise = resolver.getAssetPromise(taxonomy, id);
+    const existingPromise = resolver.getAssetPromise<TaxonomyTermResult>(
+      taxonomy,
+      id
+    );
 
-    if (existingPromise)
-      return existingPromise as Promise<TaxonomyTermResult | null>;
+    if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise(taxonomy, id, async () => {
       const headers = await resolver.getHeaders();
@@ -469,8 +475,12 @@ export class WordPressHttpClient {
         headers
       );
 
-      return term ? await resolveTaxonomyTerm(term, resolver) : null;
-    }) as Promise<TaxonomyTermResult | null>;
+      if (term) {
+        return resolveClutchFields<TaxonomyTermResult>(term, resolver);
+      }
+
+      return null;
+    });
   }
 
   // Search Methods
@@ -515,9 +525,9 @@ export class WordPressHttpClient {
     }) as Promise<MenuResult | null>;
   }
 
-  async isInDraftMode(): Promise<boolean> {
+  isInDraftMode(): boolean {
     const { draftMode } = this.config;
 
-    return draftMode || (await draftMode()).isEnabled;
+    return !!draftMode;
   }
 }
