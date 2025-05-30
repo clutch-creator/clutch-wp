@@ -49,8 +49,7 @@ export interface WordPressClientConfig {
 
 export class WordPressHttpClient {
   private config: WordPressClientConfig;
-  private defaultResolver: Resolver;
-  private versionValidated: boolean = false;
+
   private pluginInfo: PluginInfoResponse | null = null;
 
   constructor(config: WordPressClientConfig) {
