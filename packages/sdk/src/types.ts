@@ -1,5 +1,8 @@
 import { WpPageType, WpPageView } from "./statics";
 
+// Export plugin info types
+export * from "./types/plugin-info";
+
 export type WPId = number;
 
 export type WPIdFilter = string | number;

@@ -1,5 +1,5 @@
 {
-	"name": "clutch-wp",
+	"name": "@clutch-wp/clutch-plugin",
 	"version": "2.2.0",
 	"description": "Clutch wordpress plugin",
 	"main": "index.js",

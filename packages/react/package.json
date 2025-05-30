@@ -1,6 +1,6 @@
 {
   "name": "@clutch-wp/react",
-  "version": "2.2.0",
+  "version": "1.0.0",
   "description": "React hooks and context for Clutch WordPress SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

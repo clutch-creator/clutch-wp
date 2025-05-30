@@ -24,10 +24,13 @@ import {
   FetchSearchArgs,
   FetchTaxonomyTermsArgs,
   FetchUsersArgs,
+  PluginInfoResponse,
   TParams,
   TWpTemplateList,
+  VersionValidationResult,
   WPIdFilter,
 } from "./types";
+import { VersionConfig } from "./version-config";
 
 export interface WordPressClientConfig {
   /** The WordPress site URL (e.g., https://example.com) */
@@ -49,6 +52,8 @@ export interface WordPressClientConfig {
 export class WordPressHttpClient {
   private config: WordPressClientConfig;
   private defaultResolver: Resolver;
+  private versionValidated: boolean = false;
+  private pluginInfo: PluginInfoResponse | null = null;
 
   constructor(config: WordPressClientConfig) {
     const {
@@ -216,6 +221,59 @@ export class WordPressHttpClient {
   updateConfig(newConfig: Partial<WordPressClientConfig>): void {
     this.config = { ...this.config, ...newConfig };
     this.defaultResolver = this.createResolver();
+  }
+
+  /**
+   * Get plugin information from the WordPress site
+   */
+  async getPluginInfo(): Promise<PluginInfoResponse | null> {
+    if (this.pluginInfo) {
+      return this.pluginInfo;
+    }
+
+    try {
+      const response = await this.wpPluginGet<PluginInfoResponse>("info", {});
+
+      this.pluginInfo = response || null;
+
+      return this.pluginInfo;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn("Failed to fetch plugin info:", error);
+
+      return null;
+    }
+  }
+
+  /**
+   * Validate the plugin version compatibility
+   */
+  async validatePluginVersion(): Promise<VersionValidationResult> {
+    const pluginInfo = await this.getPluginInfo();
+
+    if (!pluginInfo) {
+      const result: VersionValidationResult = {
+        isCompatible: false,
+        pluginVersion: "unknown",
+        requiredVersion: VersionConfig.getMinimumPluginVersion(),
+        supportedRange: VersionConfig.getSupportedVersionRange(),
+        message:
+          "Unable to fetch plugin information. Please ensure the Clutch WordPress plugin is installed and activated.",
+        severity: "error",
+      };
+
+      return result;
+    }
+
+    const compatibilityInfo = VersionConfig.getCompatibilityInfo(
+      pluginInfo.version
+    );
+    const result: VersionValidationResult = {
+      ...compatibilityInfo,
+      severity: compatibilityInfo.isCompatible ? "info" : "error",
+    };
+
+    return result;
   }
 
   // Posts Methods
