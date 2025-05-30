@@ -66,7 +66,6 @@ export class WordPressHttpClient {
       revalidate,
       ...restConfig,
     };
-    this.defaultResolver = this.createResolver();
   }
 
   private createResolver(): Resolver {
@@ -217,7 +216,6 @@ export class WordPressHttpClient {
    */
   updateConfig(newConfig: Partial<WordPressClientConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    this.defaultResolver = this.createResolver();
   }
 
   /**
