@@ -65,27 +65,21 @@ export type TParams = {
 // Fetch function argument types
 export type FetchPostsArgs = {
   post_type?: string;
-  page?: number;
-  per_page?: number;
-  search?: string;
-  slug?: string;
-  status?: string;
-  author?: number;
-  categories?: number[];
-  tags?: number[];
-  orderby?: string;
+  page?: number | string;
+  per_page?: number | string;
   order?: "asc" | "desc";
-  filters?: TFilters;
+  order_by?: string;
+  seo?: boolean;
   [key: string]: unknown;
 };
 
 export type FetchUsersArgs = {
-  page?: number;
-  per_page?: number;
+  page?: number | string;
+  per_page?: number | string;
   search?: string;
-  exclude?: number[];
-  include?: number[];
-  offset?: number;
+  exclude?: WPIdFilter[];
+  include?: WPIdFilter[];
+  offset?: number | string;
   orderby?: string;
   order?: "asc" | "desc";
   slug?: string;
@@ -95,18 +89,17 @@ export type FetchUsersArgs = {
 
 export type FetchTaxonomyTermsArgs = {
   taxonomy?: string;
-  page?: number;
-  per_page?: number;
+  page?: number | string;
+  per_page?: number | string;
   search?: string;
-  exclude?: number[];
-  include?: number[];
+  exclude?: WPIdFilter[];
+  include?: WPIdFilter[];
   order?: "asc" | "desc";
   orderby?: string;
-  hide_empty?: boolean;
-  parent?: number;
-  post?: number;
-  slug?: string;
-  filters?: TFilters;
+  hide_empty?: boolean | string;
+  parent?: number | string;
+  post?: number | string;
+  slug?: string | string[];
   [key: string]: unknown;
 };
 
@@ -114,7 +107,7 @@ export type FetchSearchArgs = {
   search?: string;
   type?: string;
   subtype?: string;
-  page?: number;
-  per_page?: number;
+  page?: number | string;
+  per_page?: number | string;
   [key: string]: unknown;
 };

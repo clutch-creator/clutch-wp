@@ -1,4 +1,6 @@
+import { WP_Block_Parsed } from "wp-types";
 import { TPermalinkInfo } from "../types";
+import { resolveBlock } from "./blocks";
 import {
   checkForLinksInString,
   resolveLinkFromInfo,
@@ -41,13 +43,18 @@ type TClutchFieldLink = TClutchFieldBase & {
   _clutch_type: "link";
 } & TPermalinkInfo;
 
+type TClutchFieldBlock = TClutchFieldBase & {
+  _clutch_type: "block";
+} & WP_Block_Parsed;
+
 type TClutchField =
   | TClutchFieldUser
   | TClutchFieldMedia
   | TClutchFieldPost
   | TClutchFieldTaxonomyTerm
   | TClutchFieldDate
-  | TClutchFieldLink;
+  | TClutchFieldLink
+  | TClutchFieldBlock;
 
 function isClutchField(value: unknown): value is TClutchField {
   return value !== null && typeof value === "object" && "_clutch_type" in value;
@@ -86,26 +93,32 @@ async function resolveClutchField(value: TClutchField, resolver: Resolver) {
 
     return resolveLinkFromInfo(value, templates);
   }
+
+  if (value._clutch_type === "block") {
+    return resolveBlock(value, resolver);
+  }
+
+  return value;
 }
 
 function traverseClutchFields(
-  fieldValue: unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  draftField: any,
   resolver: Resolver
 ): undefined {
-  if (!fieldValue) return;
+  if (!draftField) return;
 
   // loop through acf fields and resolve objects
-  if (typeof fieldValue !== "object") return;
+  if (typeof draftField !== "object") return;
 
-  Object.entries(fieldValue).forEach(async ([key, value]) => {
+  Object.entries(draftField).forEach(async ([key, value]) => {
     const isObject = value && typeof value === "object";
 
     if (isClutchField(value)) {
       resolver.waitUntil(async () => {
         const resolvedValue = await resolveClutchField(value, resolver);
-        const mutableFieldValue = fieldValue as Record<string, unknown>;
 
-        mutableFieldValue[key] = resolvedValue;
+        draftField[key] = resolvedValue;
       });
     } else if (isObject) {
       traverseClutchFields(value as Record<string, unknown>, resolver);
@@ -115,9 +128,8 @@ function traverseClutchFields(
     ) {
       resolver.waitUntil(async () => {
         const resolvedValue = await resolveLinksInString(value, resolver);
-        const mutableFieldValue = fieldValue as Record<string, unknown>;
 
-        mutableFieldValue[key] = resolvedValue;
+        draftField[key] = resolvedValue;
       });
     }
   });

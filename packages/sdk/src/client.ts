@@ -22,6 +22,7 @@ import {
   TermRestResult,
   TermsRestResult,
   TermsResult,
+  TFrontPageInfo,
   TParams,
   TWpTemplateList,
   UserResult,
@@ -576,6 +577,21 @@ export class WordPressHttpClient {
 
       return null;
     }) as Promise<MenuResult | null>;
+  }
+
+  async fetchFrontPageInfo(
+    _resolver?: Resolver
+  ): Promise<TFrontPageInfo | undefined> {
+    const resolver = _resolver || this.createResolver();
+    const headers = await resolver.getHeaders();
+    const frontPageInfo = await this.wpPluginGet<TFrontPageInfo>(
+      "front-page",
+      {},
+      ["front-page"],
+      headers
+    );
+
+    return frontPageInfo;
   }
 
   isInDraftMode(): boolean {
