@@ -4,6 +4,9 @@
 	"description": "Clutch wordpress plugin",
 	"main": "index.js",
 	"type": "module",
+	"files": [
+		"readme.txt"
+	],
 	"scripts": {
 		"prettier": "prettier --check .",
 		"prettier:fix": "prettier --check --write .",
