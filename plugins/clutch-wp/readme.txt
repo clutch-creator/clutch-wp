@@ -56,36 +56,7 @@ Join our [community](https://discord.com/invite/j4bnupeese) and reach out, we'll
 
 == Changelog ==
 
-= 1.0.0 =
-* Launched Clutch Integration plugin.
-* Enabled headless WordPress sync with Clutch.
-
-= 2.0.0 =
-* Filter and pagination posts rest route
-* Filter and pagination terms rest route
-* Metabox plugin better support
-* Fix displayed plugin version
-
-= 2.1.0 =
-* Add cf7 endpoint
-
-= 2.1.1 =
-* Fix resolving posts and taxonomy terms fields
-* Fix meta fields contains queries
-
-= 2.1.2 =
-* Fix ordering by on posts rest endpoint
-* Better support for order by meta field
-* Ability to filter posts by id with eq,neq,in,nin operators
-
-= 2.2.0 =
-* Fix meta fields on posts query
-* Fix meta fields on terms query
-* Support for jet engine meta fields on posts and terms queries
-
-= 2.3.0 =
-* Add SEO support for posts and taxonomies via Yoast and SlimSEO integrations
-* Expose SEO data in REST endpoints with `seo` parameter
+https://github.com/clutch-creator/clutch-wp/releases
 
 == Upgrade Notice ==
 

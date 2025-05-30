@@ -1,6 +1,6 @@
 {
 	"name": "@clutch-wp/clutch-plugin",
-	"version": "2.2.0",
+	"version": "2.3.0",
 	"description": "Clutch wordpress plugin",
 	"main": "index.js",
 	"type": "module",
@@ -13,7 +13,9 @@
 		"test": "echo \"Error: no test specified\"",
 		"package": "mkdir -p dist && zip -r dist/clutch-wp.zip . -x@.zipignore",
 		"build": "bun run package && wp-scripts build --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build",
-		"start": "wp-scripts start --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build"
+		"start": "wp-scripts start --webpack-copy-php --source-path=blocks-src --output-path=includes/blocks/build",
+		"update-version": "bun scripts/update-version.ts",
+		"postversion": "bun run update-version"
 	},
 	"keywords": [],
 	"author": "",
