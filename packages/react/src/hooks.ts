@@ -7,14 +7,64 @@ import {
   type MenuResult,
   type PostResult,
   type PostsResult,
-  type SearchResut,
   type TaxonomyTermResult,
   type TermsResult,
   type UserResult,
   type WPIdFilter,
 } from "@clutch-wp/sdk";
-import { useCallback, useContext, useEffect, useState } from "react";
+import {
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
+import { useCallback, useContext } from "react";
 import { WordPressContext, type WordPressContextValue } from "./context";
+
+// Query key factories for consistent caching
+const queryKeys = {
+  all: ["wordpress"],
+  posts: (args: FetchPostsArgs) => [...queryKeys.all, "posts", args],
+  postBySlug: (postType: string, slug: string, includeSeo: boolean) => [
+    ...queryKeys.all,
+    "post",
+    "slug",
+    postType,
+    slug,
+    includeSeo,
+  ],
+  postById: (postType: string, id: string | number, includeSeo: boolean) => [
+    ...queryKeys.all,
+    "post",
+    "id",
+    postType,
+    id,
+    includeSeo,
+  ],
+  users: (args: FetchUsersArgs) => [...queryKeys.all, "users", args],
+  userBySlug: (slug: string) => [...queryKeys.all, "user", "slug", slug],
+  userById: (id: string | number) => [...queryKeys.all, "user", "id", id],
+  taxonomyTerms: (args: FetchTaxonomyTermsArgs) => [
+    ...queryKeys.all,
+    "taxonomy-terms",
+    args,
+  ],
+  taxonomyTermBySlug: (taxonomy: string, slug: string, includeSeo: boolean) => [
+    ...queryKeys.all,
+    "taxonomy-term",
+    "slug",
+    taxonomy,
+    slug,
+    includeSeo,
+  ],
+  taxonomyTermById: (
+    taxonomy: string,
+    id: string | number,
+    includeSeo: boolean
+  ) => [...queryKeys.all, "taxonomy-term", "id", taxonomy, id, includeSeo],
+  search: (args: FetchSearchArgs) => [...queryKeys.all, "search", args],
+  menu: (id: WPIdFilter) => [...queryKeys.all, "menu", id],
+  draftMode: () => [...queryKeys.all, "draft-mode"],
+};
 
 /**
  * Hook to access the WordPress client context
@@ -51,332 +101,267 @@ export function useIsConnected(): boolean {
 /**
  * Hook to fetch WordPress posts with built-in loading and error states
  */
-export function usePosts(args: FetchPostsArgs) {
+export function usePosts(
+  args: FetchPostsArgs,
+  options?: UseQueryOptions<PostsResult, Error> & { enabled?: boolean }
+) {
   const client = useWordPressClient();
-  const [data, setData] = useState<PostsResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await client.fetchPosts(args);
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch posts"));
-    } finally {
-      setLoading(false);
-    }
-  }, [args, client]);
-
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
-  return { data, loading, error, refetch: fetchPosts };
+  return useQuery({
+    queryKey: queryKeys.posts(args),
+    queryFn: () => client.fetchPosts(args),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    ...options,
+  });
 }
 
 /**
  * Hook to fetch a single WordPress post by slug
  */
-export function usePost(
+export function usePostBySlug(
   postType: string = "post",
   slug: string,
-  includeSeo: boolean = false
+  includeSeo: boolean = false,
+  options?: UseQueryOptions<PostResult | null, Error>
 ) {
   const client = useWordPressClient();
-  const [data, setData] = useState<PostResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchPost = useCallback(async () => {
-    if (!slug) {
-      setData(null);
-      setLoading(false);
+  return useQuery({
+    queryKey: queryKeys.postBySlug(postType, slug, includeSeo),
+    queryFn: () => client.fetchPostBySlug(postType, slug, includeSeo),
+    enabled: !!slug && options?.enabled !== false,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
 
-      return;
-    }
+/**
+ * Hook to fetch a single WordPress post by ID
+ */
+export function usePostById(
+  postType: string = "post",
+  id: string | number,
+  includeSeo: boolean = false,
+  options?: UseQueryOptions<PostResult | null, Error>
+) {
+  const client = useWordPressClient();
 
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await client.fetchPostBySlug(postType, slug, includeSeo);
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch post"));
-    } finally {
-      setLoading(false);
-    }
-  }, [client, postType, slug, includeSeo]);
-
-  useEffect(() => {
-    fetchPost();
-  }, [fetchPost]);
-
-  return { data, loading, error, refetch: fetchPost };
+  return useQuery({
+    queryKey: queryKeys.postById(postType, id, includeSeo),
+    queryFn: () => client.fetchPostById(postType, id, includeSeo),
+    enabled: !!id && options?.enabled !== false,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
 }
 
 /**
  * Hook to fetch WordPress users
  */
-export function useUsers(args: FetchUsersArgs) {
+export function useUsers(
+  args: FetchUsersArgs,
+  options?: UseQueryOptions<UserResult[], Error> & { enabled?: boolean }
+) {
   const client = useWordPressClient();
-  const [data, setData] = useState<UserResult[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchUsers = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await client.fetchUsers(args);
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch users"));
-    } finally {
-      setLoading(false);
-    }
-  }, [args, client]);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  return { data, loading, error, refetch: fetchUsers };
+  return useQuery({
+    queryKey: queryKeys.users(args),
+    queryFn: () => client.fetchUsers(args),
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
 }
 
 /**
- * Hook to fetch a single WordPress user
+ * Hook to fetch a single WordPress user by slug
  */
-export function useUser(
-  identifier: string | number,
-  type: "slug" | "id" = "slug"
+export function useUserBySlug(
+  slug: string,
+  options?: UseQueryOptions<UserResult | null, Error>
 ) {
   const client = useWordPressClient();
-  const [data, setData] = useState<UserResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchUser = useCallback(async () => {
-    if (!identifier) {
-      setData(null);
-      setLoading(false);
+  return useQuery({
+    queryKey: queryKeys.userBySlug(slug),
+    queryFn: () => client.fetchUserBySlug(slug),
+    enabled: !!slug && options?.enabled !== false,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
 
-      return;
-    }
+/**
+ * Hook to fetch a single WordPress user by ID
+ */
+export function useUserById(
+  id: string | number,
+  options?: UseQueryOptions<UserResult | null, Error>
+) {
+  const client = useWordPressClient();
 
-    try {
-      setLoading(true);
-      setError(null);
-      const result =
-        type === "slug"
-          ? await client.fetchUserBySlug(String(identifier))
-          : await client.fetchUserById(identifier);
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch user"));
-    } finally {
-      setLoading(false);
-    }
-  }, [client, identifier, type]);
-
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
-  return { data, loading, error, refetch: fetchUser };
+  return useQuery({
+    queryKey: queryKeys.userById(id),
+    queryFn: () => client.fetchUserById(id),
+    enabled: !!id && options?.enabled !== false,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
 }
 
 /**
  * Hook to fetch taxonomy terms
  */
-export function useTaxonomyTerms(args: FetchTaxonomyTermsArgs) {
-  const client = useWordPressClient();
-  const [data, setData] = useState<TermsResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchTerms = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await client.fetchTaxonomyTerms(args);
-
-      setData(result);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error("Failed to fetch taxonomy terms")
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [args, client]);
-
-  useEffect(() => {
-    fetchTerms();
-  }, [fetchTerms]);
-
-  return { data, loading, error, refetch: fetchTerms };
-}
-
-/**
- * Hook to fetch a single taxonomy term
- */
-export function useTaxonomyTerm(
-  taxonomy: string,
-  identifier: string | number,
-  type: "slug" | "id" = "slug",
-  includeSeo: boolean = false
+export function useTaxonomyTerms(
+  args: FetchTaxonomyTermsArgs,
+  options?: UseQueryOptions<TermsResult, Error> & { enabled?: boolean }
 ) {
   const client = useWordPressClient();
-  const [data, setData] = useState<TaxonomyTermResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchTerm = useCallback(async () => {
-    if (!taxonomy || !identifier) {
-      setData(null);
-      setLoading(false);
-
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const result =
-        type === "slug"
-          ? await client.fetchTaxonomyTermBySlug(
-              taxonomy,
-              String(identifier),
-              includeSeo
-            )
-          : await client.fetchTaxonomyTermById(
-              taxonomy,
-              identifier,
-              includeSeo
-            );
-
-      setData(result);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error("Failed to fetch taxonomy term")
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [client, taxonomy, identifier, type, includeSeo]);
-
-  useEffect(() => {
-    fetchTerm();
-  }, [fetchTerm]);
-
-  return { data, loading, error, refetch: fetchTerm };
+  return useQuery({
+    queryKey: queryKeys.taxonomyTerms(args),
+    queryFn: () => client.fetchTaxonomyTerms(args),
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
 }
 
 /**
- * Hook to search WordPress content
+ * Hook to fetch a single taxonomy term by slug
  */
-export function useSearch(args: FetchSearchArgs) {
+export function useTaxonomyTermBySlug(
+  taxonomy: string,
+  slug: string,
+  includeSeo: boolean = false,
+  options?: UseQueryOptions<TaxonomyTermResult | null, Error>
+) {
   const client = useWordPressClient();
-  const [data, setData] = useState<SearchResut[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
-  const search = useCallback(async () => {
-    if (!args.search) {
-      setData([]);
-      setLoading(false);
+  return useQuery({
+    queryKey: queryKeys.taxonomyTermBySlug(taxonomy, slug, includeSeo),
+    queryFn: () => client.fetchTaxonomyTermBySlug(taxonomy, slug, includeSeo),
+    enabled: !!taxonomy && !!slug && options?.enabled !== false,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
 
-      return;
-    }
+/**
+ * Hook to fetch a single taxonomy term by ID
+ */
+export function useTaxonomyTermById(
+  taxonomy: string,
+  id: string | number,
+  includeSeo: boolean = false,
+  options?: UseQueryOptions<TaxonomyTermResult | null, Error>
+) {
+  const client = useWordPressClient();
 
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await client.fetchSearchResults(args);
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to search"));
-    } finally {
-      setLoading(false);
-    }
-  }, [args, client]);
-
-  useEffect(() => {
-    search();
-  }, [search]);
-
-  return { data, loading, error, search };
+  return useQuery({
+    queryKey: queryKeys.taxonomyTermById(taxonomy, id, includeSeo),
+    queryFn: () => client.fetchTaxonomyTermById(taxonomy, id, includeSeo),
+    enabled: !!taxonomy && !!id && options?.enabled !== false,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
 }
 
 /**
  * Hook to fetch a WordPress menu
  */
-export function useMenu(id: WPIdFilter) {
+export function useMenu(
+  id: WPIdFilter,
+  options?: UseQueryOptions<MenuResult | null, Error> & { enabled?: boolean }
+) {
   const client = useWordPressClient();
-  const [data, setData] = useState<MenuResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
-  const fetchMenu = useCallback(async () => {
-    if (!id) {
-      setData(null);
-      setLoading(false);
-
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await client.fetchMenuById(id);
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch menu"));
-    } finally {
-      setLoading(false);
-    }
-  }, [client, id]);
-
-  useEffect(() => {
-    fetchMenu();
-  }, [fetchMenu]);
-
-  return { data, loading, error, refetch: fetchMenu };
+  return useQuery({
+    queryKey: queryKeys.menu(id),
+    queryFn: () => client.fetchMenuById(id),
+    enabled: !!id && options?.enabled !== false,
+    staleTime: 10 * 60 * 1000, // 10 minutes for menus (change less frequently)
+    ...options,
+  });
 }
 
 /**
  * Hook to check if WordPress is in draft mode
  */
-export function useDraftMode() {
+export function useDraftMode(options?: UseQueryOptions<boolean, Error>) {
   const client = useWordPressClient();
-  const [isDraftMode, setIsDraftMode] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkDraftMode = async () => {
-      try {
-        setLoading(true);
-        const result = await client.isInDraftMode();
+  return useQuery({
+    queryKey: queryKeys.draftMode(),
+    queryFn: () => client.isInDraftMode(),
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 60 * 1000, // Refetch every minute
+    ...options,
+  });
+}
 
-        setIsDraftMode(result);
-      } catch (err) {
-        setIsDraftMode(false);
-      } finally {
-        setLoading(false);
-      }
-    };
+/**
+ * Hook to access query utilities for cache management
+ */
+export function useWordPressQueries() {
+  const queryClient = useQueryClient();
+  const client = useWordPressClient();
 
-    checkDraftMode();
-  }, [client]);
+  const invalidateAll = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.all });
+  }, [queryClient]);
 
-  return { isDraftMode, loading };
+  const invalidatePosts = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: [...queryKeys.all, "posts"] });
+  }, [queryClient]);
+
+  const invalidateUsers = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: [...queryKeys.all, "users"] });
+  }, [queryClient]);
+
+  const prefetchPostBySlug = useCallback(
+    async (postType: string, slug: string, includeSeo: boolean = false) => {
+      await queryClient.prefetchQuery({
+        queryKey: queryKeys.postBySlug(postType, slug, includeSeo),
+        queryFn: () => client.fetchPostBySlug(postType, slug, includeSeo),
+        staleTime: 5 * 60 * 1000,
+      });
+    },
+    [queryClient, client]
+  );
+
+  const prefetchPostById = useCallback(
+    async (
+      postType: string,
+      id: string | number,
+      includeSeo: boolean = false
+    ) => {
+      await queryClient.prefetchQuery({
+        queryKey: queryKeys.postById(postType, id, includeSeo),
+        queryFn: () => client.fetchPostById(postType, id, includeSeo),
+        staleTime: 5 * 60 * 1000,
+      });
+    },
+    [queryClient, client]
+  );
+
+  const prefetchPosts = useCallback(
+    async (args: FetchPostsArgs) => {
+      await queryClient.prefetchQuery({
+        queryKey: queryKeys.posts(args),
+        queryFn: () => client.fetchPosts(args),
+        staleTime: 5 * 60 * 1000,
+      });
+    },
+    [queryClient, client]
+  );
+
+  return {
+    invalidateAll,
+    invalidatePosts,
+    invalidateUsers,
+    prefetchPost: prefetchPostBySlug, // Keep for backward compatibility
+    prefetchPostBySlug,
+    prefetchPostById,
+    prefetchPosts,
+    queryClient,
+  };
 }
