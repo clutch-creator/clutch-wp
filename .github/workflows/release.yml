@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  BUN_VERSION: "1.2.14"
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Type Check
+        run: bun run check-types
+
+      - name: Run Tests
+        run: bun run test
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: bun run release
+          version: bun run version-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Add plugin asset to release
+        if: steps.changesets.outputs.published == 'true' && contains(fromJSON(steps.changesets.outputs.publishedPackages).*.name, 'clutch-wp')
+        run: |
+          set -e
+          cd plugins/clutch-wp
+          bun run build
+
+          # Get the latest release tag created by changesets
+          LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+
+          if [ -n "$LATEST_TAG" ]; then
+            # Upload the plugin zip to the release
+            gh release upload "$LATEST_TAG" dist/clutch-wp.zip --clobber
+            echo "✅ Uploaded clutch-wp.zip to release $LATEST_TAG"
+          else
+            echo "❌ No release found to upload asset to"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
