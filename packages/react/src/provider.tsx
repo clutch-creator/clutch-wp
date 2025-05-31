@@ -2,6 +2,7 @@ import {
   WordPressHttpClient,
   type WordPressClientConfig,
 } from "@clutch-wp/sdk";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useEffect, useState } from "react";
 import { WordPressContext, type WordPressContextValue } from "./context";
 
@@ -14,6 +15,9 @@ export interface WordPressProviderProps {
   /** Child components */
   children: ReactNode;
 }
+
+// Create a client
+const queryClient = new QueryClient();
 
 /**
  * WordPress provider component that provides the client instance through context
@@ -61,8 +65,10 @@ export function WordPressProvider({
   };
 
   return (
-    <WordPressContext.Provider value={contextValue}>
-      {children}
-    </WordPressContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <WordPressContext.Provider value={contextValue}>
+        {children}
+      </WordPressContext.Provider>
+    </QueryClientProvider>
   );
 }
