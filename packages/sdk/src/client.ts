@@ -31,11 +31,23 @@ import {
 } from "./types";
 import { VersionConfig } from "./version-config";
 
+type TComponentsMap = {
+  RichText: React.ComponentType<{
+    tag: string;
+    className?: string;
+    children?: React.ReactNode;
+  }>;
+  Image: React.ComponentType<{ src: string; alt?: string; className?: string }>;
+  blockComponents?: Record<string, React.ComponentType<unknown>>;
+};
+
 export interface WordPressClientConfig {
   /** The WordPress site URL (e.g., https://example.com) */
   apiUrl: string;
   /** WordPress pages/templates configuration */
   pages: TWpTemplateList;
+  /** Components to use for rendering blocks */
+  components: TComponentsMap;
   /** Optional authentication token */
   authToken?: string;
   /** Whether to disable caching (useful for development) */
@@ -217,6 +229,10 @@ export class WordPressHttpClient {
    */
   updateConfig(newConfig: Partial<WordPressClientConfig>): void {
     this.config = { ...this.config, ...newConfig };
+  }
+
+  getComponents() {
+    return this.config.components;
   }
 
   /**
