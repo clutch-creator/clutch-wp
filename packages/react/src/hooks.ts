@@ -155,6 +155,28 @@ export function usePostById(
   });
 }
 
+export function usePost(
+  postType: string = "post",
+  identifier: "slug" | "id",
+  idOrSlug: string | number,
+  includeSeo: boolean = false,
+  options?: UseQueryOptions<PostResult | null, Error> & {
+    enabled?: boolean;
+  }
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: queryKeys.postById(postType, idOrSlug, includeSeo),
+    queryFn: () =>
+      identifier === "id"
+        ? client.fetchPostById(postType, idOrSlug, includeSeo)
+        : client.fetchPostBySlug(postType, idOrSlug.toString(), includeSeo),
+    enabled: !!idOrSlug && options?.enabled !== false,
+    ...options,
+  });
+}
+
 export function usePostTypes(
   options?: UseQueryOptions<TClutchPostType[] | undefined, Error>
 ) {
