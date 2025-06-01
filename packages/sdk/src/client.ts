@@ -481,6 +481,18 @@ export class WordPressHttpClient {
     return taxonomies || [];
   }
 
+  async fetchTaxonomy(
+    taxonomy: string
+  ): Promise<TClutchTaxonomyType | undefined> {
+    const taxonomyRes = await this.wpPluginGet<TClutchTaxonomyType>(
+      `taxonomy/${taxonomy}`,
+      {},
+      ["taxonomies", `taxonomy-${taxonomy}`]
+    );
+
+    return taxonomyRes;
+  }
+
   // Taxonomies Methods
   async fetchTaxonomyTerms(
     args: FetchTaxonomyTermsArgs,

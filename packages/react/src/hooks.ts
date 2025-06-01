@@ -106,7 +106,7 @@ export function useIsConnected(): boolean {
  */
 export function usePosts(
   args: FetchPostsArgs,
-  options?: UseQueryOptions<PostsResult, Error> & { enabled?: boolean }
+  options?: UseQueryOptions<PostsResult, Error>
 ) {
   const client = useWordPressClient();
 
@@ -160,9 +160,7 @@ export function usePost(
   identifier: "slug" | "id",
   idOrSlug: string | number,
   includeSeo: boolean = false,
-  options?: UseQueryOptions<PostResult | null, Error> & {
-    enabled?: boolean;
-  }
+  options?: UseQueryOptions<PostResult | null, Error>
 ) {
   const client = useWordPressClient();
 
@@ -191,9 +189,7 @@ export function usePostTypes(
 
 export function usePostType(
   postType: string,
-  options?: UseQueryOptions<TClutchPostType | undefined, Error> & {
-    enabled?: boolean;
-  }
+  options?: UseQueryOptions<TClutchPostType | undefined, Error>
 ) {
   const client = useWordPressClient();
 
@@ -210,7 +206,7 @@ export function usePostType(
  */
 export function useUsers(
   args: FetchUsersArgs,
-  options?: UseQueryOptions<UserResult[], Error> & { enabled?: boolean }
+  options?: UseQueryOptions<UserResult[], Error>
 ) {
   const client = useWordPressClient();
 
@@ -267,12 +263,26 @@ export function useTaxonomies(
   });
 }
 
+export function useTaxonomy(
+  taxonomy: string,
+  options?: UseQueryOptions<TClutchTaxonomyType | undefined, Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: [...queryKeys.all, "taxonomy", taxonomy],
+    queryFn: () => client.fetchTaxonomy(taxonomy),
+    enabled: !!taxonomy && options?.enabled !== false,
+    ...options,
+  });
+}
+
 /**
  * Hook to fetch taxonomy terms
  */
 export function useTaxonomyTerms(
   args: FetchTaxonomyTermsArgs,
-  options?: UseQueryOptions<TermsResult, Error> & { enabled?: boolean }
+  options?: UseQueryOptions<TermsResult, Error>
 ) {
   const client = useWordPressClient();
 
@@ -321,6 +331,30 @@ export function useTaxonomyTermById(
   });
 }
 
+export function useTaxonomyTerm(
+  taxonomy: string,
+  identifier: "slug" | "id",
+  idOrSlug: string | number,
+  includeSeo: boolean = false,
+  options?: UseQueryOptions<TaxonomyTermResult | null, Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: queryKeys.taxonomyTermById(taxonomy, idOrSlug, includeSeo),
+    queryFn: () =>
+      identifier === "id"
+        ? client.fetchTaxonomyTermById(taxonomy, idOrSlug, includeSeo)
+        : client.fetchTaxonomyTermBySlug(
+            taxonomy,
+            idOrSlug.toString(),
+            includeSeo
+          ),
+    enabled: !!taxonomy && !!idOrSlug && options?.enabled !== false,
+    ...options,
+  });
+}
+
 export function useMenusLocations(
   options?: UseQueryOptions<MenuLocationResponse[], Error>
 ) {
@@ -338,7 +372,7 @@ export function useMenusLocations(
  */
 export function useMenu(
   id: WPIdFilter,
-  options?: UseQueryOptions<MenuResult | null, Error> & { enabled?: boolean }
+  options?: UseQueryOptions<MenuResult | null, Error>
 ) {
   const client = useWordPressClient();
 
