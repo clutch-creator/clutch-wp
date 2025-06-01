@@ -12,6 +12,18 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/taxonomies', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_taxonomies',
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
+	]);
+
+	/* ----------  /taxonomy/{name}  ------------------------------------- */
+	register_rest_route('clutch/v1', '/taxonomy/(?P<name>[a-zA-Z0-9_-]+)', [
+		'methods' => 'GET',
+		'callback' => __NAMESPACE__ . '\\rest_get_taxonomy',
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
 	]);
 
 	/* ----------  /terms  ------------------------------------------ */
@@ -123,6 +135,46 @@ function rest_get_taxonomies()
 				!empty($terms) && !is_wp_error($terms) ? $terms[0]->slug : null,
 		];
 	}
+
+	return new \WP_REST_Response($response);
+}
+
+/**
+ * Retrieves information about a specific taxonomy.
+ *
+ * @param \WP_REST_Request $request The REST API request object.
+ * @return \WP_REST_Response|\WP_Error A REST response containing taxonomy data or an error.
+ */
+function rest_get_taxonomy(\WP_REST_Request $request)
+{
+	$taxonomy_name = $request->get_param('name');
+
+	if (!taxonomy_exists($taxonomy_name)) {
+		return new \WP_Error(
+			'invalid_taxonomy',
+			__('Invalid taxonomy.', 'textdomain'),
+			['status' => 404]
+		);
+	}
+
+	$taxonomy = get_taxonomy($taxonomy_name);
+
+	$terms = get_terms([
+		'taxonomy' => $taxonomy->name,
+		'hide_empty' => false,
+		'number' => 1,
+	]);
+
+	$response = [
+		'name' => $taxonomy->name,
+		'description' => $taxonomy->description,
+		'label' => $taxonomy->label,
+		'singular_label' => $taxonomy->labels->singular_name,
+		'rest_base' => $taxonomy->rest_base ?: $taxonomy->name,
+		'rest_namespace' => $taxonomy->rest_namespace ?: 'wp/v2',
+		'first_term_slug' =>
+			!empty($terms) && !is_wp_error($terms) ? $terms[0]->slug : null,
+	];
 
 	return new \WP_REST_Response($response);
 }
