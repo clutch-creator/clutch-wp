@@ -16,31 +16,11 @@ type TLinkOptions = {
 
 export async function getPermalinkInfo(
   resolver: Resolver,
-  url: string,
-  relativePath: string
+  url: string
 ): Promise<TPermalinkInfo | undefined> {
-  const cacheKey = relativePath.replace(/\//g, "-").slice(0, -1);
   const client = resolver.getClient();
-  const headers = await resolver.getHeaders();
 
-  // Use explicit typing to access the private method
-  const clientWithPrivateMethod = client as unknown as {
-    wpPluginGet<T>(
-      path: string,
-      params: Record<string, unknown>,
-      tags: string[],
-      headers?: Record<string, string>
-    ): Promise<T | undefined>;
-  };
-
-  const res = await clientWithPrivateMethod.wpPluginGet<TPermalinkInfo>(
-    "permalink-info",
-    {
-      url,
-    },
-    ["permalinks", `perma-${cacheKey}`],
-    headers
-  );
+  const res = await client.getPermalinkInfo(url, resolver);
 
   return res;
 }
@@ -183,7 +163,7 @@ export async function resolveLink(
     return url;
   }
 
-  const permalinkInfo = await getPermalinkInfo(resolver, url, relativePath);
+  const permalinkInfo = await getPermalinkInfo(resolver, url);
 
   // Get templates from resolver if provided, otherwise fallback to empty array
   let templates: TWpTemplate[];

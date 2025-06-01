@@ -27,6 +27,7 @@ import {
   TermsResult,
   TFrontPageInfo,
   TParams,
+  TPermalinkInfo,
   TWpTemplateList,
   UserResult,
   VersionValidationResult,
@@ -297,14 +298,12 @@ export class WordPressHttpClient {
     _resolver?: Resolver
   ): Promise<PostsResult> {
     const resolver = _resolver || this.createResolver();
-    const headers = await resolver.getHeaders();
     const postType = args.post_type || "post";
 
     const postsResponse = await this.wpPluginGet<PostsRestResult>(
       "posts",
       args,
-      [postType],
-      headers
+      [postType]
     );
 
     if (!postsResponse) {
@@ -472,14 +471,11 @@ export class WordPressHttpClient {
     });
   }
 
-  async fetchTaxonomies(_resolver?: Resolver): Promise<TClutchTaxonomyType[]> {
-    const resolver = _resolver || this.createResolver();
-    const headers = await resolver.getHeaders();
+  async fetchTaxonomies(): Promise<TClutchTaxonomyType[]> {
     const taxonomies = await this.wpPluginGet<TClutchTaxonomyType[]>(
       "taxonomies",
       {},
-      ["taxonomies"],
-      headers
+      ["taxonomies"]
     );
 
     return taxonomies || [];
@@ -491,14 +487,10 @@ export class WordPressHttpClient {
     _resolver?: Resolver
   ): Promise<TermsResult> {
     const resolver = _resolver || this.createResolver();
-    const headers = await resolver.getHeaders();
     const taxonomy = args.taxonomy || "category";
-    const response = await this.wpPluginGet<TermsRestResult>(
-      "terms",
-      args,
-      [taxonomy],
-      headers
-    );
+    const response = await this.wpPluginGet<TermsRestResult>("terms", args, [
+      taxonomy,
+    ]);
 
     if (!response) {
       return {
@@ -529,7 +521,6 @@ export class WordPressHttpClient {
     if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise(taxonomy, slug, async () => {
-      const headers = await resolver.getHeaders();
       const term = await this.wpPluginGet<TermRestResult>(
         "term",
         {
@@ -537,8 +528,7 @@ export class WordPressHttpClient {
           taxonomy,
           seo: includeSeo,
         },
-        [`${taxonomy}-${slug}`],
-        headers
+        [`${taxonomy}-${slug}`]
       );
 
       if (term) {
@@ -567,7 +557,6 @@ export class WordPressHttpClient {
     if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise(taxonomy, id, async () => {
-      const headers = await resolver.getHeaders();
       const term = await this.wpPluginGet<TermRestResult>(
         "term",
         {
@@ -575,8 +564,7 @@ export class WordPressHttpClient {
           taxonomy,
           seo: includeSeo,
         },
-        [`${taxonomy}-${id}`],
-        headers
+        [`${taxonomy}-${id}`]
       );
 
       if (term) {
@@ -629,34 +617,51 @@ export class WordPressHttpClient {
     }) as Promise<MenuResult | null>;
   }
 
-  async fetchMenusLocations(
-    _resolver?: Resolver
-  ): Promise<MenuLocationResponse[]> {
-    const resolver = _resolver || this.createResolver();
-    const headers = await resolver.getHeaders();
+  async fetchMenusLocations(): Promise<MenuLocationResponse[]> {
     const locations = await this.wpPluginGet<MenuLocationResponse[]>(
       "menus",
       {},
-      ["menus"],
-      headers
+      ["menus"]
     );
 
     return locations || [];
   }
 
-  async fetchFrontPageInfo(
-    _resolver?: Resolver
-  ): Promise<TFrontPageInfo | undefined> {
-    const resolver = _resolver || this.createResolver();
-    const headers = await resolver.getHeaders();
+  async fetchFrontPageInfo(): Promise<TFrontPageInfo | undefined> {
     const frontPageInfo = await this.wpPluginGet<TFrontPageInfo>(
       "front-page",
       {},
-      ["front-page"],
-      headers
+      ["front-page"]
     );
 
     return frontPageInfo;
+  }
+
+  async getPermalinkInfo(
+    url: string,
+    _resolver?: Resolver
+  ): Promise<TPermalinkInfo | undefined> {
+    const resolver = _resolver || this.createResolver();
+
+    const { apiUrl } = this.config;
+    const relativePath = url.replace(apiUrl, "");
+    const cacheKey = relativePath.replace(/\//g, "-").slice(0, -1);
+
+    // check if resolver is already resolving/resolved this resource
+    const existingPromise = resolver.getAssetPromise("permalinks", cacheKey);
+
+    if (existingPromise)
+      return existingPromise as Promise<TPermalinkInfo | undefined>;
+
+    return resolver.addAssetPromise("permalinks", cacheKey, async () => {
+      const res = await this.wpPluginGet<TPermalinkInfo>(
+        "permalink-info",
+        { url },
+        ["permalinks", `perma-${cacheKey}`]
+      );
+
+      return res;
+    });
   }
 
   isInDraftMode(): boolean {

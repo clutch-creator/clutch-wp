@@ -107,26 +107,6 @@ export class Resolver {
   }
 
   /**
-   * Gets headers with authentication and draft mode configuration
-   * @returns Promise that resolves to the configured headers
-   */
-  async getHeaders(): Promise<Headers> {
-    const { authToken, draftMode } = this.client.getConfig();
-
-    this.headers = this.headers || {};
-
-    if (!this.headers.Authorization && authToken) {
-      this.headers.Authorization = `Bearer ${authToken}`;
-    }
-
-    if (draftMode) {
-      this.headers["X-Draft-Mode"] = "true";
-    }
-
-    return this.headers;
-  }
-
-  /**
    * Returns the WordPress HTTP client instance
    * @returns The WordPress HTTP client
    */
