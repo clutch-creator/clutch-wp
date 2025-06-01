@@ -37,6 +37,7 @@ export async function resolveBlock(block: WP_Block_Parsed, resolver: Resolver) {
     case "core/list":
       return (
         <RichText tag={draftBlock.attrs.ordered ? "ol" : "ul"}>
+          {/* @ts-expect-error fix this */}
           {draftBlock.innerBlocks}
         </RichText>
       );

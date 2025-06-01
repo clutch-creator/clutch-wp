@@ -10,6 +10,7 @@ import {
   FetchSearchArgs,
   FetchTaxonomyTermsArgs,
   FetchUsersArgs,
+  MenuLocationResponse,
   MenuResponse,
   MenuResult,
   PluginInfoResponse,
@@ -19,6 +20,7 @@ import {
   PostsResult,
   SearchResut,
   TaxonomyTermResult,
+  TClutchTaxonomyType,
   TermRestResult,
   TermsRestResult,
   TermsResult,
@@ -451,6 +453,19 @@ export class WordPressHttpClient {
     });
   }
 
+  async fetchTaxonomies(_resolver?: Resolver): Promise<TClutchTaxonomyType[]> {
+    const resolver = _resolver || this.createResolver();
+    const headers = await resolver.getHeaders();
+    const taxonomies = await this.wpPluginGet<TClutchTaxonomyType[]>(
+      "taxonomies",
+      {},
+      ["taxonomies"],
+      headers
+    );
+
+    return taxonomies || [];
+  }
+
   // Taxonomies Methods
   async fetchTaxonomyTerms(
     args: FetchTaxonomyTermsArgs,
@@ -593,6 +608,21 @@ export class WordPressHttpClient {
 
       return null;
     }) as Promise<MenuResult | null>;
+  }
+
+  async fetchMenusLocations(
+    _resolver?: Resolver
+  ): Promise<MenuLocationResponse[]> {
+    const resolver = _resolver || this.createResolver();
+    const headers = await resolver.getHeaders();
+    const locations = await this.wpPluginGet<MenuLocationResponse[]>(
+      "menus",
+      {},
+      ["menus"],
+      headers
+    );
+
+    return locations || [];
   }
 
   async fetchFrontPageInfo(

@@ -1,4 +1,6 @@
 import {
+  MenuLocationResponse,
+  TClutchTaxonomyType,
   WordPressHttpClient,
   type FetchPostsArgs,
   type FetchSearchArgs,
@@ -110,7 +112,6 @@ export function usePosts(
   return useQuery({
     queryKey: queryKeys.posts(args),
     queryFn: () => client.fetchPosts(args),
-    staleTime: 5 * 60 * 1000, // 5 minutes
     ...options,
   });
 }
@@ -130,7 +131,6 @@ export function usePostBySlug(
     queryKey: queryKeys.postBySlug(postType, slug, includeSeo),
     queryFn: () => client.fetchPostBySlug(postType, slug, includeSeo),
     enabled: !!slug && options?.enabled !== false,
-    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
@@ -150,7 +150,6 @@ export function usePostById(
     queryKey: queryKeys.postById(postType, id, includeSeo),
     queryFn: () => client.fetchPostById(postType, id, includeSeo),
     enabled: !!id && options?.enabled !== false,
-    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
@@ -167,7 +166,6 @@ export function useUsers(
   return useQuery({
     queryKey: queryKeys.users(args),
     queryFn: () => client.fetchUsers(args),
-    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
@@ -185,7 +183,6 @@ export function useUserBySlug(
     queryKey: queryKeys.userBySlug(slug),
     queryFn: () => client.fetchUserBySlug(slug),
     enabled: !!slug && options?.enabled !== false,
-    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
@@ -203,7 +200,18 @@ export function useUserById(
     queryKey: queryKeys.userById(id),
     queryFn: () => client.fetchUserById(id),
     enabled: !!id && options?.enabled !== false,
-    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useTaxonomies(
+  options?: UseQueryOptions<TClutchTaxonomyType[], Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: [...queryKeys.all, "taxonomies"],
+    queryFn: () => client.fetchTaxonomies(),
     ...options,
   });
 }
@@ -220,7 +228,6 @@ export function useTaxonomyTerms(
   return useQuery({
     queryKey: queryKeys.taxonomyTerms(args),
     queryFn: () => client.fetchTaxonomyTerms(args),
-    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
@@ -240,7 +247,6 @@ export function useTaxonomyTermBySlug(
     queryKey: queryKeys.taxonomyTermBySlug(taxonomy, slug, includeSeo),
     queryFn: () => client.fetchTaxonomyTermBySlug(taxonomy, slug, includeSeo),
     enabled: !!taxonomy && !!slug && options?.enabled !== false,
-    staleTime: 5 * 60 * 1000,
     ...options,
   });
 }
@@ -260,7 +266,18 @@ export function useTaxonomyTermById(
     queryKey: queryKeys.taxonomyTermById(taxonomy, id, includeSeo),
     queryFn: () => client.fetchTaxonomyTermById(taxonomy, id, includeSeo),
     enabled: !!taxonomy && !!id && options?.enabled !== false,
-    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useMenusLocations(
+  options?: UseQueryOptions<MenuLocationResponse[], Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: [...queryKeys.all, "menus", "locations"],
+    queryFn: () => client.fetchMenusLocations(),
     ...options,
   });
 }
@@ -278,7 +295,6 @@ export function useMenu(
     queryKey: queryKeys.menu(id),
     queryFn: () => client.fetchMenuById(id),
     enabled: !!id && options?.enabled !== false,
-    staleTime: 10 * 60 * 1000, // 10 minutes for menus (change less frequently)
     ...options,
   });
 }
@@ -292,7 +308,6 @@ export function useDraftMode(options?: UseQueryOptions<boolean, Error>) {
   return useQuery({
     queryKey: queryKeys.draftMode(),
     queryFn: () => client.isInDraftMode(),
-    staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute
     ...options,
   });
@@ -322,7 +337,6 @@ export function useWordPressQueries() {
       await queryClient.prefetchQuery({
         queryKey: queryKeys.postBySlug(postType, slug, includeSeo),
         queryFn: () => client.fetchPostBySlug(postType, slug, includeSeo),
-        staleTime: 5 * 60 * 1000,
       });
     },
     [queryClient, client]
@@ -337,7 +351,6 @@ export function useWordPressQueries() {
       await queryClient.prefetchQuery({
         queryKey: queryKeys.postById(postType, id, includeSeo),
         queryFn: () => client.fetchPostById(postType, id, includeSeo),
-        staleTime: 5 * 60 * 1000,
       });
     },
     [queryClient, client]
@@ -348,7 +361,6 @@ export function useWordPressQueries() {
       await queryClient.prefetchQuery({
         queryKey: queryKeys.posts(args),
         queryFn: () => client.fetchPosts(args),
-        staleTime: 5 * 60 * 1000,
       });
     },
     [queryClient, client]
