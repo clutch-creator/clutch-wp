@@ -20,6 +20,7 @@ import {
   PostsResult,
   SearchResut,
   TaxonomyTermResult,
+  TClutchPostType,
   TClutchTaxonomyType,
   TermRestResult,
   TermsRestResult,
@@ -336,15 +337,13 @@ export class WordPressHttpClient {
     if (existingPromise) return existingPromise as Promise<PostResult | null>;
 
     return resolver.addAssetPromise(postType, slug, async () => {
-      const headers = await resolver.getHeaders();
       const postResponse = await this.wpPluginGet<PostRestResult>(
         "post",
         {
           slug,
           seo: includeSeo,
         },
-        [`${postType}-${slug}`],
-        headers
+        [`${postType}-${slug}`]
       );
 
       if (postResponse) {
@@ -371,15 +370,13 @@ export class WordPressHttpClient {
     if (existingPromise) return existingPromise;
 
     return resolver.addAssetPromise(postType, id, async () => {
-      const headers = await resolver.getHeaders();
       const postResponse = await this.wpPluginGet<PostRestResult>(
         "post",
         {
           id,
           seo: includeSeo,
         },
-        [`${postType}-${id}`],
-        headers
+        [`${postType}-${id}`]
       );
 
       if (postResponse) {
@@ -388,6 +385,28 @@ export class WordPressHttpClient {
 
       return null;
     });
+  }
+
+  async fetchPostType(
+    postType: string = "post"
+  ): Promise<TClutchPostType | undefined> {
+    const postTypeResponse = await this.wpPluginGet<TClutchPostType>(
+      `post-type/${postType}`,
+      {},
+      [`post-type-${postType}`]
+    );
+
+    return postTypeResponse ? postTypeResponse : undefined;
+  }
+
+  async fetchPostTypes(): Promise<TClutchPostType[] | undefined> {
+    const postTypesResponse = await this.wpPluginGet<TClutchPostType[]>(
+      `post-types`,
+      {},
+      [`post-types`]
+    );
+
+    return postTypesResponse ? postTypesResponse : undefined;
   }
 
   // Users Methods

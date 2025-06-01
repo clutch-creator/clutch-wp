@@ -1,5 +1,6 @@
 import {
   MenuLocationResponse,
+  TClutchPostType,
   TClutchTaxonomyType,
   WordPressHttpClient,
   type FetchPostsArgs,
@@ -150,6 +151,34 @@ export function usePostById(
     queryKey: queryKeys.postById(postType, id, includeSeo),
     queryFn: () => client.fetchPostById(postType, id, includeSeo),
     enabled: !!id && options?.enabled !== false,
+    ...options,
+  });
+}
+
+export function usePostTypes(
+  options?: UseQueryOptions<TClutchPostType[] | undefined, Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: [...queryKeys.all, "post-types"],
+    queryFn: () => client.fetchPostTypes(),
+    ...options,
+  });
+}
+
+export function usePostType(
+  postType: string,
+  options?: UseQueryOptions<TClutchPostType | undefined, Error> & {
+    enabled?: boolean;
+  }
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: [...queryKeys.all, "post-type", postType],
+    queryFn: () => client.fetchPostType(postType),
+    enabled: !!postType && options?.enabled !== false,
     ...options,
   });
 }
