@@ -2,6 +2,7 @@ import {
   MenuLocationResponse,
   TClutchPostType,
   TClutchTaxonomyType,
+  TFrontPageInfo,
   WordPressHttpClient,
   type FetchPostsArgs,
   type FetchSearchArgs,
@@ -251,6 +252,24 @@ export function useUserById(
   });
 }
 
+export function useUser(
+  identifier: "slug" | "id",
+  idOrSlug: string | number,
+  options?: UseQueryOptions<UserResult | null, Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: queryKeys.userById(idOrSlug),
+    queryFn: () =>
+      identifier === "id"
+        ? client.fetchUserById(idOrSlug)
+        : client.fetchUserBySlug(idOrSlug.toString()),
+    enabled: !!idOrSlug && options?.enabled !== false,
+    ...options,
+  });
+}
+
 export function useTaxonomies(
   options?: UseQueryOptions<TClutchTaxonomyType[], Error>
 ) {
@@ -394,6 +413,18 @@ export function useDraftMode(options?: UseQueryOptions<boolean, Error>) {
     queryKey: queryKeys.draftMode(),
     queryFn: () => client.isInDraftMode(),
     refetchInterval: 60 * 1000, // Refetch every minute
+    ...options,
+  });
+}
+
+export function useFrontPageInfo(
+  options?: UseQueryOptions<TFrontPageInfo | undefined, Error>
+) {
+  const client = useWordPressClient();
+
+  return useQuery({
+    queryKey: [...queryKeys.all, "front-page"],
+    queryFn: () => client.fetchFrontPageInfo(),
     ...options,
   });
 }
