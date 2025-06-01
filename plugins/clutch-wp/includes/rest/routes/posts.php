@@ -9,6 +9,17 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/post-types', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_post_types',
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
+	]);
+
+	register_rest_route('clutch/v1', '/post-type/(?P<name>[a-zA-Z0-9_-]+)', [
+		'methods' => 'GET',
+		'callback' => __NAMESPACE__ . '\\rest_get_post_type',
+		'permission_callback' => function () {
+			return current_user_can('read_private_posts');
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/posts', [
@@ -115,6 +126,47 @@ function rest_get_post_types()
 
 		$response[] = $post_type_data;
 	}
+
+	return new \WP_REST_Response($response);
+}
+
+/**
+ * Retrieves information about a specific post type.
+ *
+ * @param \WP_REST_Request $request The REST API request object.
+ * @return \WP_REST_Response|\WP_Error A REST response containing post type data or an error.
+ */
+function rest_get_post_type(\WP_REST_Request $request)
+{
+	$post_type_name = $request->get_param('name');
+
+	if (!post_type_exists($post_type_name)) {
+		return new \WP_Error(
+			'invalid_post_type',
+			__('Invalid post type.', 'textdomain'),
+			['status' => 404]
+		);
+	}
+
+	$post_type = get_post_type_object($post_type_name);
+
+	$posts = get_posts([
+		'post_type' => $post_type->name,
+		'posts_per_page' => 1,
+		'post_status' => 'publish',
+	]);
+
+	$response = [
+		'name' => $post_type->name,
+		'description' => $post_type->description,
+		'label' => $post_type->label,
+		'singular_label' => $post_type->labels->singular_name,
+		'rewrite' => $post_type->rewrite,
+		'menu_icon' => $post_type->menu_icon,
+		'rest_base' => $post_type->rest_base ?: $post_type->name,
+		'rest_namespace' => $post_type->rest_namespace ?: 'wp/v2',
+		'first_post_slug' => !empty($posts) ? $posts[0]->post_name : null,
+	];
 
 	return new \WP_REST_Response($response);
 }
