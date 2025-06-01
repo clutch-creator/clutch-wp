@@ -104,6 +104,8 @@ export function useIsConnected(): boolean {
 
 /**
  * Hook to fetch WordPress posts with built-in loading and error states
+ * @param args - Configuration for fetching posts including filters, pagination, and sorting options
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePosts(
   args: FetchPostsArgs,
@@ -120,6 +122,10 @@ export function usePosts(
 
 /**
  * Hook to fetch a single WordPress post by slug
+ * @param postType - The WordPress post type to query (defaults to "post")
+ * @param slug - The unique slug identifier for the post
+ * @param includeSeo - Whether to include SEO metadata in the response
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePostBySlug(
   postType: string = "post",
@@ -139,6 +145,10 @@ export function usePostBySlug(
 
 /**
  * Hook to fetch a single WordPress post by ID
+ * @param postType - The WordPress post type to query (defaults to "post")
+ * @param id - The unique numeric or string ID for the post
+ * @param includeSeo - Whether to include SEO metadata in the response
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePostById(
   postType: string = "post",
@@ -156,6 +166,14 @@ export function usePostById(
   });
 }
 
+/**
+ * Hook to fetch a single WordPress post by either slug or ID
+ * @param postType - The WordPress post type to query (defaults to "post")
+ * @param identifier - Whether to search by "slug" or "id"
+ * @param idOrSlug - The slug or ID value to search for
+ * @param includeSeo - Whether to include SEO metadata in the response
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function usePost(
   postType: string = "post",
   identifier: "slug" | "id",
@@ -176,6 +194,10 @@ export function usePost(
   });
 }
 
+/**
+ * Hook to fetch all available WordPress post types
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function usePostTypes(
   options?: UseQueryOptions<TClutchPostType[] | undefined, Error>
 ) {
@@ -188,6 +210,11 @@ export function usePostTypes(
   });
 }
 
+/**
+ * Hook to fetch a specific WordPress post type configuration
+ * @param postType - The name of the post type to retrieve
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function usePostType(
   postType: string,
   options?: UseQueryOptions<TClutchPostType | undefined, Error>
@@ -203,7 +230,9 @@ export function usePostType(
 }
 
 /**
- * Hook to fetch WordPress users
+ * Hook to fetch WordPress users with filtering and pagination
+ * @param args - Configuration for fetching users including filters and pagination options
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useUsers(
   args: FetchUsersArgs,
@@ -220,6 +249,8 @@ export function useUsers(
 
 /**
  * Hook to fetch a single WordPress user by slug
+ * @param slug - The unique slug identifier for the user
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useUserBySlug(
   slug: string,
@@ -237,6 +268,8 @@ export function useUserBySlug(
 
 /**
  * Hook to fetch a single WordPress user by ID
+ * @param id - The unique numeric or string ID for the user
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useUserById(
   id: string | number,
@@ -252,6 +285,12 @@ export function useUserById(
   });
 }
 
+/**
+ * Hook to fetch a single WordPress user by either slug or ID
+ * @param identifier - Whether to search by "slug" or "id"
+ * @param idOrSlug - The slug or ID value to search for
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function useUser(
   identifier: "slug" | "id",
   idOrSlug: string | number,
@@ -270,6 +309,10 @@ export function useUser(
   });
 }
 
+/**
+ * Hook to fetch all available WordPress taxonomies
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function useTaxonomies(
   options?: UseQueryOptions<TClutchTaxonomyType[], Error>
 ) {
@@ -282,6 +325,11 @@ export function useTaxonomies(
   });
 }
 
+/**
+ * Hook to fetch a specific WordPress taxonomy configuration
+ * @param taxonomy - The name of the taxonomy to retrieve
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function useTaxonomy(
   taxonomy: string,
   options?: UseQueryOptions<TClutchTaxonomyType | undefined, Error>
@@ -297,7 +345,9 @@ export function useTaxonomy(
 }
 
 /**
- * Hook to fetch taxonomy terms
+ * Hook to fetch taxonomy terms with filtering and pagination
+ * @param args - Configuration for fetching terms including taxonomy, filters, and pagination options
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useTaxonomyTerms(
   args: FetchTaxonomyTermsArgs,
@@ -314,6 +364,10 @@ export function useTaxonomyTerms(
 
 /**
  * Hook to fetch a single taxonomy term by slug
+ * @param taxonomy - The taxonomy the term belongs to
+ * @param slug - The unique slug identifier for the term
+ * @param includeSeo - Whether to include SEO metadata in the response
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useTaxonomyTermBySlug(
   taxonomy: string,
@@ -333,6 +387,10 @@ export function useTaxonomyTermBySlug(
 
 /**
  * Hook to fetch a single taxonomy term by ID
+ * @param taxonomy - The taxonomy the term belongs to
+ * @param id - The unique numeric or string ID for the term
+ * @param includeSeo - Whether to include SEO metadata in the response
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useTaxonomyTermById(
   taxonomy: string,
@@ -350,6 +408,14 @@ export function useTaxonomyTermById(
   });
 }
 
+/**
+ * Hook to fetch a single taxonomy term by either slug or ID
+ * @param taxonomy - The taxonomy the term belongs to
+ * @param identifier - Whether to search by "slug" or "id"
+ * @param idOrSlug - The slug or ID value to search for
+ * @param includeSeo - Whether to include SEO metadata in the response
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function useTaxonomyTerm(
   taxonomy: string,
   identifier: "slug" | "id",
@@ -374,6 +440,10 @@ export function useTaxonomyTerm(
   });
 }
 
+/**
+ * Hook to fetch all available WordPress menu locations
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function useMenusLocations(
   options?: UseQueryOptions<MenuLocationResponse[], Error>
 ) {
@@ -387,7 +457,9 @@ export function useMenusLocations(
 }
 
 /**
- * Hook to fetch a WordPress menu
+ * Hook to fetch a WordPress menu by ID or slug
+ * @param id - The menu identifier (numeric ID or slug string)
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useMenu(
   id: WPIdFilter,
@@ -404,7 +476,9 @@ export function useMenu(
 }
 
 /**
- * Hook to check if WordPress is in draft mode
+ * Hook to check if WordPress is currently in draft mode
+ * Automatically refetches every minute to stay current
+ * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useDraftMode(options?: UseQueryOptions<boolean, Error>) {
   const client = useWordPressClient();
@@ -417,6 +491,10 @@ export function useDraftMode(options?: UseQueryOptions<boolean, Error>) {
   });
 }
 
+/**
+ * Hook to fetch WordPress front page configuration information
+ * @param options - Additional React Query options for customizing cache behavior and query execution
+ */
 export function useFrontPageInfo(
   options?: UseQueryOptions<TFrontPageInfo | undefined, Error>
 ) {
@@ -430,7 +508,8 @@ export function useFrontPageInfo(
 }
 
 /**
- * Hook to access query utilities for cache management
+ * Hook to access query utilities for cache management and prefetching
+ * Provides methods to invalidate caches and prefetch data for better performance
  */
 export function useWordPressQueries() {
   const queryClient = useQueryClient();
