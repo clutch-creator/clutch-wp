@@ -4,6 +4,7 @@ import {
   WP_REST_API_Term,
   WP_REST_API_User,
 } from "wp-types";
+import { Controls } from "./controls";
 
 export type UserResult = Omit<
   WP_REST_API_User,
@@ -63,6 +64,7 @@ export type PostResult = Omit<
   link: string;
   date: Date;
   modified: Date;
+  blocks: Controls['RichText'];
 };
 
 export type PostsResult = {
