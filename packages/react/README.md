@@ -172,7 +172,6 @@ function SearchResults({ query }: { query: string }) {
 
 ## Available Hooks
 
-- `useWordPress()` - Access the full WordPress context
 - `useWordPressClient()` - Direct access to the WordPress HTTP client
 - `useIsConnected()` - Check WordPress connection status
 - `usePosts(args)` - Fetch multiple posts with pagination

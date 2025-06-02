@@ -37,3 +37,17 @@ export function getProcessedUrlSearchParams(
 
   return urlParams;
 }
+
+export async function isValidWordpressUrl(wpUrl: string): Promise<boolean> {
+  try {
+    const url = urlJoin(wpUrl, `/wp-json/wp/v2/statuses`);
+
+    const response = await fetch(url, {
+      cache: "no-cache",
+    });
+
+    return response.ok;
+  } catch (err) {
+    return false;
+  }
+}

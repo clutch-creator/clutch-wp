@@ -3,3 +3,4 @@ export { WordPressContext, type WordPressContextValue } from "./context";
 
 // Hook exports
 export * from "./hooks";
+export * from "./provider";

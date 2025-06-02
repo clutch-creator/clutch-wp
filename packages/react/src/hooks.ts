@@ -3,7 +3,6 @@ import {
   TClutchPostType,
   TClutchTaxonomyType,
   TFrontPageInfo,
-  WordPressHttpClient,
   type FetchPostsArgs,
   type FetchSearchArgs,
   type FetchTaxonomyTermsArgs,
@@ -22,7 +21,12 @@ import {
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { useCallback, useContext } from "react";
-import { WordPressContext, type WordPressContextValue } from "./context";
+import {
+  WordPressConnectionContext,
+  WordPressConnectionContextValue,
+  WordPressContext,
+  type WordPressContextValue,
+} from "./context";
 
 // Query key factories for consistent caching
 const queryKeys = {
@@ -71,10 +75,10 @@ const queryKeys = {
 };
 
 /**
- * Hook to access the WordPress client context
+ * Hook to access the WordPress HTTP client directly
  * @throws Error if used outside of WordPressProvider
  */
-export function useWordPress(): WordPressContextValue {
+export function useWordPressClient(): WordPressContextValue {
   const context = useContext(WordPressContext);
 
   if (!context) {
@@ -85,21 +89,20 @@ export function useWordPress(): WordPressContextValue {
 }
 
 /**
- * Hook to access the WordPress HTTP client directly
+ * Hook to access the WordPress connection context
+ * Provides information about the current WordPress connection status
+ * @throws Error if used outside of WordPressConnectionContext
  */
-export function useWordPressClient(): WordPressHttpClient {
-  const { client } = useWordPress();
+export function useWordPressConnection(): WordPressConnectionContextValue {
+  const context = useContext(WordPressConnectionContext);
 
-  return client;
-}
+  if (!context) {
+    throw new Error(
+      "useWordPressConnection must be used within a WordPressConnectionContext"
+    );
+  }
 
-/**
- * Hook to check if WordPress is connected
- */
-export function useIsConnected(): boolean {
-  const { isConnected } = useWordPress();
-
-  return isConnected;
+  return context;
 }
 
 /**

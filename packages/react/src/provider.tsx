@@ -1,10 +1,16 @@
 import {
+  VersionConfig,
   WordPressHttpClient,
   type WordPressClientConfig,
 } from "@clutch-wp/sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useEffect, useState } from "react";
-import { WordPressContext, type WordPressContextValue } from "./context";
+import { ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import {
+  WordPressConnectionContext,
+  WordPressConnectionContextValue,
+  WordPressContext,
+  type WordPressContextValue,
+} from "./context";
 
 /**
  * Props for the WordPress provider component
@@ -16,9 +22,6 @@ export interface WordPressProviderProps {
   children: ReactNode;
 }
 
-// Create a client
-const queryClient = new QueryClient();
-
 /**
  * WordPress provider component that provides the client instance through context
  */
@@ -27,42 +30,11 @@ export function WordPressProvider({
   children,
 }: WordPressProviderProps) {
   const [client] = useState(() => new WordPressHttpClient(config));
-  const [isConnected, setIsConnected] = useState(false);
+  const queryClient = useMemo(() => {
+    return new QueryClient();
+  }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const checkConnection = async () => {
-      try {
-        const isValid = await client.isValidUrl();
-
-        if (isMounted) {
-          setIsConnected(isValid);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setIsConnected(false);
-        }
-      }
-    };
-
-    // Initial connection check
-    checkConnection();
-
-    // Set up periodic connection checks
-    const interval = setInterval(checkConnection, 5000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [client]);
-
-  const contextValue: WordPressContextValue = {
-    client,
-    isConnected,
-    wpUrl: config.apiUrl,
-  };
+  const contextValue: WordPressContextValue = client;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -70,5 +42,57 @@ export function WordPressProvider({
         {children}
       </WordPressContext.Provider>
     </QueryClientProvider>
+  );
+}
+
+const WP_POLL_TIME = 5000;
+
+export function WordPressConnectionProvider({
+  children,
+}: WordPressProviderProps) {
+  const [result, setResult] = useState<WordPressConnectionContextValue>({
+    validUrl: false,
+    pluginInfo: {
+      isCompatible: false,
+      pluginVersion: "unknown",
+      requiredVersion: VersionConfig.getMinimumPluginVersion(),
+      supportedRange: VersionConfig.getSupportedVersionRange(),
+      message:
+        "Unable to fetch plugin information. Please ensure the Clutch WordPress plugin is installed and activated.",
+      severity: "error",
+    },
+  });
+  const client = useContext(WordPressContext);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!client) {
+        return;
+      }
+
+      const pluginInfo = await client.validatePluginVersion();
+      let validUrl = true;
+
+      // try and at least validate the URL
+      if (pluginInfo.pluginVersion === "unknown") {
+        validUrl = await client.isValidUrl();
+      }
+
+      setResult({
+        validUrl,
+        pluginInfo,
+      });
+    };
+
+    checkConnection();
+    const interval = setInterval(checkConnection, WP_POLL_TIME);
+
+    return () => clearInterval(interval);
+  }, [client]);
+
+  return (
+    <WordPressConnectionContext.Provider value={result}>
+      {children}
+    </WordPressConnectionContext.Provider>
   );
 }

@@ -8,6 +8,10 @@ export async function resolveBlock(block: WP_Block_Parsed, resolver: Resolver) {
   const blockResolver = new Resolver(client);
   const components = client.getComponents();
 
+  if (!components) {
+    return block;
+  }
+
   const { RichText, Image, blockComponents } = components;
 
   // Convert empty attributes to an empty object

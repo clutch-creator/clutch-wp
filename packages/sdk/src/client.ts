@@ -1,5 +1,9 @@
 import { WP_REST_API_Search_Results, WP_REST_API_User } from "wp-types";
-import { getProcessedUrlSearchParams, urlJoin } from "./helpers";
+import {
+  getProcessedUrlSearchParams,
+  isValidWordpressUrl,
+  urlJoin,
+} from "./helpers";
 import { resolveClutchFields } from "./resolvers/clutch-nodes";
 import { resolveMenu } from "./resolvers/menus";
 import { Resolver } from "./resolvers/resolver";
@@ -49,9 +53,9 @@ export interface WordPressClientConfig {
   /** The WordPress site URL (e.g., https://example.com) */
   apiUrl: string;
   /** WordPress pages/templates configuration */
-  pages: TWpTemplateList;
+  pages?: TWpTemplateList;
   /** Components to use for rendering blocks */
-  components: TComponentsMap;
+  components?: TComponentsMap;
   /** Optional authentication token */
   authToken?: string;
   /** Whether to disable caching (useful for development) */
@@ -62,6 +66,8 @@ export interface WordPressClientConfig {
   headers?: Record<string, string>;
   /** Cache revalidation time in seconds (default: 3600 = 1 hour) */
   revalidate?: number;
+  /** Optional disables resolving of fields */
+  disableResolving?: boolean;
 }
 
 export class WordPressHttpClient {
@@ -208,17 +214,7 @@ export class WordPressHttpClient {
   async isValidUrl(): Promise<boolean> {
     const { apiUrl } = this.config;
 
-    try {
-      const url = urlJoin(apiUrl, `/wp-json/wp/v2/statuses`);
-
-      const response = await fetch(url, {
-        cache: "no-cache",
-      });
-
-      return response.ok;
-    } catch (err) {
-      return false;
-    }
+    return isValidWordpressUrl(apiUrl);
   }
 
   /**

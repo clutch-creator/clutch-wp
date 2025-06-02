@@ -43,7 +43,7 @@ export class Resolver {
    * @returns The pages configuration
    */
   getPages(): TWpTemplateList {
-    return this.client.getConfig().pages;
+    return this.client.getConfig().pages || [];
   }
 
   /**
