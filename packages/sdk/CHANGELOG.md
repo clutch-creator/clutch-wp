@@ -1,5 +1,13 @@
 # @clutch-wp/sdk
 
+## 1.1.1
+
+### Patch Changes
+
+- 5078ca5: Resolve workspace dependencies issue
+- Updated dependencies [4157678]
+  - @clutch-wp/clutch-plugin@2.4.1
+
 ## 1.1.0
 
 ### Minor Changes
