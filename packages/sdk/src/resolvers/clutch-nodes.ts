@@ -139,9 +139,11 @@ export async function resolveClutchFields<T = unknown>(
   acfValue: unknown,
   resolver: Resolver
 ): Promise<T> {
-  traverseClutchFields(acfValue, resolver);
+  if (!resolver.getClient().getConfig().disableResolving) {
+    traverseClutchFields(acfValue, resolver);
 
-  await resolver.waitAll();
+    await resolver.waitAll();
+  }
 
   return acfValue as T;
 }

@@ -1,8 +1,6 @@
 import type { WordPressHttpClient } from "../client";
 import type { TWpTemplateList } from "../types";
 
-type Headers = Record<string, string>;
-
 /**
  * Resolver class for managing WordPress API requests and asset promises
  */
@@ -18,11 +16,6 @@ export class Resolver {
   private waitPromises: Promise<void>[] = [];
 
   /**
-   * HTTP headers for API requests
-   */
-  private headers: Headers | undefined;
-
-  /**
    * WordPress HTTP client instance
    */
   private client: WordPressHttpClient;
@@ -33,9 +26,6 @@ export class Resolver {
    */
   constructor(client: WordPressHttpClient) {
     this.client = client;
-    this.headers = {
-      "Content-Type": "application/json",
-    };
   }
 
   /**
