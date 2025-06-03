@@ -1,44 +1,44 @@
 {
-	"name": "@clutch-wp/clutch-plugin",
-	"version": "2.3.0",
-	"description": "Clutch wordpress plugin",
-	"main": "index.js",
-	"type": "module",
-	"files": [
-		"dist",
-		"readme.txt"
-	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"scripts": {
-		"format": "prettier --write .",
-		"format:check": "prettier --check .",
-		"test": "echo \"Error: no test specified\"",
-		"package": "mkdir -p dist && zip -r dist/clutch-wp.zip . -x@.zipignore",
-		"build": "bun run package && bun run wp-scripts build --webpack-copy-php --source-path=includes/blocks/blocks-src --output-path=includes/blocks/assets",
-		"start": "bun run wp-scripts start --webpack-copy-php --source-path=includes/blocks/blocks-src --output-path=includes/blocks/assets",
-		"update-version": "bun scripts/update-version.ts",
-		"postversion": "bun run update-version"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "GPL-2.0",
-	"devDependencies": {
-		"@clutch-wp/prettier-config": "workspace:*",
-		"@prettier/plugin-php": "^0.22.4",
-		"@wordpress/api-fetch": "^7.24.0",
-		"@wordpress/block-editor": "^14.19.0",
-		"@wordpress/blocks": "^14.13.0",
-		"@wordpress/components": "^29.10.0",
-		"@wordpress/compose": "^7.24.0",
-		"@wordpress/data": "^10.24.0",
-		"@wordpress/element": "^6.24.0",
-		"@wordpress/i18n": "^5.24.0",
-		"@wordpress/icons": "^10.18.0",
-		"@wordpress/keycodes": "^4.24.0",
-		"@wordpress/scripts": "^30.11.0",
-		"clsx": "^2.1.1",
-		"prettier": "^3.5.2"
-	}
+  "name": "@clutch-wp/clutch-plugin",
+  "version": "2.3.0",
+  "description": "Clutch wordpress plugin",
+  "main": "index.js",
+  "type": "module",
+  "files": [
+    "dist",
+    "readme.txt"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"Error: no test specified\"",
+    "package": "mkdir -p dist && zip -r dist/clutch-wp.zip . -x@.zipignore",
+    "build": "bun run package && bun run wp-scripts build --webpack-copy-php --source-path=includes/blocks/blocks-src --output-path=includes/blocks/assets",
+    "start": "bun run wp-scripts start --webpack-copy-php --source-path=includes/blocks/blocks-src --output-path=includes/blocks/assets",
+    "update-version": "bun scripts/update-version.ts",
+    "postversion": "bun run update-version"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "@clutch-wp/prettier-config": "workspace:*",
+    "@prettier/plugin-php": "^0.22.4",
+    "@wordpress/api-fetch": "^7.24.0",
+    "@wordpress/block-editor": "^14.19.0",
+    "@wordpress/blocks": "^14.13.0",
+    "@wordpress/components": "^29.10.0",
+    "@wordpress/compose": "^7.24.0",
+    "@wordpress/data": "^10.24.0",
+    "@wordpress/element": "^6.24.0",
+    "@wordpress/i18n": "^5.24.0",
+    "@wordpress/icons": "^10.18.0",
+    "@wordpress/keycodes": "^4.24.0",
+    "@wordpress/scripts": "^30.11.0",
+    "clsx": "^2.1.1",
+    "prettier": "^3.5.2"
+  }
 }
