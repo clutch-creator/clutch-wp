@@ -3,12 +3,12 @@ import {
   WP_REST_API_Post,
   WP_REST_API_Term,
   WP_REST_API_User,
-} from "wp-types";
-import { Controls } from "./controls";
+} from 'wp-types';
+import { Controls } from './controls';
 
 export type UserResult = Omit<
   WP_REST_API_User,
-  "link" | "_embedded" | "_links"
+  'link' | '_embedded' | '_links'
 > & {
   link: string;
   url: string;
@@ -16,20 +16,20 @@ export type UserResult = Omit<
 
 export type TaxonomyTermResult = Omit<
   WP_REST_API_Term,
-  "link" | "_embedded" | "_links"
+  'link' | '_embedded' | '_links'
 > & {
   link: string;
 };
 
 export type TMediaResult = Omit<
   WP_REST_API_Attachment,
-  | "author"
-  | "date"
-  | "date_gmt"
-  | "modified"
-  | "modified_gmt"
-  | "_embedded"
-  | "_links"
+  | 'author'
+  | 'date'
+  | 'date_gmt'
+  | 'modified'
+  | 'modified_gmt'
+  | '_embedded'
+  | '_links'
 > & {
   author: UserResult;
   date: Date;
@@ -39,20 +39,20 @@ export type TMediaResult = Omit<
 
 export type PostResult = Omit<
   WP_REST_API_Post,
-  | "author"
-  | "categories"
-  | "featured_media"
-  | "tags"
-  | "title"
-  | "content"
-  | "excerpt"
-  | "link"
-  | "date"
-  | "date_gmt"
-  | "modified"
-  | "modified_gmt"
-  | "_embedded"
-  | "_links"
+  | 'author'
+  | 'categories'
+  | 'featured_media'
+  | 'tags'
+  | 'title'
+  | 'content'
+  | 'excerpt'
+  | 'link'
+  | 'date'
+  | 'date_gmt'
+  | 'modified'
+  | 'modified_gmt'
+  | '_embedded'
+  | '_links'
 > & {
   author: UserResult;
   categories: TaxonomyTermResult[];
@@ -114,11 +114,11 @@ export type TermsResult = {
 export type SearchResut = PostResult | TaxonomyTermResult;
 
 type TPermalinkUnkownInfo = {
-  object_type: "unknown";
+  object_type: 'unknown';
 };
 
 type TPermalinkPostInfo = {
-  object_type: "post";
+  object_type: 'post';
   details: {
     id: number;
     name: string;
@@ -129,7 +129,7 @@ type TPermalinkPostInfo = {
 };
 
 type TPermalinkTaxonomyInfo = {
-  object_type: "taxonomy";
+  object_type: 'taxonomy';
   details: {
     name: string;
     rest_base: string;
@@ -138,7 +138,7 @@ type TPermalinkTaxonomyInfo = {
 };
 
 type TPermalinkTaxonomyTermInfo = {
-  object_type: "taxonomy_term";
+  object_type: 'taxonomy_term';
   details: {
     id: number;
     name: string;

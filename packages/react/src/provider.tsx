@@ -2,15 +2,15 @@ import {
   VersionConfig,
   WordPressHttpClient,
   type WordPressClientConfig,
-} from "@clutch-wp/sdk";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useContext, useEffect, useMemo, useState } from "react";
+} from '@clutch-wp/sdk';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import {
   WordPressConnectionContext,
   WordPressConnectionContextValue,
   WordPressContext,
   type WordPressContextValue,
-} from "./context";
+} from './context';
 
 /**
  * Props for the WordPress provider component
@@ -55,12 +55,12 @@ export function WordPressConnectionProvider({
     pluginInfo: {
       isCompatible: false,
       isAuthenticated: false,
-      pluginVersion: "unknown",
+      pluginVersion: 'unknown',
       requiredVersion: VersionConfig.getMinimumPluginVersion(),
       supportedRange: VersionConfig.getSupportedVersionRange(),
       message:
-        "Unable to fetch plugin information. Please ensure the Clutch WordPress plugin is installed and activated.",
-      severity: "error",
+        'Unable to fetch plugin information. Please ensure the Clutch WordPress plugin is installed and activated.',
+      severity: 'error',
     },
   });
   const client = useContext(WordPressContext);
@@ -75,7 +75,7 @@ export function WordPressConnectionProvider({
       let validUrl = true;
 
       // try and at least validate the URL
-      if (pluginInfo.pluginVersion === "unknown") {
+      if (pluginInfo.pluginVersion === 'unknown') {
         validUrl = await client.isValidUrl();
       }
 

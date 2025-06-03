@@ -1,5 +1,5 @@
-import { VersionValidationResult, WordPressHttpClient } from "@clutch-wp/sdk";
-import { createContext } from "react";
+import { VersionValidationResult, WordPressHttpClient } from '@clutch-wp/sdk';
+import { createContext } from 'react';
 
 /**
  * Context value interface for the WordPress client
@@ -16,7 +16,7 @@ export const WordPressContext = createContext<WordPressContextValue | null>(
 /**
  * Display name for debugging purposes
  */
-WordPressContext.displayName = "WordPressContext";
+WordPressContext.displayName = 'WordPressContext';
 
 /**
  * Context value interface for the WordPress connection status
@@ -35,4 +35,4 @@ export const WordPressConnectionContext =
 /**
  * Display name for debugging purposes
  */
-WordPressConnectionContext.displayName = "WordPressConnectionContext";
+WordPressConnectionContext.displayName = 'WordPressConnectionContext';

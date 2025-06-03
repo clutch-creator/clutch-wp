@@ -1,8 +1,8 @@
-import * as semver from "semver";
+import * as semver from 'semver';
 
 // Import the plugin package.json to get the current version
 // This will be automatically updated when clutch-wp package updates via changesets
-import clutchWpPackage from "@clutch-wp/clutch-plugin/package.json";
+import clutchWpPackage from '@clutch-wp/clutch-plugin/package.json';
 
 /**
  * Version configuration for the Clutch WordPress plugin
@@ -16,10 +16,10 @@ export class VersionConfig {
       return clutchWpPackage.version;
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.warn("Failed to read clutch-wp package version:", error);
+      console.warn('Failed to read clutch-wp package version:', error);
 
       // Fallback to a minimum supported version
-      return "2.0.0";
+      return '2.0.0';
     }
   }
 
@@ -55,7 +55,7 @@ export class VersionConfig {
       return semver.satisfies(pluginVersion, supportedRange);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.warn("Failed to validate plugin version:", error);
+      console.warn('Failed to validate plugin version:', error);
 
       return false;
     }
@@ -75,10 +75,10 @@ export class VersionConfig {
     const supportedRange = this.getSupportedVersionRange();
     const isCompatible = this.isPluginVersionCompatible(pluginVersion);
 
-    let message = "";
+    let message = '';
 
     if (isCompatible) {
-      message = "Plugin version is compatible";
+      message = 'Plugin version is compatible';
     } else {
       const comparison = semver.compare(pluginVersion, requiredVersion);
 

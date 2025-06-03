@@ -20,6 +20,10 @@
       "persistent": true
     },
     "lint": {},
+    "format": {
+      "cache": false
+    },
+    "format:check": {},
     "check-types": {},
     "version-packages": {
       "cache": false

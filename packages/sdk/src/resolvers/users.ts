@@ -1,10 +1,10 @@
-import { WP_REST_API_User, WP_REST_API_Users } from "wp-types";
-import { UserResult } from "../types";
-import { resolveClutchFields } from "./clutch-nodes";
-import { resolveLink } from "./links";
-import { Resolver } from "./resolver";
+import { WP_REST_API_User, WP_REST_API_Users } from 'wp-types';
+import { UserResult } from '../types';
+import { resolveClutchFields } from './clutch-nodes';
+import { resolveLink } from './links';
+import { Resolver } from './resolver';
 
-const REMOVE_PROPS = ["_links", "_embedded"];
+const REMOVE_PROPS = ['_links', '_embedded'];
 
 export async function resolveUser(
   user: WP_REST_API_User,
@@ -12,7 +12,7 @@ export async function resolveUser(
 ): Promise<UserResult> {
   const draftUser: Partial<UserResult> = { ...user };
 
-  REMOVE_PROPS.forEach((prop) => {
+  REMOVE_PROPS.forEach(prop => {
     delete draftUser[prop];
   });
 
@@ -42,5 +42,5 @@ export async function resolveUsers(
 ): Promise<UserResult[]> {
   if (!users?.length) return [];
 
-  return Promise.all(users.map((user) => resolveUser(user, resolver)));
+  return Promise.all(users.map(user => resolveUser(user, resolver)));
 }

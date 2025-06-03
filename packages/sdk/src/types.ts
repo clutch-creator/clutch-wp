@@ -1,6 +1,6 @@
-export * from "./types/pages";
-export * from "./types/plugin-info";
-export * from "./types/wordpress";
+export * from './types/pages';
+export * from './types/plugin-info';
+export * from './types/wordpress';
 
 export type WPId = number;
 
@@ -67,7 +67,7 @@ export type FetchPostsArgs = {
   post_type?: string;
   page?: number | string;
   per_page?: number | string;
-  order?: "asc" | "desc";
+  order?: 'asc' | 'desc';
   order_by?: string;
   seo?: boolean;
   [key: string]: unknown;
@@ -81,7 +81,7 @@ export type FetchUsersArgs = {
   include?: WPIdFilter[];
   offset?: number | string;
   orderby?: string;
-  order?: "asc" | "desc";
+  order?: 'asc' | 'desc';
   slug?: string;
   roles?: string[];
   [key: string]: unknown;
@@ -94,7 +94,7 @@ export type FetchTaxonomyTermsArgs = {
   search?: string;
   exclude?: WPIdFilter[];
   include?: WPIdFilter[];
-  order?: "asc" | "desc";
+  order?: 'asc' | 'desc';
   orderby?: string;
   hide_empty?: boolean | string;
   parent?: number | string;

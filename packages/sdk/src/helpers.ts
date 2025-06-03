@@ -1,13 +1,11 @@
-import { TParams } from "./types";
+import { TParams } from './types';
 
 export function generateRandomToken() {
   const array = new Uint8Array(32); // 32 bytes = 256 bits
 
   window.crypto.getRandomValues(array);
 
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
-    ""
-  );
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export function urlJoin(url: string, path: string): string {
@@ -21,18 +19,18 @@ export function getProcessedUrlSearchParams(
 
   if (!params) return urlParams;
 
-  Object.keys(params).forEach((key) => {
+  Object.keys(params).forEach(key => {
     let val = params[key];
 
-    if (typeof val === "number" || typeof val === "boolean")
+    if (typeof val === 'number' || typeof val === 'boolean')
       val = val.toString();
 
     if (Array.isArray(val))
-      val.forEach((v) => {
+      val.forEach(v => {
         urlParams.append(key, v.toString());
       });
 
-    if (typeof val === "string") urlParams.append(key, val);
+    if (typeof val === 'string') urlParams.append(key, val);
   });
 
   return urlParams;
@@ -43,7 +41,7 @@ export async function isValidWordpressUrl(wpUrl: string): Promise<boolean> {
     const url = urlJoin(wpUrl, `/wp-json/wp/v2/statuses`);
 
     const response = await fetch(url, {
-      cache: "no-cache",
+      cache: 'no-cache',
     });
 
     return response.ok;

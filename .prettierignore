@@ -1,0 +1,59 @@
+# Build outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+vendor/
+bun.lock
+package-lock.json
+yarn.lock
+
+# WordPress specific
+wp-config.php
+wp-content/uploads/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Archives and binaries
+*.zip
+*.tar.gz
+*.rar
+*.dmg
+*.pkg
+*.deb
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# Cache directories
+.cache/
+.turbo/
+.swc/
+.*cache

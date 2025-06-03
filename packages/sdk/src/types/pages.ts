@@ -1,4 +1,4 @@
-import { WpPageType, WpPageView } from "../statics";
+import { WpPageType, WpPageView } from '../statics';
 
 export type TWpTemplateViewArchive = {
   template: WpPageView.ARCHIVE;

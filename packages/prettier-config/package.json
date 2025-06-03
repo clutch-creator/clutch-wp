@@ -1,0 +1,29 @@
+{
+  "name": "@clutch-wp/prettier-config",
+  "version": "1.0.0",
+  "description": "Prettier configuration for Clutch WordPress projects",
+  "type": "module",
+  "private": true,
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "keywords": [
+    "prettier",
+    "config",
+    "clutch"
+  ],
+  "author": "",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "@prettier/plugin-php": "^0.22.4",
+    "prettier": "^3.5.2"
+  },
+  "peerDependencies": {
+    "prettier": "^3.0.0"
+  }
+}

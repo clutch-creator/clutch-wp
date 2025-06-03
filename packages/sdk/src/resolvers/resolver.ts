@@ -1,5 +1,5 @@
-import type { WordPressHttpClient } from "../client";
-import type { TWpTemplateList } from "../types";
+import type { WordPressHttpClient } from '../client';
+import type { TWpTemplateList } from '../types';
 
 /**
  * Resolver class for managing WordPress API requests and asset promises

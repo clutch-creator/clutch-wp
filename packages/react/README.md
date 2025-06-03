@@ -19,11 +19,11 @@ bun add @clutch-wp/react
 Wrap your app with the `WordPressProvider` to provide the WordPress client context:
 
 ```tsx
-import { WordPressProvider } from "@clutch-wp/react";
+import { WordPressProvider } from '@clutch-wp/react';
 
 const config = {
-  apiUrl: "https://your-wordpress-site.com",
-  authToken: "your-auth-token", // Optional
+  apiUrl: 'https://your-wordpress-site.com',
+  authToken: 'your-auth-token', // Optional
   cacheDisabled: false, // Optional
   draftMode: false, // Optional
 };
@@ -46,7 +46,7 @@ import {
   useWordPress,
   useWordPressClient,
   useIsConnected,
-} from "@clutch-wp/react";
+} from '@clutch-wp/react';
 
 function MyComponent() {
   const { client, isConnected, wpUrl } = useWordPress();
@@ -56,7 +56,7 @@ function MyComponent() {
   return (
     <div>
       <p>Connected to: {wpUrl}</p>
-      <p>Status: {isConnected ? "Connected" : "Disconnected"}</p>
+      <p>Status: {isConnected ? 'Connected' : 'Disconnected'}</p>
     </div>
   );
 }
@@ -74,7 +74,7 @@ import {
   useTaxonomyTerm,
   useSearch,
   useMenu,
-} from "@clutch-wp/react";
+} from '@clutch-wp/react';
 
 function BlogPosts() {
   const {
@@ -83,7 +83,7 @@ function BlogPosts() {
     error,
     refetch,
   } = usePosts({
-    post_type: "post",
+    post_type: 'post',
     per_page: 10,
     page: 1,
   });
@@ -93,7 +93,7 @@ function BlogPosts() {
 
   return (
     <div>
-      {posts?.posts.map((post) => (
+      {posts?.posts.map(post => (
         <article key={post.id}>
           <h2>{post.title}</h2>
           <div dangerouslySetInnerHTML={{ __html: post.excerpt }} />
@@ -104,7 +104,7 @@ function BlogPosts() {
 }
 
 function SinglePost({ slug }: { slug: string }) {
-  const { data: post, loading, error } = usePost("post", slug, true);
+  const { data: post, loading, error } = usePost('post', slug, true);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -124,7 +124,7 @@ function CategoryList() {
     loading,
     error,
   } = useTaxonomyTerms({
-    taxonomy: "category",
+    taxonomy: 'category',
     per_page: 20,
   });
 
@@ -133,7 +133,7 @@ function CategoryList() {
 
   return (
     <ul>
-      {terms?.terms.map((term) => (
+      {terms?.terms.map(term => (
         <li key={term.id}>
           <a href={term.link}>{term.name}</a>
           {term.description && <p>{term.description}</p>}
@@ -159,7 +159,7 @@ function SearchResults({ query }: { query: string }) {
   return (
     <div>
       <h2>Search Results for "{query}"</h2>
-      {results.map((result) => (
+      {results.map(result => (
         <div key={result.id}>
           <h3>{result.title}</h3>
           <p>{result.excerpt}</p>
@@ -200,7 +200,7 @@ The package includes full TypeScript support with proper type definitions for al
 All hooks include built-in error handling. The `useWordPress` hook will throw an error if used outside of a `WordPressProvider`.
 
 ```tsx
-import { useWordPress } from "@clutch-wp/react";
+import { useWordPress } from '@clutch-wp/react';
 
 function MyComponent() {
   try {

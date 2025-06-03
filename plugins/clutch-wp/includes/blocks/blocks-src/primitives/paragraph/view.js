@@ -21,5 +21,5 @@
  */
 
 /* eslint-disable no-console */
-console.log( 'Hello World! (from clutch-paragraph block)' );
+console.log('Hello World! (from clutch-paragraph block)');
 /* eslint-enable no-console */

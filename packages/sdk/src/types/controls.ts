@@ -25,7 +25,7 @@ type TSvg = JSX.Element | undefined;
 type TTextArea = string | undefined;
 type Url = string | undefined;
 type TAction = (
-  data?: FormData | React.SyntheticEvent,
+  data?: FormData | React.SyntheticEvent
 ) => Promise<unknown | void>;
 
 export type Controls = {

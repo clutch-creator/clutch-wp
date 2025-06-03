@@ -3,7 +3,7 @@ import { TFilters } from '../types';
 export const resolveFilters = (filters: TFilters) => {
   const resolvedFilters: Record<string, string> = {};
 
-  filters?.forEach((filter) => {
+  filters?.forEach(filter => {
     const { name, operator, value } = filter;
 
     if (name && operator && value !== undefined && value !== null) {

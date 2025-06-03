@@ -19,7 +19,7 @@ export class PluginVersionError extends Error {
     public readonly supportedRange: string
   ) {
     super(message);
-    this.name = "PluginVersionError";
+    this.name = 'PluginVersionError';
   }
 }
 
@@ -45,5 +45,5 @@ export interface VersionValidationResult {
   requiredVersion: string;
   supportedRange: string;
   message: string;
-  severity: "info" | "warning" | "error";
+  severity: 'info' | 'warning' | 'error';
 }

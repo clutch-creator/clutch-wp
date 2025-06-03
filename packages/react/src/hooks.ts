@@ -14,52 +14,52 @@ import {
   type TermsResult,
   type UserResult,
   type WPIdFilter,
-} from "@clutch-wp/sdk";
+} from '@clutch-wp/sdk';
 import {
   useQuery,
   useQueryClient,
   type UseQueryOptions,
-} from "@tanstack/react-query";
-import { useCallback, useContext } from "react";
+} from '@tanstack/react-query';
+import { useCallback, useContext } from 'react';
 import {
   WordPressConnectionContext,
   WordPressConnectionContextValue,
   WordPressContext,
   type WordPressContextValue,
-} from "./context";
+} from './context';
 
 // Query key factories for consistent caching
 const queryKeys = {
-  all: ["wordpress"],
-  posts: (args: FetchPostsArgs) => [...queryKeys.all, "posts", args],
+  all: ['wordpress'],
+  posts: (args: FetchPostsArgs) => [...queryKeys.all, 'posts', args],
   postBySlug: (postType: string, slug: string, includeSeo: boolean) => [
     ...queryKeys.all,
-    "post",
-    "slug",
+    'post',
+    'slug',
     postType,
     slug,
     includeSeo,
   ],
   postById: (postType: string, id: string | number, includeSeo: boolean) => [
     ...queryKeys.all,
-    "post",
-    "id",
+    'post',
+    'id',
     postType,
     id,
     includeSeo,
   ],
-  users: (args: FetchUsersArgs) => [...queryKeys.all, "users", args],
-  userBySlug: (slug: string) => [...queryKeys.all, "user", "slug", slug],
-  userById: (id: string | number) => [...queryKeys.all, "user", "id", id],
+  users: (args: FetchUsersArgs) => [...queryKeys.all, 'users', args],
+  userBySlug: (slug: string) => [...queryKeys.all, 'user', 'slug', slug],
+  userById: (id: string | number) => [...queryKeys.all, 'user', 'id', id],
   taxonomyTerms: (args: FetchTaxonomyTermsArgs) => [
     ...queryKeys.all,
-    "taxonomy-terms",
+    'taxonomy-terms',
     args,
   ],
   taxonomyTermBySlug: (taxonomy: string, slug: string, includeSeo: boolean) => [
     ...queryKeys.all,
-    "taxonomy-term",
-    "slug",
+    'taxonomy-term',
+    'slug',
     taxonomy,
     slug,
     includeSeo,
@@ -68,10 +68,10 @@ const queryKeys = {
     taxonomy: string,
     id: string | number,
     includeSeo: boolean
-  ) => [...queryKeys.all, "taxonomy-term", "id", taxonomy, id, includeSeo],
-  search: (args: FetchSearchArgs) => [...queryKeys.all, "search", args],
-  menu: (id: WPIdFilter) => [...queryKeys.all, "menu", id],
-  draftMode: () => [...queryKeys.all, "draft-mode"],
+  ) => [...queryKeys.all, 'taxonomy-term', 'id', taxonomy, id, includeSeo],
+  search: (args: FetchSearchArgs) => [...queryKeys.all, 'search', args],
+  menu: (id: WPIdFilter) => [...queryKeys.all, 'menu', id],
+  draftMode: () => [...queryKeys.all, 'draft-mode'],
 };
 
 /**
@@ -82,7 +82,7 @@ export function useWordPressClient(): WordPressContextValue {
   const context = useContext(WordPressContext);
 
   if (!context) {
-    throw new Error("useWordPress must be used within a WordPressProvider");
+    throw new Error('useWordPress must be used within a WordPressProvider');
   }
 
   return context;
@@ -98,7 +98,7 @@ export function useWordPressConnection(): WordPressConnectionContextValue {
 
   if (!context) {
     throw new Error(
-      "useWordPressConnection must be used within a WordPressConnectionContext"
+      'useWordPressConnection must be used within a WordPressConnectionContext'
     );
   }
 
@@ -131,7 +131,7 @@ export function usePosts(
  * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePostBySlug(
-  postType: string = "post",
+  postType: string = 'post',
   slug: string,
   includeSeo: boolean = false,
   options?: UseQueryOptions<PostResult | null, Error>
@@ -154,7 +154,7 @@ export function usePostBySlug(
  * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePostById(
-  postType: string = "post",
+  postType: string = 'post',
   id: string | number,
   includeSeo: boolean = false,
   options?: UseQueryOptions<PostResult | null, Error>
@@ -178,8 +178,8 @@ export function usePostById(
  * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePost(
-  postType: string = "post",
-  identifier: "slug" | "id",
+  postType: string = 'post',
+  identifier: 'slug' | 'id',
   idOrSlug: string | number,
   includeSeo: boolean = false,
   options?: UseQueryOptions<PostResult | null, Error>
@@ -189,7 +189,7 @@ export function usePost(
   return useQuery({
     queryKey: queryKeys.postById(postType, idOrSlug, includeSeo),
     queryFn: () =>
-      identifier === "id"
+      identifier === 'id'
         ? client.fetchPostById(postType, idOrSlug, includeSeo)
         : client.fetchPostBySlug(postType, idOrSlug.toString(), includeSeo),
     enabled: !!idOrSlug && options?.enabled !== false,
@@ -207,7 +207,7 @@ export function usePostTypes(
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: [...queryKeys.all, "post-types"],
+    queryKey: [...queryKeys.all, 'post-types'],
     queryFn: () => client.fetchPostTypes(),
     ...options,
   });
@@ -225,7 +225,7 @@ export function usePostType(
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: [...queryKeys.all, "post-type", postType],
+    queryKey: [...queryKeys.all, 'post-type', postType],
     queryFn: () => client.fetchPostType(postType),
     enabled: !!postType && options?.enabled !== false,
     ...options,
@@ -295,7 +295,7 @@ export function useUserById(
  * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function useUser(
-  identifier: "slug" | "id",
+  identifier: 'slug' | 'id',
   idOrSlug: string | number,
   options?: UseQueryOptions<UserResult | null, Error>
 ) {
@@ -304,7 +304,7 @@ export function useUser(
   return useQuery({
     queryKey: queryKeys.userById(idOrSlug),
     queryFn: () =>
-      identifier === "id"
+      identifier === 'id'
         ? client.fetchUserById(idOrSlug)
         : client.fetchUserBySlug(idOrSlug.toString()),
     enabled: !!idOrSlug && options?.enabled !== false,
@@ -322,7 +322,7 @@ export function useTaxonomies(
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: [...queryKeys.all, "taxonomies"],
+    queryKey: [...queryKeys.all, 'taxonomies'],
     queryFn: () => client.fetchTaxonomies(),
     ...options,
   });
@@ -340,7 +340,7 @@ export function useTaxonomy(
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: [...queryKeys.all, "taxonomy", taxonomy],
+    queryKey: [...queryKeys.all, 'taxonomy', taxonomy],
     queryFn: () => client.fetchTaxonomy(taxonomy),
     enabled: !!taxonomy && options?.enabled !== false,
     ...options,
@@ -421,7 +421,7 @@ export function useTaxonomyTermById(
  */
 export function useTaxonomyTerm(
   taxonomy: string,
-  identifier: "slug" | "id",
+  identifier: 'slug' | 'id',
   idOrSlug: string | number,
   includeSeo: boolean = false,
   options?: UseQueryOptions<TaxonomyTermResult | null, Error>
@@ -431,7 +431,7 @@ export function useTaxonomyTerm(
   return useQuery({
     queryKey: queryKeys.taxonomyTermById(taxonomy, idOrSlug, includeSeo),
     queryFn: () =>
-      identifier === "id"
+      identifier === 'id'
         ? client.fetchTaxonomyTermById(taxonomy, idOrSlug, includeSeo)
         : client.fetchTaxonomyTermBySlug(
             taxonomy,
@@ -453,7 +453,7 @@ export function useMenusLocations(
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: [...queryKeys.all, "menus", "locations"],
+    queryKey: [...queryKeys.all, 'menus', 'locations'],
     queryFn: () => client.fetchMenusLocations(),
     ...options,
   });
@@ -504,7 +504,7 @@ export function useFrontPageInfo(
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: [...queryKeys.all, "front-page"],
+    queryKey: [...queryKeys.all, 'front-page'],
     queryFn: () => client.fetchFrontPageInfo(),
     ...options,
   });
@@ -523,11 +523,11 @@ export function useWordPressQueries() {
   }, [queryClient]);
 
   const invalidatePosts = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: [...queryKeys.all, "posts"] });
+    queryClient.invalidateQueries({ queryKey: [...queryKeys.all, 'posts'] });
   }, [queryClient]);
 
   const invalidateUsers = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: [...queryKeys.all, "users"] });
+    queryClient.invalidateQueries({ queryKey: [...queryKeys.all, 'users'] });
   }, [queryClient]);
 
   const prefetchPostBySlug = useCallback(

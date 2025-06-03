@@ -12,9 +12,9 @@ import { registerBlockType } from '@wordpress/blocks';
  *                        otherwise `undefined`.
  */
 export default function initBlock(block) {
-	if (!block) {
-		return;
-	}
-	const { metadata, settings, name } = block;
-	return registerBlockType({ name, ...metadata }, settings);
+  if (!block) {
+    return;
+  }
+  const { metadata, settings, name } = block;
+  return registerBlockType({ name, ...metadata }, settings);
 }

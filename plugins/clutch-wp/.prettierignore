@@ -1,0 +1,6 @@
+node_modules/
+vendor/
+includes/blocks/assets/
+includes/blocks/build/
+dist/
+*.zip

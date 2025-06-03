@@ -1,1 +1,196 @@
-(()=>{"use strict";const e=window.wp.i18n,t=window.wp.primitives,n=window.ReactJSXRuntime,a=(0,n.jsx)(t.SVG,{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 24 24",children:(0,n.jsx)(t.Path,{d:"M6 3H8V5H16V3H18V5C19.1046 5 20 5.89543 20 7V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V7C4 5.89543 4.89543 5 6 5V3ZM18 6.5H6C5.72386 6.5 5.5 6.72386 5.5 7V8H18.5V7C18.5 6.72386 18.2761 6.5 18 6.5ZM18.5 9.5H5.5V19C5.5 19.2761 5.72386 19.5 6 19.5H18C18.2761 19.5 18.5 19.2761 18.5 19V9.5ZM11 11H13V13H11V11ZM7 11V13H9V11H7ZM15 13V11H17V13H15Z"})}),l=window.wp.blocks,o=window.wp.blockEditor,i=window.wp.components,r=window.wp.data,s=["anchor","align","backgroundColor","blockCommentId","borderColor","className","color","customClassName","fontSize","layout","lock","metadata","placeholder","spacing"];function c({name:t,value:a,onChange:l}){const{media:s}=(0,r.useSelect)((e=>({media:e("core").getMedia(a)})),[a]);return(0,n.jsx)(o.MediaUploadCheck,{children:(0,n.jsx)(o.MediaUpload,{onSelect:l,render:({open:t})=>(0,n.jsx)(i.Button,{onClick:t,isPrimary:!0,children:s?(0,e.__)("Change Image"):(0,e.__)("Select Image")}),value:a,allowedTypes:["image"],gallery:!1,multiple:!1,mediaId:a,media:s,onError:e=>{console.error("Media upload error:",e)}})})}function d({name:t,value:a,onChange:l,schema:o}){const{type:r,media:s,enum:d,default:u}=o;if(s){if("number"!==r)return null;const e=t.endsWith("_media_id")?t.replace("_media_id",""):t;return(0,n.jsx)(c,{label:e,value:a||u||0,onChange:({id:n,url:a})=>{l({[e]:a,[t]:n})}})}return"string"===r?(0,n.jsx)("div",{style:{marginBottom:"10px",paddingLeft:"5px"},children:(0,n.jsx)(i.TextControl,{label:t,value:a||u||"",onChange:e=>{l({[t]:e})}})}):"number"===r?(0,n.jsx)("div",{style:{marginBottom:"10px",paddingLeft:"5px"},children:(0,n.jsx)(i.__experimentalNumberControl,{label:t,value:a||u||0,onChange:e=>{l({[t]:e})}})}):"boolean"===r?(0,n.jsx)("div",{style:{marginBottom:"10px",paddingLeft:"5px"},children:(0,n.jsx)(i.SelectControl,{label:t,value:a||u||!1,onChange:e=>{l({[t]:"true"===e})},options:[{label:(0,e.__)("True"),value:"true"},{label:(0,e.__)("False"),value:"false"}]})}):Array.isArray(d)?(0,n.jsx)("div",{style:{marginBottom:"10px",paddingLeft:"5px"},children:(0,n.jsx)(i.SelectControl,{label:t,value:a||u||"",onChange:e=>{l({[t]:e})},options:d.map((e=>({label:e,value:e})))})}):null}const u=JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"CLUTCH_BLOCK_NAME","version":"1.0.0","title":"CLUTCH_BLOCK_TITLE","category":"embed","icon":"smiley","description":"Clutch Block","attributes":{},"editorScript":"file:./index.js"}'),{name:m}=u;!function(e){if(!e)return;const{metadata:t,settings:n,name:a}=e;(0,l.registerBlockType)({name:a,...t},n)}({name:m,metadata:u,settings:{icon:a,__experimentalLabel(t,{context:n}){const a=t?.metadata?.name;if("list-view"===n&&a)return a;if("accessibility"===n){if(a)return a;const{content:n}=t;return n&&0!==n.length?n:(0,e.__)("Empty")}},merge:(e,t)=>({content:(e.content||"")+(t.content||"")}),edit:function({name:t,attributes:a,setAttributes:c,isSelected:u}){const m=(0,o.useBlockProps)(),p=(0,r.useSelect)((e=>e(l.store).getBlockType(t)),[t]),g=p?.attributes||{};return(0,n.jsxs)(n.Fragment,{children:[(0,n.jsx)(o.InspectorControls,{children:(0,n.jsx)(i.Panel,{header:(0,e.__)("Settings"),children:(0,n.jsx)(i.PanelBody,{title:`${p.title} config`,children:""})})}),(0,n.jsxs)("div",{...m,style:{padding:"20px",border:"1px solid #ccc"},children:[(0,n.jsx)("h2",{children:p.title||"Clutch Block"}),Object.entries(g).map((([e,t])=>s.includes(e)?null:(0,n.jsx)(d,{name:e,schema:t,value:a[e]||null,onChange:c},e)))]})]})},save:function({attributes:e}){const t=o.useBlockProps.save();return(0,n.jsx)("p",{...t,children:"Saved Clutch Block"})}}})})();
+(() => {
+  'use strict';
+  const e = window.wp.i18n,
+    t = window.wp.primitives,
+    n = window.ReactJSXRuntime,
+    a = (0, n.jsx)(t.SVG, {
+      xmlns: 'http://www.w3.org/2000/svg',
+      viewBox: '0 0 24 24',
+      children: (0, n.jsx)(t.Path, {
+        d: 'M6 3H8V5H16V3H18V5C19.1046 5 20 5.89543 20 7V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V7C4 5.89543 4.89543 5 6 5V3ZM18 6.5H6C5.72386 6.5 5.5 6.72386 5.5 7V8H18.5V7C18.5 6.72386 18.2761 6.5 18 6.5ZM18.5 9.5H5.5V19C5.5 19.2761 5.72386 19.5 6 19.5H18C18.2761 19.5 18.5 19.2761 18.5 19V9.5ZM11 11H13V13H11V11ZM7 11V13H9V11H7ZM15 13V11H17V13H15Z',
+      }),
+    }),
+    l = window.wp.blocks,
+    o = window.wp.blockEditor,
+    i = window.wp.components,
+    r = window.wp.data,
+    s = [
+      'anchor',
+      'align',
+      'backgroundColor',
+      'blockCommentId',
+      'borderColor',
+      'className',
+      'color',
+      'customClassName',
+      'fontSize',
+      'layout',
+      'lock',
+      'metadata',
+      'placeholder',
+      'spacing',
+    ];
+  function c({ name: t, value: a, onChange: l }) {
+    const { media: s } = (0, r.useSelect)(
+      e => ({ media: e('core').getMedia(a) }),
+      [a]
+    );
+    return (0, n.jsx)(o.MediaUploadCheck, {
+      children: (0, n.jsx)(o.MediaUpload, {
+        onSelect: l,
+        render: ({ open: t }) =>
+          (0, n.jsx)(i.Button, {
+            onClick: t,
+            isPrimary: !0,
+            children: s ? (0, e.__)('Change Image') : (0, e.__)('Select Image'),
+          }),
+        value: a,
+        allowedTypes: ['image'],
+        gallery: !1,
+        multiple: !1,
+        mediaId: a,
+        media: s,
+        onError: e => {
+          console.error('Media upload error:', e);
+        },
+      }),
+    });
+  }
+  function d({ name: t, value: a, onChange: l, schema: o }) {
+    const { type: r, media: s, enum: d, default: u } = o;
+    if (s) {
+      if ('number' !== r) return null;
+      const e = t.endsWith('_media_id') ? t.replace('_media_id', '') : t;
+      return (0, n.jsx)(c, {
+        label: e,
+        value: a || u || 0,
+        onChange: ({ id: n, url: a }) => {
+          l({ [e]: a, [t]: n });
+        },
+      });
+    }
+    return 'string' === r
+      ? (0, n.jsx)('div', {
+          style: { marginBottom: '10px', paddingLeft: '5px' },
+          children: (0, n.jsx)(i.TextControl, {
+            label: t,
+            value: a || u || '',
+            onChange: e => {
+              l({ [t]: e });
+            },
+          }),
+        })
+      : 'number' === r
+        ? (0, n.jsx)('div', {
+            style: { marginBottom: '10px', paddingLeft: '5px' },
+            children: (0, n.jsx)(i.__experimentalNumberControl, {
+              label: t,
+              value: a || u || 0,
+              onChange: e => {
+                l({ [t]: e });
+              },
+            }),
+          })
+        : 'boolean' === r
+          ? (0, n.jsx)('div', {
+              style: { marginBottom: '10px', paddingLeft: '5px' },
+              children: (0, n.jsx)(i.SelectControl, {
+                label: t,
+                value: a || u || !1,
+                onChange: e => {
+                  l({ [t]: 'true' === e });
+                },
+                options: [
+                  { label: (0, e.__)('True'), value: 'true' },
+                  { label: (0, e.__)('False'), value: 'false' },
+                ],
+              }),
+            })
+          : Array.isArray(d)
+            ? (0, n.jsx)('div', {
+                style: { marginBottom: '10px', paddingLeft: '5px' },
+                children: (0, n.jsx)(i.SelectControl, {
+                  label: t,
+                  value: a || u || '',
+                  onChange: e => {
+                    l({ [t]: e });
+                  },
+                  options: d.map(e => ({ label: e, value: e })),
+                }),
+              })
+            : null;
+  }
+  const u = JSON.parse(
+      '{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"CLUTCH_BLOCK_NAME","version":"1.0.0","title":"CLUTCH_BLOCK_TITLE","category":"embed","icon":"smiley","description":"Clutch Block","attributes":{},"editorScript":"file:./index.js"}'
+    ),
+    { name: m } = u;
+  !(function (e) {
+    if (!e) return;
+    const { metadata: t, settings: n, name: a } = e;
+    (0, l.registerBlockType)({ name: a, ...t }, n);
+  })({
+    name: m,
+    metadata: u,
+    settings: {
+      icon: a,
+      __experimentalLabel(t, { context: n }) {
+        const a = t?.metadata?.name;
+        if ('list-view' === n && a) return a;
+        if ('accessibility' === n) {
+          if (a) return a;
+          const { content: n } = t;
+          return n && 0 !== n.length ? n : (0, e.__)('Empty');
+        }
+      },
+      merge: (e, t) => ({ content: (e.content || '') + (t.content || '') }),
+      edit: function ({
+        name: t,
+        attributes: a,
+        setAttributes: c,
+        isSelected: u,
+      }) {
+        const m = (0, o.useBlockProps)(),
+          p = (0, r.useSelect)(e => e(l.store).getBlockType(t), [t]),
+          g = p?.attributes || {};
+        return (0, n.jsxs)(n.Fragment, {
+          children: [
+            (0, n.jsx)(o.InspectorControls, {
+              children: (0, n.jsx)(i.Panel, {
+                header: (0, e.__)('Settings'),
+                children: (0, n.jsx)(i.PanelBody, {
+                  title: `${p.title} config`,
+                  children: '',
+                }),
+              }),
+            }),
+            (0, n.jsxs)('div', {
+              ...m,
+              style: { padding: '20px', border: '1px solid #ccc' },
+              children: [
+                (0, n.jsx)('h2', { children: p.title || 'Clutch Block' }),
+                Object.entries(g).map(([e, t]) =>
+                  s.includes(e)
+                    ? null
+                    : (0, n.jsx)(
+                        d,
+                        {
+                          name: e,
+                          schema: t,
+                          value: a[e] || null,
+                          onChange: c,
+                        },
+                        e
+                      )
+                ),
+              ],
+            }),
+          ],
+        });
+      },
+      save: function ({ attributes: e }) {
+        const t = o.useBlockProps.save();
+        return (0, n.jsx)('p', { ...t, children: 'Saved Clutch Block' });
+      },
+    },
+  });
+})();

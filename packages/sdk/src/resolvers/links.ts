@@ -1,13 +1,13 @@
-import { WpPageType, WpPageView } from "../statics";
+import { WpPageType, WpPageView } from '../statics';
 import {
   TPermalinkInfo,
   TWpTemplate,
   TWpTemplatePostType,
   TWpTemplateTaxonomy,
-} from "../types";
-import { Resolver } from "./resolver";
+} from '../types';
+import { Resolver } from './resolver';
 
-const SKIP_PATHS = ["wp-admin", "wp-content", "wp-json"];
+const SKIP_PATHS = ['wp-admin', 'wp-content', 'wp-json'];
 
 type TLinkOptions = {
   absolute?: boolean;
@@ -35,27 +35,27 @@ export function resolveLinkFromInfo(
   if (!permalinkInfo) return matchedPath;
 
   switch (permalinkInfo.object_type) {
-    case "post": {
+    case 'post': {
       const { name, post_type } = permalinkInfo.details;
       const postTypeTemplates = templates.filter(
         (t): t is TWpTemplatePostType =>
           t.type === WpPageType.POST_TYPE && t.name === post_type
       );
       const singleSpecific = postTypeTemplates.find(
-        (t) => t.template === WpPageView.SINGLE_SPECIFIC && t.slug === name
+        t => t.template === WpPageView.SINGLE_SPECIFIC && t.slug === name
       );
 
       if (singleSpecific) {
         matchedPath = singleSpecific.path;
       } else {
         const singleAny = postTypeTemplates.find(
-          (t) => t.template === WpPageView.SINGLE_ANY
+          t => t.template === WpPageView.SINGLE_ANY
         );
 
-        if (singleAny) matchedPath = singleAny.path.replace("[slug]", name);
+        if (singleAny) matchedPath = singleAny.path.replace('[slug]', name);
         else {
           const archive = postTypeTemplates.find(
-            (t) => t.template === WpPageView.ARCHIVE
+            t => t.template === WpPageView.ARCHIVE
           );
 
           if (archive) matchedPath = archive.path;
@@ -64,30 +64,28 @@ export function resolveLinkFromInfo(
       break;
     }
 
-    case "taxonomy": {
+    case 'taxonomy': {
       const { name } = permalinkInfo.details;
       const taxTemplates = templates.filter(
         (t): t is TWpTemplateTaxonomy =>
           t.type === WpPageType.TAXONOMY && t.name === name
       );
-      const archive = taxTemplates.find(
-        (t) => t.template === WpPageView.ARCHIVE
-      );
+      const archive = taxTemplates.find(t => t.template === WpPageView.ARCHIVE);
 
       if (archive) matchedPath = archive.path;
       break;
     }
-    case "taxonomy_term": {
+    case 'taxonomy_term': {
       const { name, taxonomy_name } = permalinkInfo.details;
       const taxTemplates = templates.filter(
         (t): t is TWpTemplateTaxonomy =>
           t.type === WpPageType.TAXONOMY && t.name === taxonomy_name
       );
       const singleAny = taxTemplates.find(
-        (t) => t.template === WpPageView.SINGLE_ANY
+        t => t.template === WpPageView.SINGLE_ANY
       );
 
-      if (singleAny) matchedPath = singleAny.path.replace("[slug]", name);
+      if (singleAny) matchedPath = singleAny.path.replace('[slug]', name);
 
       break;
     }
@@ -97,7 +95,7 @@ export function resolveLinkFromInfo(
   }
 
   if (!matchedPath) {
-    matchedPath = "/";
+    matchedPath = '/';
   }
 
   if (linkOptions?.absolute) {
@@ -137,7 +135,7 @@ export async function resolveLink(
   let resolver: Resolver | undefined;
   let options: TLinkOptions | undefined;
 
-  if (resolverOrOptions && "getPages" in resolverOrOptions) {
+  if (resolverOrOptions && 'getPages' in resolverOrOptions) {
     resolver = resolverOrOptions;
     options = linkOptions;
   } else {
@@ -153,13 +151,13 @@ export async function resolveLink(
 
   if (!wpUrl) return url;
 
-  let relativePath = url.replace(wpUrl, "");
+  let relativePath = url.replace(wpUrl, '');
 
-  if (relativePath.startsWith("/")) {
+  if (relativePath.startsWith('/')) {
     relativePath = relativePath.substring(1);
   }
 
-  if (SKIP_PATHS.some((path) => relativePath.startsWith(path))) {
+  if (SKIP_PATHS.some(path => relativePath.startsWith(path))) {
     return url;
   }
 
@@ -203,7 +201,7 @@ export async function resolveLinksInHtmlStr(
   let resolver: Resolver | undefined;
   let options: TLinkOptions | undefined;
 
-  if (resolverOrOptions && "getPages" in resolverOrOptions) {
+  if (resolverOrOptions && 'getPages' in resolverOrOptions) {
     resolver = resolverOrOptions;
     options = linkOptions;
   } else {
@@ -222,7 +220,7 @@ export async function resolveLinksInHtmlStr(
   const pattern = /(['"])(https?:\/\/[^'"]+)(['"])/g;
   const matches = [...content.matchAll(pattern)];
 
-  const replacements = matches.map(async (match) => {
+  const replacements = matches.map(async match => {
     const [fullMatch, p1, link, p3] = match;
     let resolvedLink: string;
 
@@ -241,7 +239,7 @@ export async function resolveLinksInHtmlStr(
 
   const resolved = await Promise.all(replacements);
 
-  let newContent = "";
+  let newContent = '';
   let lastIndex = 0;
 
   for (const { match, fullMatch, resolvedLink, p1, p3 } of resolved) {
@@ -273,7 +271,7 @@ export async function resolveLinksInString(
   let resolver: Resolver | undefined;
   let options: TLinkOptions | undefined;
 
-  if (resolverOrOptions && "getPages" in resolverOrOptions) {
+  if (resolverOrOptions && 'getPages' in resolverOrOptions) {
     resolver = resolverOrOptions;
     options = linkOptions;
   } else {
@@ -304,5 +302,5 @@ export function checkForLinksInString(
 
   const wpUrl = resolver.getClient().getConfig().apiUrl;
 
-  return typeof str === "string" && str.includes(wpUrl);
+  return typeof str === 'string' && str.includes(wpUrl);
 }

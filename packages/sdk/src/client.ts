@@ -1,15 +1,15 @@
-import { WP_REST_API_Search_Results, WP_REST_API_User } from "wp-types";
+import { WP_REST_API_Search_Results, WP_REST_API_User } from 'wp-types';
 import {
   generateRandomToken,
   getProcessedUrlSearchParams,
   isValidWordpressUrl,
   urlJoin,
-} from "./helpers";
-import { resolveClutchFields } from "./resolvers/clutch-nodes";
-import { resolveMenu } from "./resolvers/menus";
-import { Resolver } from "./resolvers/resolver";
-import { resolveSearchResults } from "./resolvers/search";
-import { resolveUser, resolveUsers } from "./resolvers/users";
+} from './helpers';
+import { resolveClutchFields } from './resolvers/clutch-nodes';
+import { resolveMenu } from './resolvers/menus';
+import { Resolver } from './resolvers/resolver';
+import { resolveSearchResults } from './resolvers/search';
+import { resolveUser, resolveUsers } from './resolvers/users';
 import {
   FetchPostsArgs,
   FetchSearchArgs,
@@ -37,8 +37,8 @@ import {
   UserResult,
   VersionValidationResult,
   WPIdFilter,
-} from "./types";
-import { VersionConfig } from "./version-config";
+} from './types';
+import { VersionConfig } from './version-config';
 
 type TComponentsMap = {
   RichText: React.ComponentType<{
@@ -112,10 +112,10 @@ export class WordPressHttpClient {
 
     try {
       const url = urlJoin(apiUrl, `/wp-json/clutch/v1/${path}`);
-      const cache = cacheDisabled || draftMode ? "no-cache" : "default";
+      const cache = cacheDisabled || draftMode ? 'no-cache' : 'default';
 
       const requestHeaders: Record<string, string> = {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...configHeaders,
         ...headers,
       };
@@ -125,7 +125,7 @@ export class WordPressHttpClient {
       }
 
       if (draftMode) {
-        requestHeaders["X-Draft-Mode"] = "true";
+        requestHeaders['X-Draft-Mode'] = 'true';
       }
 
       // For environments that support Next.js features
@@ -137,9 +137,9 @@ export class WordPressHttpClient {
       };
 
       // Add Next.js specific options if available
-      if (typeof window === "undefined" && revalidate) {
+      if (typeof window === 'undefined' && revalidate) {
         fetchOptions.next = {
-          tags: ["wordpress", ...tags],
+          tags: ['wordpress', ...tags],
           revalidate,
         };
       }
@@ -147,7 +147,7 @@ export class WordPressHttpClient {
       const response = await fetch(`${url}?${processedParams}`, fetchOptions);
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok');
       }
 
       return response.json();
@@ -173,18 +173,18 @@ export class WordPressHttpClient {
     const fetchOptions: RequestInit & {
       next?: { tags: string[]; revalidate: number };
     } = {
-      cache: cacheDisabled || draftMode ? "no-cache" : "default",
+      cache: cacheDisabled || draftMode ? 'no-cache' : 'default',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...configHeaders,
         ...headers,
       },
     };
 
     // Add Next.js specific options if available
-    if (typeof window === "undefined" && revalidate) {
+    if (typeof window === 'undefined' && revalidate) {
       fetchOptions.next = {
-        tags: ["wordpress", ...tags],
+        tags: ['wordpress', ...tags],
         revalidate,
       };
     }
@@ -198,7 +198,7 @@ export class WordPressHttpClient {
       const response = await fetch(`${url}?${processedParams}`, fetchOptions);
 
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok');
       }
 
       return response.json();
@@ -239,12 +239,12 @@ export class WordPressHttpClient {
    */
   async getPluginInfo(): Promise<PluginInfoResponse | null> {
     try {
-      const response = await this.wpPluginGet<PluginInfoResponse>("info", {});
+      const response = await this.wpPluginGet<PluginInfoResponse>('info', {});
 
       return response || null;
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.warn("Failed to fetch plugin info:", error);
+      console.warn('Failed to fetch plugin info:', error);
 
       return null;
     }
@@ -260,12 +260,12 @@ export class WordPressHttpClient {
       const result: VersionValidationResult = {
         isCompatible: false,
         isAuthenticated: false,
-        pluginVersion: "unknown",
+        pluginVersion: 'unknown',
         requiredVersion: VersionConfig.getMinimumPluginVersion(),
         supportedRange: VersionConfig.getSupportedVersionRange(),
         message:
-          "Unable to fetch plugin information. Please ensure the Clutch WordPress plugin is installed and activated.",
-        severity: "error",
+          'Unable to fetch plugin information. Please ensure the Clutch WordPress plugin is installed and activated.',
+        severity: 'error',
       };
 
       return result;
@@ -277,7 +277,7 @@ export class WordPressHttpClient {
     const result: VersionValidationResult = {
       ...compatibilityInfo,
       isAuthenticated: pluginInfo.isAuthenticated,
-      severity: compatibilityInfo.isCompatible ? "info" : "error",
+      severity: compatibilityInfo.isCompatible ? 'info' : 'error',
     };
 
     return result;
@@ -290,7 +290,7 @@ export class WordPressHttpClient {
       `/wp-admin/admin.php?page=clutch-approve-token&token=${token}`
     );
 
-    open(adminUrl, "_blank");
+    open(adminUrl, '_blank');
 
     return token;
   }
@@ -301,10 +301,10 @@ export class WordPressHttpClient {
     _resolver?: Resolver
   ): Promise<PostsResult> {
     const resolver = _resolver || this.createResolver();
-    const postType = args.post_type || "post";
+    const postType = args.post_type || 'post';
 
     const postsResponse = await this.wpPluginGet<PostsRestResult>(
-      "posts",
+      'posts',
       args,
       [postType]
     );
@@ -321,7 +321,7 @@ export class WordPressHttpClient {
   }
 
   async fetchPostBySlug(
-    postType: string = "post",
+    postType: string = 'post',
     slug: string,
     includeSeo: boolean = false,
     _resolver?: Resolver
@@ -340,7 +340,7 @@ export class WordPressHttpClient {
 
     return resolver.addAssetPromise(postType, slug, async () => {
       const postResponse = await this.wpPluginGet<PostRestResult>(
-        "post",
+        'post',
         {
           slug,
           seo: includeSeo,
@@ -357,7 +357,7 @@ export class WordPressHttpClient {
   }
 
   async fetchPostById(
-    postType: string = "post",
+    postType: string = 'post',
     id: WPIdFilter,
     includeSeo: boolean = false,
     _resolver?: Resolver
@@ -373,7 +373,7 @@ export class WordPressHttpClient {
 
     return resolver.addAssetPromise(postType, id, async () => {
       const postResponse = await this.wpPluginGet<PostRestResult>(
-        "post",
+        'post',
         {
           id,
           seo: includeSeo,
@@ -390,7 +390,7 @@ export class WordPressHttpClient {
   }
 
   async fetchPostType(
-    postType: string = "post"
+    postType: string = 'post'
   ): Promise<TClutchPostType | undefined> {
     const postTypeResponse = await this.wpPluginGet<TClutchPostType>(
       `post-type/${postType}`,
@@ -417,8 +417,8 @@ export class WordPressHttpClient {
     _resolver?: Resolver
   ): Promise<UserResult[]> {
     const resolver = _resolver || this.createResolver();
-    const users = await this.wpGet<WP_REST_API_User[]>("users", args, [
-      "users",
+    const users = await this.wpGet<WP_REST_API_User[]>('users', args, [
+      'users',
     ]);
 
     return resolveUsers(users, resolver);
@@ -432,12 +432,12 @@ export class WordPressHttpClient {
 
     const resolver = _resolver || this.createResolver();
 
-    const existingPromise = resolver.getAssetPromise<UserResult>("users", slug);
+    const existingPromise = resolver.getAssetPromise<UserResult>('users', slug);
 
     if (existingPromise) return existingPromise;
 
-    return resolver.addAssetPromise("users", slug, async () => {
-      const users = await this.wpGet<WP_REST_API_User[]>("users", { slug }, [
+    return resolver.addAssetPromise('users', slug, async () => {
+      const users = await this.wpGet<WP_REST_API_User[]>('users', { slug }, [
         `users-${slug}`,
       ]);
 
@@ -457,11 +457,11 @@ export class WordPressHttpClient {
 
     const resolver = _resolver || this.createResolver();
 
-    const existingPromise = resolver.getAssetPromise<UserResult>("users", id);
+    const existingPromise = resolver.getAssetPromise<UserResult>('users', id);
 
     if (existingPromise) return existingPromise;
 
-    return resolver.addAssetPromise("users", id, async () => {
+    return resolver.addAssetPromise('users', id, async () => {
       const user = await this.wpGet<WP_REST_API_User>(`users/${id}`, {}, [
         `users-${id}`,
       ]);
@@ -476,9 +476,9 @@ export class WordPressHttpClient {
 
   async fetchTaxonomies(): Promise<TClutchTaxonomyType[]> {
     const taxonomies = await this.wpPluginGet<TClutchTaxonomyType[]>(
-      "taxonomies",
+      'taxonomies',
       {},
-      ["taxonomies"]
+      ['taxonomies']
     );
 
     return taxonomies || [];
@@ -490,7 +490,7 @@ export class WordPressHttpClient {
     const taxonomyRes = await this.wpPluginGet<TClutchTaxonomyType>(
       `taxonomy/${taxonomy}`,
       {},
-      ["taxonomies", `taxonomy-${taxonomy}`]
+      ['taxonomies', `taxonomy-${taxonomy}`]
     );
 
     return taxonomyRes;
@@ -502,8 +502,8 @@ export class WordPressHttpClient {
     _resolver?: Resolver
   ): Promise<TermsResult> {
     const resolver = _resolver || this.createResolver();
-    const taxonomy = args.taxonomy || "category";
-    const response = await this.wpPluginGet<TermsRestResult>("terms", args, [
+    const taxonomy = args.taxonomy || 'category';
+    const response = await this.wpPluginGet<TermsRestResult>('terms', args, [
       taxonomy,
     ]);
 
@@ -537,7 +537,7 @@ export class WordPressHttpClient {
 
     return resolver.addAssetPromise(taxonomy, slug, async () => {
       const term = await this.wpPluginGet<TermRestResult>(
-        "term",
+        'term',
         {
           slug,
           taxonomy,
@@ -573,7 +573,7 @@ export class WordPressHttpClient {
 
     return resolver.addAssetPromise(taxonomy, id, async () => {
       const term = await this.wpPluginGet<TermRestResult>(
-        "term",
+        'term',
         {
           id,
           taxonomy,
@@ -597,7 +597,7 @@ export class WordPressHttpClient {
   ): Promise<SearchResut[]> {
     const resolver = _resolver || this.createResolver();
     const results = await this.wpGet<WP_REST_API_Search_Results>(
-      "search",
+      'search',
       args,
       []
     );
@@ -615,11 +615,11 @@ export class WordPressHttpClient {
     const resolver = _resolver || this.createResolver();
 
     // check if resolver is already resolving/resolved this resource
-    const existingPromise = resolver.getAssetPromise("menus", id);
+    const existingPromise = resolver.getAssetPromise('menus', id);
 
     if (existingPromise) return existingPromise as Promise<MenuResult | null>;
 
-    return resolver.addAssetPromise("menus", id, async () => {
+    return resolver.addAssetPromise('menus', id, async () => {
       const menu = await this.wpPluginGet<MenuResponse>(`menus/${id}`, {}, [
         `menus-${id}`,
       ]);
@@ -634,9 +634,9 @@ export class WordPressHttpClient {
 
   async fetchMenusLocations(): Promise<MenuLocationResponse[]> {
     const locations = await this.wpPluginGet<MenuLocationResponse[]>(
-      "menus",
+      'menus',
       {},
-      ["menus"]
+      ['menus']
     );
 
     return locations || [];
@@ -644,9 +644,9 @@ export class WordPressHttpClient {
 
   async fetchFrontPageInfo(): Promise<TFrontPageInfo | undefined> {
     const frontPageInfo = await this.wpPluginGet<TFrontPageInfo>(
-      "front-page",
+      'front-page',
       {},
-      ["front-page"]
+      ['front-page']
     );
 
     return frontPageInfo;
@@ -659,20 +659,20 @@ export class WordPressHttpClient {
     const resolver = _resolver || this.createResolver();
 
     const { apiUrl } = this.config;
-    const relativePath = url.replace(apiUrl, "");
-    const cacheKey = relativePath.replace(/\//g, "-").slice(0, -1);
+    const relativePath = url.replace(apiUrl, '');
+    const cacheKey = relativePath.replace(/\//g, '-').slice(0, -1);
 
     // check if resolver is already resolving/resolved this resource
-    const existingPromise = resolver.getAssetPromise("permalinks", cacheKey);
+    const existingPromise = resolver.getAssetPromise('permalinks', cacheKey);
 
     if (existingPromise)
       return existingPromise as Promise<TPermalinkInfo | undefined>;
 
-    return resolver.addAssetPromise("permalinks", cacheKey, async () => {
+    return resolver.addAssetPromise('permalinks', cacheKey, async () => {
       const res = await this.wpPluginGet<TPermalinkInfo>(
-        "permalink-info",
+        'permalink-info',
         { url },
-        ["permalinks", `perma-${cacheKey}`]
+        ['permalinks', `perma-${cacheKey}`]
       );
 
       return res;

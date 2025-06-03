@@ -1,11 +1,11 @@
-import wpConfig from '@wordpress/prettier-config';
+import config from '@clutch-wp/prettier-config';
 
 /**
  * @type {import("prettier").Config}
  */
-const config = {
-	...wpConfig,
-	plugins: ['@prettier/plugin-php'],
+const pluginConfig = {
+  ...config,
+  // Plugin-specific overrides can go here if needed
 };
 
-export default config;
+export default pluginConfig;
