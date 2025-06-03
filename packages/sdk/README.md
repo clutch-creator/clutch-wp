@@ -38,28 +38,28 @@ The `WordPressHttpClient` accepts a configuration object with the following opti
 interface WordPressClientConfig {
   /** The WordPress site URL (e.g., https://example.com) */
   apiUrl: string;
-  
+
   /** WordPress pages/templates configuration */
   pages?: TWpTemplateList;
-  
+
   /** Components to use for rendering blocks */
   components?: TComponentsMap;
-  
+
   /** Optional authentication token */
   authToken?: string;
-  
+
   /** Whether to disable caching (useful for development) */
   cacheDisabled?: boolean;
-  
+
   /** Whether to enable draft mode */
   draftMode?: boolean;
-  
+
   /** Custom headers to include with requests */
   headers?: Record<string, string>;
-  
+
   /** Cache revalidation time in seconds (default: 3600 = 1 hour) */
   revalidate?: number;
-  
+
   /** Optional disables resolving of fields */
   disableResolving?: boolean;
 }
@@ -93,6 +93,7 @@ const client = new WordPressHttpClient({
 ### Client Configuration
 
 #### `getConfig()`
+
 Get the current client configuration.
 
 ```typescript
@@ -100,6 +101,7 @@ const config = client.getConfig();
 ```
 
 #### `updateConfig(newConfig)`
+
 Update the client configuration.
 
 ```typescript
@@ -110,6 +112,7 @@ client.updateConfig({
 ```
 
 #### `isValidUrl()`
+
 Validate if the WordPress URL is accessible.
 
 ```typescript
@@ -119,6 +122,7 @@ const isValid = await client.isValidUrl();
 ### Posts
 
 #### `fetchPosts(args)`
+
 Fetch multiple posts with filtering and pagination.
 
 ```typescript
@@ -140,6 +144,7 @@ interface PostsResult {
 ```
 
 #### `fetchPostBySlug(postType, slug, includeSeo)`
+
 Fetch a single post by its slug.
 
 ```typescript
@@ -148,6 +153,7 @@ const post = await client.fetchPostBySlug('post', 'my-post-slug', true);
 ```
 
 #### `fetchPostById(postType, id, includeSeo)`
+
 Fetch a single post by its ID.
 
 ```typescript
@@ -158,6 +164,7 @@ const post = await client.fetchPostById('post', 123, true);
 ### Post Types
 
 #### `fetchPostTypes()`
+
 Get all available post types.
 
 ```typescript
@@ -166,6 +173,7 @@ const postTypes = await client.fetchPostTypes();
 ```
 
 #### `fetchPostType(postType)`
+
 Get a specific post type configuration.
 
 ```typescript
@@ -176,6 +184,7 @@ const postType = await client.fetchPostType('product');
 ### Users
 
 #### `fetchUsers(args)`
+
 Fetch multiple users with filtering and pagination.
 
 ```typescript
@@ -189,6 +198,7 @@ const users = await client.fetchUsers({
 ```
 
 #### `fetchUserBySlug(slug)`
+
 Fetch a single user by slug.
 
 ```typescript
@@ -197,6 +207,7 @@ const user = await client.fetchUserBySlug('john-doe');
 ```
 
 #### `fetchUserById(id)`
+
 Fetch a single user by ID.
 
 ```typescript
@@ -207,6 +218,7 @@ const user = await client.fetchUserById(123);
 ### Taxonomies
 
 #### `fetchTaxonomies()`
+
 Get all available taxonomies.
 
 ```typescript
@@ -215,6 +227,7 @@ const taxonomies = await client.fetchTaxonomies();
 ```
 
 #### `fetchTaxonomy(taxonomy)`
+
 Get a specific taxonomy configuration.
 
 ```typescript
@@ -223,6 +236,7 @@ const taxonomy = await client.fetchTaxonomy('category');
 ```
 
 #### `fetchTaxonomyTerms(args)`
+
 Fetch taxonomy terms with filtering and pagination.
 
 ```typescript
@@ -244,14 +258,20 @@ interface TermsResult {
 ```
 
 #### `fetchTaxonomyTermBySlug(taxonomy, slug, includeSeo)`
+
 Fetch a single taxonomy term by slug.
 
 ```typescript
-const term = await client.fetchTaxonomyTermBySlug('category', 'technology', true);
+const term = await client.fetchTaxonomyTermBySlug(
+  'category',
+  'technology',
+  true
+);
 // Returns: TaxonomyTermResult | null
 ```
 
 #### `fetchTaxonomyTermById(taxonomy, id, includeSeo)`
+
 Fetch a single taxonomy term by ID.
 
 ```typescript
@@ -262,6 +282,7 @@ const term = await client.fetchTaxonomyTermById('category', 123, true);
 ### Search
 
 #### `fetchSearchResults(args)`
+
 Search WordPress content across posts and terms.
 
 ```typescript
@@ -277,6 +298,7 @@ const results = await client.fetchSearchResults({
 ### Menus
 
 #### `fetchMenuById(id)`
+
 Fetch a WordPress menu by ID.
 
 ```typescript
@@ -285,6 +307,7 @@ const menu = await client.fetchMenuById(123);
 ```
 
 #### `fetchMenusLocations()`
+
 Get all menu locations.
 
 ```typescript
@@ -295,6 +318,7 @@ const locations = await client.fetchMenusLocations();
 ### Plugin Information
 
 #### `getPluginInfo()`
+
 Get information about the Clutch WordPress plugin.
 
 ```typescript
@@ -303,6 +327,7 @@ const info = await client.getPluginInfo();
 ```
 
 #### `validatePluginVersion()`
+
 Validate plugin version compatibility.
 
 ```typescript
@@ -313,6 +338,7 @@ const validation = await client.validatePluginVersion();
 ### Utility Methods
 
 #### `getFrontPageInfo()`
+
 Get front page configuration.
 
 ```typescript
@@ -321,6 +347,7 @@ const frontPage = await client.fetchFrontPageInfo();
 ```
 
 #### `getPermalinkInfo(url)`
+
 Get information about a specific URL/permalink.
 
 ```typescript
@@ -329,6 +356,7 @@ const info = await client.getPermalinkInfo('https://mysite.com/my-page/');
 ```
 
 #### `isInDraftMode()`
+
 Check if the client is in draft mode.
 
 ```typescript
@@ -337,6 +365,7 @@ const isDraft = client.isInDraftMode();
 ```
 
 #### `getComponents()`
+
 Get the configured components.
 
 ```typescript
@@ -437,7 +466,7 @@ const client = new WordPressHttpClient({
   apiUrl: 'https://your-site.com',
   headers: {
     'X-Custom-App': 'MyApp',
-    'Authorization': 'Bearer custom-token',
+    Authorization: 'Bearer custom-token',
   },
 });
 ```
@@ -469,7 +498,7 @@ const client = new WordPressHttpClient({
 ## Requirements
 
 - WordPress site with Clutch WordPress plugin installed and activated
-- Node.js 16+ 
+- Node.js 16+
 - TypeScript 4.5+ (recommended)
 
 ## License
