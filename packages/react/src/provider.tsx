@@ -29,7 +29,7 @@ export function WordPressProvider({
   config,
   children,
 }: WordPressProviderProps) {
-  const [client] = useState(() => new WordPressHttpClient(config));
+  const client = useMemo(() => new WordPressHttpClient(config), [config]);
   const queryClient = useMemo(() => {
     return new QueryClient();
   }, []);

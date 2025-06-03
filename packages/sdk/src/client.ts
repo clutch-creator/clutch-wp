@@ -74,8 +74,6 @@ export interface WordPressClientConfig {
 export class WordPressHttpClient {
   private config: WordPressClientConfig;
 
-  private pluginInfo: PluginInfoResponse | null = null;
-
   constructor(config: WordPressClientConfig) {
     const {
       cacheDisabled = false,
@@ -240,16 +238,10 @@ export class WordPressHttpClient {
    * Get plugin information from the WordPress site
    */
   async getPluginInfo(): Promise<PluginInfoResponse | null> {
-    if (this.pluginInfo) {
-      return this.pluginInfo;
-    }
-
     try {
       const response = await this.wpPluginGet<PluginInfoResponse>("info", {});
 
-      this.pluginInfo = response || null;
-
-      return this.pluginInfo;
+      return response || null;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.warn("Failed to fetch plugin info:", error);
