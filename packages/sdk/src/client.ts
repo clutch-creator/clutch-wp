@@ -1,5 +1,6 @@
 import { WP_REST_API_Search_Results, WP_REST_API_User } from "wp-types";
 import {
+  generateRandomToken,
   getProcessedUrlSearchParams,
   isValidWordpressUrl,
   urlJoin,
@@ -266,6 +267,7 @@ export class WordPressHttpClient {
     if (!pluginInfo) {
       const result: VersionValidationResult = {
         isCompatible: false,
+        isAuthenticated: false,
         pluginVersion: "unknown",
         requiredVersion: VersionConfig.getMinimumPluginVersion(),
         supportedRange: VersionConfig.getSupportedVersionRange(),
@@ -282,10 +284,23 @@ export class WordPressHttpClient {
     );
     const result: VersionValidationResult = {
       ...compatibilityInfo,
+      isAuthenticated: pluginInfo.isAuthenticated,
       severity: compatibilityInfo.isCompatible ? "info" : "error",
     };
 
     return result;
+  }
+
+  async setupNewAuthToken(): Promise<string | undefined> {
+    const token = generateRandomToken();
+    const adminUrl = urlJoin(
+      this.config.apiUrl,
+      `/wp-admin/admin.php?page=clutch-approve-token&token=${token}`
+    );
+
+    open(adminUrl, "_blank");
+
+    return token;
   }
 
   // Posts Methods

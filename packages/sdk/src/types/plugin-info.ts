@@ -5,6 +5,7 @@ export interface PluginInfoResponse {
   name: string;
   version: string;
   uri: string;
+  isAuthenticated: boolean;
 }
 
 /**
@@ -39,6 +40,7 @@ export interface VersionValidationConfig {
  */
 export interface VersionValidationResult {
   isCompatible: boolean;
+  isAuthenticated: boolean;
   pluginVersion: string;
   requiredVersion: string;
   supportedRange: string;

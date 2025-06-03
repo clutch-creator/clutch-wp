@@ -54,6 +54,7 @@ export function WordPressConnectionProvider({
     validUrl: false,
     pluginInfo: {
       isCompatible: false,
+      isAuthenticated: false,
       pluginVersion: "unknown",
       requiredVersion: VersionConfig.getMinimumPluginVersion(),
       supportedRange: VersionConfig.getSupportedVersionRange(),

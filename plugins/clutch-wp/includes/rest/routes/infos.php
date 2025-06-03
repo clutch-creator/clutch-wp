@@ -40,6 +40,7 @@ function rest_get_info()
 		'name' => $plugin_data['Name'],
 		'version' => $plugin_data['Version'],
 		'uri' => $plugin_data['PluginURI'],
+		'isAuthenticated' => current_user_can('manage_options'),
 	];
 
 	return new \WP_REST_Response($response);
