@@ -1,5 +1,13 @@
 # @clutch-wp/sdk
 
+## 1.1.2
+
+### Patch Changes
+
+- e9b7714: Fixed issue with blocks not having attrs
+- Updated dependencies [81d08d7]
+  - @clutch-wp/clutch-plugin@2.4.2
+
 ## 1.1.1
 
 ### Patch Changes

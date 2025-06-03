@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.2
+
+### Patch Changes
+
+- 81d08d7: Fix plugin version
+
 ## 2.4.1
 
 ### Patch Changes
