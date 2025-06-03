@@ -14,14 +14,14 @@ export async function resolveBlock(block: WP_Block_Parsed, resolver: Resolver) {
 
   const { RichText, Image, blockComponents } = components;
 
-  // Convert empty attributes to an empty object
-  if (Array.isArray(draftBlock.attrs)) {
-    draftBlock.attrs = {};
-  }
-
   // Resolve all clutch nodes
   blockResolver.waitPromise(resolveClutchFields(draftBlock, blockResolver));
   await blockResolver.waitAll();
+
+  // Convert empty attributes to an empty object
+  if (!draftBlock.attrs || Array.isArray(draftBlock.attrs)) {
+    draftBlock.attrs = {};
+  }
 
   const { innerHTML } = draftBlock;
   const { source_url: src, alt_text: alt, className } = draftBlock.attrs;
