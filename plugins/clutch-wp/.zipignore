@@ -2,6 +2,7 @@
 *.DS_Store*
 *.editorconfig*
 *.gitignore*
+*.prettierignore*
 *.prettierrc*
 *node_modules*
 *tests*
@@ -11,3 +12,5 @@
 package.json
 package-lock.json
 composer.lock
+*.turbo*
+CHANGELOG.md
