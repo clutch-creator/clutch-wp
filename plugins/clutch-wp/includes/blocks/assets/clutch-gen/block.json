@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "CLUTCH_BLOCK_NAME",
+  "version": "1.0.0",
+  "title": "CLUTCH_BLOCK_TITLE",
+  "category": "embed",
+  "icon": "smiley",
+  "description": "Clutch Block",
+  "attributes": {},
+  "editorScript": "file:./index.js"
+}

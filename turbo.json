@@ -1,0 +1,36 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "WORDPRESS_URL",
+    "NODE_ENV",
+    "WORDPRESS_CACHE_DISABLED",
+    "NEXT_PUBLIC_WEBSITE_URL",
+    "WORDPRESS_DRAFT_MODE",
+    "WORDPRESS_AUTH_TOKEN"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "test": {},
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {},
+    "format": {
+      "cache": false
+    },
+    "format:check": {},
+    "check-types": {},
+    "version-packages": {
+      "cache": false
+    },
+    "release": {
+      "cache": false,
+      "dependsOn": ["build"]
+    }
+  }
+}

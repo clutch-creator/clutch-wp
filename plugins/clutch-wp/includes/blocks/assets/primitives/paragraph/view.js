@@ -1,0 +1,4 @@
+(() => {
+  'use strict';
+  console.log('Hello World! (from clutch-paragraph block)');
+})();
