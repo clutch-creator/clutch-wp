@@ -14,7 +14,8 @@
     "format:check": "turbo run format:check --continue",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "replace-workspace-deps": "bun scripts/replace-workspace-deps.ts",
+    "release": "turbo run build && bun scripts/replace-workspace-deps.ts && changeset publish"
   },
   "keywords": [],
   "author": "",
