@@ -44,6 +44,9 @@ jobs:
       - name: Type Check
         run: bun run check-types
 
+      - name: Format
+        run: bun run format:check
+
       - name: Run Tests
         run: bun run test
 
@@ -56,24 +59,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Add plugin asset to release
-        if: steps.changesets.outputs.published == 'true' && contains(fromJSON(steps.changesets.outputs.publishedPackages).*.name, 'clutch-wp')
-        run: |
-          set -e
-          cd plugins/clutch-wp
-          bun run build
-
-          # Get the latest release tag created by changesets
-          LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
-
-          if [ -n "$LATEST_TAG" ]; then
-            # Upload the plugin zip to the release
-            gh release upload "$LATEST_TAG" dist/clutch-wp.zip --clobber
-            echo "✅ Uploaded clutch-wp.zip to release $LATEST_TAG"
-          else
-            echo "❌ No release found to upload asset to"
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
