@@ -31,6 +31,9 @@
     "release": {
       "cache": false,
       "dependsOn": ["build"]
+    },
+    "postversion": {
+      "cache": false
     }
   }
 }
