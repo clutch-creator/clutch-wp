@@ -1,11 +1,13 @@
-# Clutch WP
+# Clutch Headless WordPress Toolkit
 
 [![Release](https://github.com/clutch-creator/clutch-wp/actions/workflows/release.yml/badge.svg)](https://github.com/clutch-creator/clutch-wp/actions/workflows/release.yml)
 [![License](https://img.shields.io/badge/license-GPL--2.0-blue.svg)](LICENSE)
 [![WordPress](https://img.shields.io/badge/WordPress-5.7%2B-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net/)
 
-Integrate WordPress headlessly with Clutch, the next-gen Visual Builder. Empower creative professionals with total design freedom, advanced functionality, and top-tier performance—all with fewer plugins.
+Integrate with WordPress headlessly.
+
+You can use this toolkit visually in Clutch or you can use it on your own projects outside Clutch.
 
 ## 🚀 Features
 
@@ -28,13 +30,13 @@ This monorepo contains the following packages:
 
 ### WordPress Plugin
 
-- **[clutch-wp](./plugins/clutch-wp)**: WordPress plugin that provides the backend functionality
+- **[@clutch-wp/clutch-wp](./plugins/clutch-wp)**: WordPress plugin that provides the backend functionality
 
 ## 🛠 Installation
 
 ### WordPress Plugin
 
-1. Download the latest plugin zip from [Releases](https://github.com/clutch-creator/clutch-wp/releases)
+1. Download the latest plugin zip from [Unpkg](https://unpkg.com/@clutch-wp/clutch-plugin/dist/clutch-wp.zip)
 2. Upload and activate the plugin in your WordPress admin
 3. Configure the plugin settings under **Clutch** in the WordPress admin
 
@@ -57,6 +59,7 @@ This monorepo contains the following packages:
    ```
 
 2. **Install dependencies**
+
    ```bash
    bun install
    ```
@@ -66,6 +69,7 @@ This monorepo contains the following packages:
 - `bun run build` - Build all packages
 - `bun run lint` - Lint all packages
 - `bun run check-types` - Type check all packages
+- `bun run format:check` - Check code formatting
 - `bun run test` - Run tests across all packages
 
 ## 🚀 Deployment
@@ -73,7 +77,7 @@ This monorepo contains the following packages:
 This project uses [Changesets](https://github.com/changesets/changesets) for automated versioning and publishing:
 
 1. Create a changeset: `bun run changeset`
-2. Push changes to `main` branch
+2. Push changes to `development` branch
 3. GitHub Actions will automatically:
    - Create a "Release PR" with version updates
    - When merged, publish NPM packages and create GitHub releases
@@ -100,7 +104,7 @@ This project is licensed under the GPL-2.0 License - see the [LICENSE](LICENSE) 
 
 ## 🆘 Support
 
-- 📚 [Documentation](https://docs.clutch.io)
+- 📚 [Documentation](https://help.clutch.io)
 - 🐛 [Report Issues](https://github.com/clutch-creator/clutch-wp/issues)
 - 💬 [Community Discussions](https://discord.gg/j4bnupeese)
 - 🌐 [Official Website](https://clutch.io)
