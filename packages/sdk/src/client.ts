@@ -57,8 +57,8 @@ export interface WordPressClientConfig {
   pages?: TWpTemplateList;
   /** Components to use for rendering blocks */
   components?: TComponentsMap;
-  /** Optional authentication token */
-  authToken?: string;
+  /** Authentication token */
+  authToken: string;
   /** Whether to disable caching (useful for development) */
   cacheDisabled?: boolean;
   /** Whether to enable draft mode */

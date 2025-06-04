@@ -16,6 +16,7 @@ import { WordPressHttpClient } from '@clutch-wp/sdk';
 // Basic configuration
 const client = new WordPressHttpClient({
   apiUrl: 'https://your-wordpress-site.com',
+  authToken: 'your-auth-token',
 });
 
 // Fetch posts
@@ -45,8 +46,8 @@ interface WordPressClientConfig {
   /** Components to use for rendering blocks */
   components?: TComponentsMap;
 
-  /** Optional authentication token */
-  authToken?: string;
+  /** Authentication token */
+  authToken: string;
 
   /** Whether to disable caching (useful for development) */
   cacheDisabled?: boolean;
