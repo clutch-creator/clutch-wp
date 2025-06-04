@@ -6,6 +6,7 @@ import {
   urlJoin,
 } from './helpers';
 import { resolveClutchFields } from './resolvers/clutch-nodes';
+import { resolveLink } from './resolvers/links.ts';
 import { resolveMenu } from './resolvers/menus';
 import { Resolver } from './resolvers/resolver';
 import { resolveSearchResults } from './resolvers/search';
@@ -677,6 +678,12 @@ export class WordPressHttpClient {
 
       return res;
     });
+  }
+
+  async resolveLink(url: string, _resolver?: Resolver): Promise<string> {
+    const resolver = _resolver || this.createResolver();
+
+    return resolveLink(url, resolver);
   }
 
   isInDraftMode(): boolean {

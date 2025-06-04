@@ -119,15 +119,6 @@ export function resolveLinkFromInfo(
  */
 export async function resolveLink(
   url: string,
-  resolver: Resolver,
-  linkOptions?: TLinkOptions
-): Promise<string>;
-export async function resolveLink(
-  url: string,
-  linkOptions?: TLinkOptions
-): Promise<string>;
-export async function resolveLink(
-  url: string,
   resolverOrOptions?: Resolver | TLinkOptions,
   linkOptions?: TLinkOptions
 ): Promise<string> {
@@ -183,15 +174,6 @@ export async function resolveLink(
   return resolvedPath || url;
 }
 
-export async function resolveLinksInHtmlStr(
-  content: string,
-  resolver: Resolver,
-  linkOptions?: TLinkOptions
-): Promise<string>;
-export async function resolveLinksInHtmlStr(
-  content: string,
-  linkOptions?: TLinkOptions
-): Promise<string>;
 export async function resolveLinksInHtmlStr(
   content: string,
   resolverOrOptions?: Resolver | TLinkOptions,
@@ -253,15 +235,6 @@ export async function resolveLinksInHtmlStr(
   return newContent;
 }
 
-export async function resolveLinksInString(
-  str: string,
-  resolver: Resolver,
-  linkOptions?: TLinkOptions
-): Promise<string>;
-export async function resolveLinksInString(
-  str: string,
-  linkOptions?: TLinkOptions
-): Promise<string>;
 export async function resolveLinksInString(
   str: string,
   resolverOrOptions?: Resolver | TLinkOptions,
