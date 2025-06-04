@@ -6,7 +6,7 @@ import {
   urlJoin,
 } from './helpers';
 import { resolveClutchFields } from './resolvers/clutch-nodes';
-import { resolveLink } from './resolvers/links.ts';
+import { resolveLink } from './resolvers/links';
 import { resolveMenu } from './resolvers/menus';
 import { Resolver } from './resolvers/resolver';
 import { resolveSearchResults } from './resolvers/search';
