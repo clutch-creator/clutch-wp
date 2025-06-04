@@ -1,5 +1,11 @@
 # @clutch-wp/sdk
 
+## 1.1.3
+
+### Patch Changes
+
+- 7fc380e: Added resolveLink method to client
+
 ## 1.1.2
 
 ### Patch Changes
