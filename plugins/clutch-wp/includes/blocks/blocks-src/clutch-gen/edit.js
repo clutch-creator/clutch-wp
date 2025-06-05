@@ -22,12 +22,20 @@ import {
 import { useSelect } from '@wordpress/data';
 
 function MediaPicker({ open, media, label }) {
-  const { baseControlProps } = useBaseControlProps({ label: label || 'your media' });
+  const { baseControlProps } = useBaseControlProps({
+    label: label || 'your media',
+  });
 
   return (
     <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
       <BaseControl {...baseControlProps}>
-        <div style={{ marginBottom: '1em', border: '1px solid #ccc', padding: '10px' }}>
+        <div
+          style={{
+            marginBottom: '1em',
+            border: '1px solid #ccc',
+            padding: '10px',
+          }}
+        >
           {media ? (
             <div>
               <img
@@ -60,11 +68,7 @@ function MediaControl({ label, value, onChange }) {
       <MediaUpload
         onSelect={onChange}
         render={({ open }) => (
-          <MediaPicker
-            open={open}
-            media={media}
-            label={label}
-          />
+          <MediaPicker open={open} media={media} label={label} />
         )}
         value={value}
         allowedTypes={['image']}
@@ -86,12 +90,18 @@ function TextArrayControl({ name, value, defaultValue, onChange }) {
   return (
     <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
       <BaseControl {...baseControlProps}>
-        <div style={{ padding: '5px', border: '1px solid #ccc', marginBottom: '1em' }}>
+        <div
+          style={{
+            padding: '5px',
+            border: '1px solid #ccc',
+            marginBottom: '1em',
+          }}
+        >
           {(value || defaultValue || ['']).map((item, index) => (
             <TextControl
               key={index}
               value={item}
-              onChange={(newValue) => {
+              onChange={newValue => {
                 const newArray = [...(value || [])];
                 newArray[index] = newValue;
                 onChange({ [name]: newArray });
@@ -205,9 +215,7 @@ function FieldControl(props) {
   }
 
   if (type === 'array') {
-    return (
-      <TextArrayControl {...props} />
-    );
+    return <TextArrayControl {...props} />;
   }
 
   return null;

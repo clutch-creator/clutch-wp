@@ -21,7 +21,11 @@ function map_properties_to_attributes(&$component)
 
 	if (isset($variants) && is_array($variants)) {
 		foreach ($variants as $variant) {
-			if (isset($variant->name) && is_array($variant->options) && !empty($variant->options)) {
+			if (
+				isset($variant->name) &&
+				is_array($variant->options) &&
+				!empty($variant->options)
+			) {
 				// Create a new attribute for the variant.
 				$attribute = new \stdClass();
 				$attribute->clutch = true;
@@ -239,9 +243,7 @@ function register_clutch_component_blocks()
 					$block_json['attributes'] = new \stdClass();
 
 					// Map properties to attributes object.
-					$block_json[
-						'attributes'
-					] = map_properties_to_attributes(
+					$block_json['attributes'] = map_properties_to_attributes(
 						$component
 					);
 
