@@ -365,8 +365,6 @@ export class WordPressHttpClient {
   ): Promise<PostResult | null> {
     if (!id) return null;
 
-    if(postType === 'page') return null;
-
     const resolver = _resolver || this.createResolver();
 
     // check if resolver is already resolving/resolved this resource
