@@ -13,14 +13,38 @@ if (!defined('ABSPATH')) {
 	exit();
 }
 
-function map_properties_to_attributes($properties)
+function map_properties_to_attributes(&$component)
 {
 	$attributes = new \stdClass();
+	$properties = $component->properties ?? [];
+	$variants = $component->variants ?? [];
+
+	if (isset($variants) && is_array($variants)) {
+		foreach ($variants as $variant) {
+			if (
+				isset($variant->name) &&
+				is_array($variant->options) &&
+				!empty($variant->options)
+			) {
+				// Create a new attribute for the variant.
+				$attribute = new \stdClass();
+				$attribute->clutch = true;
+				$attribute->default = $variant->options[0];
+
+				// Add options to the enum.
+				$attribute->enum = $variant->options;
+
+				// Add the variant attribute to the attributes object.
+				$attributes->{$variant->name} = $attribute;
+			}
+		}
+	}
 
 	if (isset($properties) && is_array($properties)) {
 		foreach ($properties as $property) {
 			if (isset($property->control)) {
 				$attribute = new \stdClass();
+				$attribute->clutch = true;
 
 				if (
 					isset(
@@ -71,6 +95,8 @@ function map_properties_to_attributes($properties)
 						// Add media ID fields for internal tracking.
 						$attributes->{$property->name .
 							'_media_id'} = new \stdClass();
+						$attributes->{$property->name .
+							'_media_id'}->clutch = true;
 						$attributes->{$property->name . '_media_id'}->type =
 							'number';
 						$attributes->{$property->name .
@@ -88,6 +114,10 @@ function map_properties_to_attributes($properties)
 							'image/gif',
 							'image/webp',
 						];
+						break;
+					case 'Core/Array':
+						// Assume an array of strings for simplicity.
+						$attribute->type = 'array';
 						break;
 					default:
 						break;
@@ -213,13 +243,9 @@ function register_clutch_component_blocks()
 					$block_json['attributes'] = new \stdClass();
 
 					// Map properties to attributes object.
-					if (!empty($component->properties)) {
-						$block_json[
-							'attributes'
-						] = map_properties_to_attributes(
-							$component->properties
-						);
-					}
+					$block_json['attributes'] = map_properties_to_attributes(
+						$component
+					);
 
 					// Save the updated block.json file.
 					file_put_contents(
