@@ -98,15 +98,31 @@ function TextArrayControl({ name, value, defaultValue, onChange }) {
           }}
         >
           {(value || defaultValue || ['']).map((item, index) => (
-            <TextControl
-              key={index}
-              value={item}
-              onChange={newValue => {
-                const newArray = [...(value || [])];
-                newArray[index] = newValue;
-                onChange({ [name]: newArray });
-              }}
-            />
+            <div style={{ display: 'flex', marginBottom: '5px' }} key={index}>
+              <div style={{ flex: 1 }}>
+                <TextControl
+                  value={item}
+                  onChange={newValue => {
+                    const newArray = [...(value || [])];
+
+                    newArray[index] = newValue;
+                    onChange({ [name]: newArray });
+                  }}
+                />
+              </div>
+              <Button
+                isDestructive
+                disabled={!value || value.length <= 1}
+                onClick={() => {
+                  const newArray = [...(value || [])];
+
+                  newArray.splice(index, 1);
+                  onChange({ [name]: newArray });
+                }}
+              >
+                X
+              </Button>
+            </div>
           ))}
           <Button
             isSecondary
