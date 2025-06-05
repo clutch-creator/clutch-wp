@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.3
+
+### Patch Changes
+
+- 9af549e: Add variants and string array property support for custom blocks
+
 ## 2.4.2
 
 ### Patch Changes
