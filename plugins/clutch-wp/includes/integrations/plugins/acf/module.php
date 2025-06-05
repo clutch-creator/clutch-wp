@@ -47,7 +47,6 @@ add_filter(
 			$post_ids = is_array($value) ? $value : [$value];
 			$posts = array_map(function ($post_id) {
 				$post_type = get_post_type($post_id);
-				$post_type_object = get_post_type_object($post_type);
 
 				return [
 					'_clutch_type' => 'post',
@@ -77,7 +76,7 @@ add_filter(
 
 		// page links use acf standard format
 		if ($field['type'] === 'page_link') {
-			return acf_format_value($value, $post_id, $field, $format);
+			return \acf_format_value($value, $post_id, $field, $format);
 		}
 
 		return $value_formatted;
@@ -148,4 +147,56 @@ add_filter(
 	},
 	10,
 	2
+);
+
+// Add combined validation and processing hook for post creation
+add_filter(
+	'clutch/process_post_fields_before_save',
+	function ($processed, $request, $post_id) {
+		if (!function_exists('\update_field')) {
+			return $processed;
+		}
+
+		$acf_fields = $request->get_param('acf');
+		if (empty($acf_fields) || !is_array($acf_fields)) {
+			return $processed;
+		}
+
+		$errors = [];
+
+		// Process each ACF field and let ACF handle validation internally
+		foreach ($acf_fields as $field_key => $field_value) {
+			// Use ACF's update_field which includes built-in validation
+			$result = \update_field($field_key, $field_value, $post_id);
+
+			// If ACF's update_field returns false, it means validation failed
+			if ($result === false) {
+				// Get field object to provide better error message
+				$field_object = \get_field_object($field_key, $post_id);
+				$field_label = $field_object['label'] ?? $field_key;
+
+				$errors[] = sprintf(
+					__(
+						'ACF field "%s" validation failed. Please check the field value.',
+						'textdomain'
+					),
+					$field_label
+				);
+			} else {
+				$processed['acf'][$field_key] = $field_value;
+			}
+		}
+
+		// If there were validation errors, add them to the processed array for the main function to handle
+		if (!empty($errors)) {
+			$processed['_errors'] = array_merge(
+				$processed['_errors'] ?? [],
+				$errors
+			);
+		}
+
+		return $processed;
+	},
+	10,
+	3
 );

@@ -90,6 +90,86 @@ add_action('rest_api_init', function () {
 			return current_user_can('read_private_posts');
 		},
 	]);
+
+	register_rest_route('clutch/v1', '/post', [
+		'methods' => 'POST',
+		'callback' => __NAMESPACE__ . '\\rest_create_post',
+		'args' => [
+			'post_type' => [
+				'description' => 'The post type',
+				'type' => 'string',
+				'default' => 'post',
+				'required' => false,
+			],
+			'title' => [
+				'description' => 'The post title',
+				'type' => 'string',
+				'required' => true,
+				'validate_callback' => function ($param, $request, $key) {
+					return !empty(trim($param));
+				},
+			],
+			'content' => [
+				'description' => 'The post content',
+				'type' => 'string',
+				'default' => '',
+			],
+			'excerpt' => [
+				'description' => 'The post excerpt',
+				'type' => 'string',
+				'default' => '',
+			],
+			'status' => [
+				'description' => 'The post status',
+				'type' => 'string',
+				'enum' => ['publish', 'draft', 'pending', 'private'],
+				'default' => 'draft',
+			],
+			'author' => [
+				'description' => 'The post author ID',
+				'type' => 'integer',
+				'default' => 0,
+			],
+			'featured_media' => [
+				'description' => 'The featured media attachment ID',
+				'type' => 'integer',
+				'default' => 0,
+			],
+			'slug' => [
+				'description' => 'The post slug',
+				'type' => 'string',
+				'default' => '',
+			],
+			'meta' => [
+				'description' => 'Meta fields',
+				'type' => 'object',
+				'default' => [],
+			],
+			'acf' => [
+				'description' => 'ACF fields',
+				'type' => 'object',
+				'default' => [],
+			],
+			'meta_box' => [
+				'description' => 'Meta Box fields',
+				'type' => 'object',
+				'default' => [],
+			],
+			'jetengine' => [
+				'description' => 'JetEngine fields',
+				'type' => 'object',
+				'default' => [],
+			],
+			'taxonomies' => [
+				'description' => 'Taxonomy terms',
+				'type' => 'object',
+				'default' => [],
+			],
+		],
+		'permission_callback' => function () {
+			return current_user_can('edit_posts');
+		},
+	]);
 });
 
 /**
@@ -693,4 +773,153 @@ function rest_get_post(\WP_REST_Request $request)
 	}
 
 	return rest_ensure_response($data);
+}
+
+/**
+ * Creates a new post.
+ *
+ * @param \WP_REST_Request $request The REST API request object.
+ * @return \WP_REST_Response|\WP_Error A REST response containing the created post data or an error.
+ */
+function rest_create_post(\WP_REST_Request $request)
+{
+	// ---------------------------------------------------------------------
+	// 1. Validate and sanitize input
+	// ---------------------------------------------------------------------
+	$post_type = sanitize_key($request->get_param('post_type') ?: 'post');
+	$title = sanitize_text_field($request->get_param('title'));
+	$content = $request->get_param('content');
+	$excerpt = $request->get_param('excerpt');
+	$status = sanitize_key($request->get_param('status') ?: 'draft');
+	$author_id = absint($request->get_param('author'));
+	$featured_media = absint($request->get_param('featured_media'));
+	$slug = sanitize_title($request->get_param('slug'));
+
+	// Validate required fields
+	if (empty($title)) {
+		return new \WP_Error(
+			'rest_missing_title',
+			__('The post title is required.', 'textdomain'),
+			['status' => 400]
+		);
+	}
+
+	// Validate post type
+	if (!post_type_exists($post_type)) {
+		return new \WP_Error(
+			'invalid_post_type',
+			__('Invalid post type.', 'textdomain'),
+			['status' => 400]
+		);
+	}
+
+	// ---------------------------------------------------------------------
+	// 2. Prepare the post data
+	// ---------------------------------------------------------------------
+	$post_data = [
+		'post_type' => $post_type,
+		'post_title' => $title,
+		'post_content' => $content,
+		'post_excerpt' => $excerpt,
+		'post_status' => $status,
+		'post_author' => $author_id,
+		'comment_status' => 'closed', // Disable comments by default
+		'ping_status' => 'closed', // Disable pings by default
+		'post_name' => $slug,
+		// 'menu_order' => 0, // Default is 0
+		// 'post_parent' => 0, // Default is 0
+	];
+
+	// ---------------------------------------------------------------------
+	// 3. Insert the post into the database
+	// ---------------------------------------------------------------------
+	$post_id = wp_insert_post($post_data);
+
+	if (is_wp_error($post_id)) {
+		return $post_id; // Return the error
+	}
+
+	// ---------------------------------------------------------------------
+	// 4. Set featured media if provided
+	// ---------------------------------------------------------------------
+	if ($featured_media) {
+		set_post_thumbnail($post_id, $featured_media);
+	}
+
+	// ---------------------------------------------------------------------
+	// 5. Handle custom fields with integration-specific validation and processing
+	// ---------------------------------------------------------------------
+
+	// Process each integration's fields (includes validation and processing)
+	$processed_fields = apply_filters(
+		'clutch/process_post_fields_before_save',
+		[],
+		$request,
+		$post_id
+	);
+
+	// Check if any integration reported validation errors
+	if (!empty($processed_fields['_errors'])) {
+		// If there are validation errors, delete the post and return errors
+		wp_delete_post($post_id, true);
+		return new \WP_Error(
+			'rest_field_validation_failed',
+			__('Field validation failed.', 'textdomain'),
+			['status' => 400, 'errors' => $processed_fields['_errors']]
+		);
+	}
+
+	// Handle standard meta fields
+	$meta_fields = $request->get_param('meta');
+	if (!empty($meta_fields) && is_array($meta_fields)) {
+		foreach ($meta_fields as $meta_key => $meta_value) {
+			update_post_meta($post_id, $meta_key, $meta_value);
+		}
+	}
+
+	// Handle taxonomies
+	$taxonomies = $request->get_param('taxonomies');
+	if (!empty($taxonomies) && is_array($taxonomies)) {
+		foreach ($taxonomies as $taxonomy => $terms) {
+			if (!taxonomy_exists($taxonomy)) {
+				continue;
+			}
+
+			// Handle both array and string values
+			if (is_array($terms)) {
+				$term_list = array_map('trim', $terms);
+			} else {
+				$term_list = array_map('trim', explode(',', $terms));
+			}
+
+			// Determine if terms are slugs or IDs
+			$is_numeric = array_reduce(
+				$term_list,
+				function ($carry, $term) {
+					return $carry && is_numeric($term);
+				},
+				true
+			);
+
+			// Set terms for the post
+			wp_set_object_terms(
+				$post_id,
+				$is_numeric ? array_map('intval', $term_list) : $term_list,
+				$taxonomy,
+				false // Don't append, set terms exclusively
+			);
+		}
+	}
+
+	// Allow integrations to perform additional processing after fields are saved
+	do_action('clutch/post_fields_saved', $post_id, $request);
+
+	// ---------------------------------------------------------------------
+	// 6. Prepare and return the response
+	// ---------------------------------------------------------------------
+	$response = rest_get_post(
+		new \WP_REST_Request('GET', '/clutch/v1/post', ['id' => $post_id])
+	);
+
+	return rest_ensure_response($response);
 }
