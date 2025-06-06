@@ -192,3 +192,34 @@ export type MenuResult = {
   slug: string;
   items: MenuItemResult[];
 };
+
+export type CreatePostArgs = {
+  /** The post type */
+  post_type?: string;
+  /** The post title (required) */
+  title: string;
+  /** The post content */
+  content?: string;
+  /** The post excerpt */
+  excerpt?: string;
+  /** The post status */
+  status?: 'publish' | 'draft' | 'pending' | 'private';
+  /** The post author ID */
+  author?: number;
+  /** The featured media attachment ID */
+  featured_media?: number;
+  /** The post slug */
+  slug?: string;
+  /** Meta fields */
+  meta?: Record<string, unknown>;
+  /** ACF fields */
+  acf?: Record<string, unknown>;
+  /** Meta Box fields */
+  meta_box?: Record<string, unknown>;
+  /** JetEngine fields */
+  jetengine?: Record<string, unknown>;
+  /** Taxonomy terms */
+  taxonomies?: Record<string, string | string[] | number | number[]>;
+};
+
+export type CreatePostResult = PostResult;

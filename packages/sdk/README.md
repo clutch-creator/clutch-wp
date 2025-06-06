@@ -27,7 +27,16 @@ const posts = await client.fetchPosts({
 
 // Fetch a single post by slug
 const post = await client.fetchPostBySlug('post', 'my-post-slug');
+
+// Create a new post
+const newPostId = await client.createPost({
+  title: 'My New Post',
+  content: '<p>Hello, world!</p>',
+  status: 'publish',
+});
 ```
+
+For more detailed examples, see the `examples/` directory in this package.
 
 ## Configuration
 
@@ -161,6 +170,47 @@ Fetch a single post by its ID.
 const post = await client.fetchPostById('post', 123, true);
 // Returns: PostResult | null
 ```
+
+#### `createPost(args)`
+
+Create a new post.
+
+```typescript
+const newPostId = await client.createPost({
+  title: 'My New Post',
+  content: '<p>This is the post content.</p>',
+  post_type: 'post',
+  status: 'draft',
+  excerpt: 'A brief excerpt of the post.',
+  meta: {
+    custom_field: 'custom_value',
+  },
+  acf: {
+    text_field: 'ACF field value',
+  },
+  taxonomies: {
+    category: ['technology', 'programming'],
+    post_tag: ['javascript', 'typescript'],
+  },
+});
+// Returns: new post id
+```
+
+**Parameters:**
+
+- `title` (string, required): The post title
+- `post_type` (string, optional): The post type (default: 'post')
+- `content` (string, optional): The post content
+- `excerpt` (string, optional): The post excerpt
+- `status` (string, optional): Post status - 'publish', 'draft', 'pending', or 'private' (default: 'draft')
+- `author` (number, optional): The post author ID
+- `featured_media` (number, optional): The featured media attachment ID
+- `slug` (string, optional): The post slug
+- `meta` (object, optional): Meta fields as key-value pairs
+- `acf` (object, optional): ACF fields as key-value pairs
+- `meta_box` (object, optional): Meta Box fields as key-value pairs
+- `jetengine` (object, optional): JetEngine fields as key-value pairs
+- `taxonomies` (object, optional): Taxonomy terms as key-value pairs where values can be strings, arrays of strings, numbers, or arrays of numbers
 
 ### Post Types
 

@@ -12,6 +12,7 @@ import { Resolver } from './resolvers/resolver';
 import { resolveSearchResults } from './resolvers/search';
 import { resolveUser, resolveUsers } from './resolvers/users';
 import {
+  CreatePostArgs,
   FetchPostsArgs,
   FetchSearchArgs,
   FetchTaxonomyTermsArgs,
@@ -154,6 +155,54 @@ export class WordPressHttpClient {
       return response.json();
     } catch (err) {
       return undefined;
+    }
+  }
+
+  private async wpPluginPost<T>(
+    path: string,
+    data: Record<string, unknown>,
+    headers?: Record<string, string>
+  ): Promise<T | undefined> {
+    const { apiUrl, headers: configHeaders, authToken } = this.config;
+
+    try {
+      const url = urlJoin(apiUrl, `/wp-json/clutch/v1/${path}`);
+
+      const requestHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...configHeaders,
+        ...headers,
+      };
+
+      if (authToken) {
+        requestHeaders.Authorization = `Bearer ${authToken}`;
+      }
+
+      // For environments that support Next.js features
+      const fetchOptions: RequestInit & {
+        next?: { tags: string[]; revalidate: number };
+      } = {
+        method: 'POST',
+        headers: requestHeaders,
+        body: JSON.stringify(data),
+      };
+
+      const response = await fetch(url, fetchOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        throw new Error(
+          `Network response was not ok: ${response.status} ${response.statusText}`,
+          { cause: errorData }
+        );
+      }
+
+      return response.json();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('wpPluginPost error:', err);
+      throw err;
     }
   }
 
@@ -410,6 +459,19 @@ export class WordPressHttpClient {
     );
 
     return postTypesResponse ? postTypesResponse : undefined;
+  }
+
+  async createPost(
+    args: CreatePostArgs,
+    _resolver?: Resolver
+  ): Promise<number> {
+    const postResponse = await this.wpPluginPost<PostRestResult>('post', args);
+
+    if (!postResponse) {
+      throw new Error('Failed to create post');
+    }
+
+    return postResponse.id;
   }
 
   // Users Methods
