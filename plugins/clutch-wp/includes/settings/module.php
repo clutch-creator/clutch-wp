@@ -31,6 +31,13 @@ function register_settings()
 		__NAMESPACE__ . '\\sanitize_options' // Sanitize callback
 	);
 
+	// Register the clutch_approved_token option separately
+	register_setting(
+		'clutch_settings_group', // Option group
+		'clutch_approved_token', // Option name
+		'sanitize_text_field' // Sanitize callback
+	);
+
 	add_settings_section(
 		'clutch_main_section', // Section ID
 		'Main Settings', // Section title
@@ -42,6 +49,14 @@ function register_settings()
 		'menu_locations', // Field ID
 		'Menu Locations', // Field title
 		__NAMESPACE__ . '\\menu_locations_field_callback', // Callback
+		'clutch-settings', // Page
+		'clutch_main_section' // Section
+	);
+
+	add_settings_field(
+		'clutch_approved_token', // Field ID
+		'Clutch Auth Token', // Field title
+		__NAMESPACE__ . '\\auth_token_field_callback', // Callback
 		'clutch-settings', // Page
 		'clutch_main_section' // Section
 	);
@@ -73,6 +88,21 @@ function menu_locations_field_callback()
    	admin_url('nav-menus.php')
    ); ?>">Menus</a> screen.
 		</p>
+    <?php
+}
+
+// Auth token field callback
+function auth_token_field_callback()
+{
+	$value = get_option('clutch_approved_token', ''); ?>
+    <input type="password" 
+           name="clutch_approved_token" 
+           value="<?php echo esc_attr($value); ?>" 
+           class="regular-text" 
+           placeholder="Enter your Clutch auth token" />
+	<p class="description clt-text-muted">
+		The authentication token used by Clutch to connect to your WordPress site.
+	</p>
     <?php
 }
 
