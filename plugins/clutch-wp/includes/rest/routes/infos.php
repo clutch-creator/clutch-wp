@@ -10,7 +10,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_info',
 		'permission_callback' => function () {
-			return current_user_can('read');
+			return true; // Public endpoint, no authentication required
 		},
 	]);
 
