@@ -9,6 +9,9 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/clear-cache', [
 		'methods' => 'POST',
 		'callback' => __NAMESPACE__ . '\\rest_clear_cache',
+		'permission_callback' => function () {
+			return true; // Allow public access
+		},
 	]);
 });
 

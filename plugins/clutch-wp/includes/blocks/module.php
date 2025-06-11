@@ -199,9 +199,18 @@ function register_clutch_component_blocks()
 		true
 	);
 
+	if (!$selected_host) {
+		return;
+	}
+
 	// Fetch components from remote json file
 	$json_url = esc_url($selected_host) . '/clutch/components.json';
-	$json_content = @file_get_contents($json_url);
+	$response = wp_remote_get($json_url);
+	$json_content = null;
+
+	if (!is_wp_error($response)) {
+		$json_content = wp_remote_retrieve_body($response);
+	}
 
 	if ($json_content) {
 		// Decode the JSON content
@@ -299,6 +308,10 @@ function enqueue_clutch_styles()
 		'selected_clutch_host',
 		true
 	);
+
+	if (!$selected_host) {
+		return;
+	}
 
 	$clutch_variables_url = esc_url($selected_host) . '/clutch/variables.css';
 	$clutch_classes_url = esc_url($selected_host) . '/clutch/classes.css';

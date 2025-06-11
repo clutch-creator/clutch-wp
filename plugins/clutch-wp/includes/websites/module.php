@@ -168,6 +168,9 @@ function register_website_routes()
 	register_rest_route('clutch/v1', '/register-website', [
 		'methods' => 'POST',
 		'callback' => __NAMESPACE__ . '\\rest_register_website',
+		'permission_callback' => function () {
+			return true; // Allow public access
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/remove-website', [
@@ -181,6 +184,9 @@ function register_website_routes()
 	register_rest_route('clutch/v1', '/get-websites', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_websites',
+		'permission_callback' => function () {
+			return true; // Allow public access
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/save-selected-host', [
