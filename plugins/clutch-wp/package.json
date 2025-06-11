@@ -1,6 +1,6 @@
 {
   "name": "@clutch-wp/clutch-plugin",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "Clutch wordpress plugin",
   "main": "index.js",
   "type": "module",
