@@ -154,7 +154,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_menus_locations',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('edit_posts');
 		},
 	]);
 
@@ -162,7 +162,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_menu_by_location',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('edit_posts');
 		},
 	]);
 });

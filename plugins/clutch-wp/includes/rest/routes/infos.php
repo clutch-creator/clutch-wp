@@ -10,7 +10,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_info',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('read');
 		},
 	]);
 
@@ -18,7 +18,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_permalink_info',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('manage_options');
 		},
 	]);
 
@@ -26,7 +26,7 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_front_page',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('read');
 		},
 	]);
 });

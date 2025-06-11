@@ -169,7 +169,7 @@ function register_website_routes()
 		'methods' => 'POST',
 		'callback' => __NAMESPACE__ . '\\rest_register_website',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('manage_options');
 		},
 	]);
 
@@ -185,7 +185,7 @@ function register_website_routes()
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_websites',
 		'permission_callback' => function () {
-			return true; // Allow public access
+			return current_user_can('edit_posts');
 		},
 	]);
 
