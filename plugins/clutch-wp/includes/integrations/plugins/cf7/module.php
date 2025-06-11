@@ -75,10 +75,19 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/cf7', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_cf7_forms',
+		'permission_callback' => function () {
+			return current_user_can('wpcf7_edit_contact_forms');
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/cf7/(?P<id>\d+)', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_cf7_form',
+		'permission_callback' => function (\WP_REST_Request $request) {
+			return current_user_can(
+				'wpcf7_edit_contact_form',
+				$request->get_param('id')
+			);
+		},
 	]);
 });

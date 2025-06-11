@@ -153,10 +153,16 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/menus', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_menus_locations',
+		'permission_callback' => function () {
+			return current_user_can('edit_posts');
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/menus/(?P<location>[a-zA-Z0-9_-]+)', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_menu_by_location',
+		'permission_callback' => function () {
+			return current_user_can('edit_posts');
+		},
 	]);
 });

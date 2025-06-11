@@ -9,16 +9,25 @@ add_action('rest_api_init', function () {
 	register_rest_route('clutch/v1', '/info', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_info',
+		'permission_callback' => function () {
+			return true; // Public endpoint, no authentication required
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/permalink-info', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_permalink_info',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
 	]);
 
 	register_rest_route('clutch/v1', '/front-page', [
 		'methods' => 'GET',
 		'callback' => __NAMESPACE__ . '\\rest_get_front_page',
+		'permission_callback' => function () {
+			return current_user_can('read');
+		},
 	]);
 });
 
