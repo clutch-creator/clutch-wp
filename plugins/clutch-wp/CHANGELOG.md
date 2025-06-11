@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.5
+
+### Patch Changes
+
+- 40793c6: Add slot support for custom blocks
+
 ## 2.4.4
 
 ### Patch Changes
