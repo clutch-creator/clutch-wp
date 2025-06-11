@@ -8,6 +8,7 @@ import {
   useBlockProps,
   MediaUpload,
   MediaUploadCheck,
+  InnerBlocks,
 } from '@wordpress/block-editor';
 import {
   Panel,
@@ -20,6 +21,7 @@ import {
   useBaseControlProps,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 
 function MediaPicker({ open, media, label }) {
   const { baseControlProps } = useBaseControlProps({
@@ -141,9 +143,16 @@ function TextArrayControl({ name, value, defaultValue, onChange }) {
 
 function FieldControl(props) {
   const { name, value, onChange, schema } = props;
-  const { type, media, enum: enumValues, default: defaultValue } = schema;
+  const {
+    clutch,
+    type,
+    media,
+    enum: enumValues,
+    default: defaultValue,
+  } = schema;
 
   if (media) {
+    // @todo: Look for 'MEDIA_ID' in clutch key on the schema
     if (type !== 'number') {
       return null;
     }
@@ -248,7 +257,22 @@ function ClutchBlockEditingInterface({
     select => select(blocksStore).getBlockType(name),
     [name]
   );
-  const fields = blockType?.attributes || {};
+  const [fields, slots] = useMemo(
+    () =>
+      Object.entries(blockType?.attributes || {}).reduce(
+        (acc, [name, value]) => {
+          if (value?.clutch === 'SLOT') {
+            acc[1].push(['clutch/slot', { name }]);
+          } else if (value?.clutch) {
+            acc[0].push({ ...value, name });
+          }
+
+          return acc;
+        },
+        [[], []]
+      ),
+    [blockType]
+  );
 
   return (
     <>
@@ -262,22 +286,22 @@ function ClutchBlockEditingInterface({
         style={{ padding: '10px 20px', border: '1px solid #ccc' }}
       >
         <h2>{blockType.title || 'Clutch Block'}</h2>
-        {Object.entries(fields).map(([key, value]) => {
-          // Skip non-clutch attributes
-          if (!value?.clutch) {
-            return null;
-          }
-
-          return (
-            <FieldControl
-              key={key}
-              name={key}
-              schema={value}
-              value={attributes[key] || null}
-              onChange={setAttributes}
-            />
-          );
-        })}
+        {fields.map(field => (
+          <FieldControl
+            key={field.name}
+            name={field.name}
+            schema={field}
+            value={attributes[field.name] || null}
+            onChange={setAttributes}
+          />
+        ))}
+        {slots.length ? (
+          <InnerBlocks
+            allowedBlocks={['clutch/slot']}
+            templateLock='all'
+            template={slots}
+          />
+        ) : null}
       </div>
     </>
   );

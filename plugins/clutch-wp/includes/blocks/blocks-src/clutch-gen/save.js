@@ -1,10 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 
 export default function save({ attributes }) {
   const props = useBlockProps.save();
 
-  return <p {...props}>Saved Clutch Block</p>;
+  return (
+    <div {...props}>
+      <InnerBlocks.Content />
+    </div>
+  );
 }

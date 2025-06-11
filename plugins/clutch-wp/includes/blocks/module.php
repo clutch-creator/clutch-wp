@@ -18,6 +18,7 @@ function map_properties_to_attributes(&$component)
 	$attributes = new \stdClass();
 	$properties = $component->properties ?? [];
 	$variants = $component->variants ?? [];
+	$slots = $component->slots ?? [];
 
 	if (isset($variants) && is_array($variants)) {
 		foreach ($variants as $variant) {
@@ -28,7 +29,7 @@ function map_properties_to_attributes(&$component)
 			) {
 				// Create a new attribute for the variant.
 				$attribute = new \stdClass();
-				$attribute->clutch = true;
+				$attribute->clutch = 'VARIANT';
 				$attribute->default = $variant->options[0];
 
 				// Add options to the enum.
@@ -40,11 +41,25 @@ function map_properties_to_attributes(&$component)
 		}
 	}
 
+	if (isset($slots) && is_array($slots)) {
+		foreach ($slots as $slot) {
+			if (isset($slot->name)) {
+				// Create a new attribute for the slot.
+				$attribute = new \stdClass();
+				$attribute->clutch = 'SLOT';
+				$attribute->type = 'null';
+
+				// Add the slot attribute to the attributes object.
+				$attributes->{$slot->name} = $attribute;
+			}
+		}
+	}
+
 	if (isset($properties) && is_array($properties)) {
 		foreach ($properties as $property) {
 			if (isset($property->control)) {
 				$attribute = new \stdClass();
-				$attribute->clutch = true;
+				$attribute->clutch = 'PROPERTY';
 
 				if (
 					isset(
@@ -95,8 +110,8 @@ function map_properties_to_attributes(&$component)
 						// Add media ID fields for internal tracking.
 						$attributes->{$property->name .
 							'_media_id'} = new \stdClass();
-						$attributes->{$property->name .
-							'_media_id'}->clutch = true;
+						$attributes->{$property->name . '_media_id'}->clutch =
+							'MEDIA_ID';
 						$attributes->{$property->name . '_media_id'}->type =
 							'number';
 						$attributes->{$property->name .
@@ -372,8 +387,27 @@ function format_blocks(&$blocks)
 {
 	foreach ($blocks as &$block) {
 		// Format inner blocks recursively
-		if ($block['innerBlocks']) {
+		if (!empty($block['innerBlocks'])) {
 			format_blocks($block['innerBlocks']);
+			$parsed_inner_blocks = [];
+
+			foreach ($block['innerBlocks'] as &$innerBlock) {
+				// If the inner block is a slot, extract its name and assign inner blocks to it.
+				if (
+					$innerBlock['blockName'] === 'clutch/slot' &&
+					isset($innerBlock['attrs']['name']) &&
+					!empty($innerBlock['innerBlocks'])
+				) {
+					$slot_name = $innerBlock['attrs']['name'] ?: 'children';
+
+					$block['attrs'][$slot_name] = $innerBlock['innerBlocks'];
+				} else {
+					// If the inner block is not a slot, just add it to the block's inner blocks.
+					$parsed_inner_blocks[] = $innerBlock;
+				}
+			}
+
+			$block['innerBlocks'] = $parsed_inner_blocks;
 		}
 
 		// Tag block as Clutch block
