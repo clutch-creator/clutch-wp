@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.4
+
+### Patch Changes
+
+- 0d4dbbc: Improve performance through ISR request batching
+
 ## 2.4.3
 
 ### Patch Changes
