@@ -21,6 +21,7 @@ import {
   useBaseControlProps,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 
 function MediaPicker({ open, media, label }) {
   const { baseControlProps } = useBaseControlProps({
@@ -256,17 +257,21 @@ function ClutchBlockEditingInterface({
     select => select(blocksStore).getBlockType(name),
     [name]
   );
-  const [fields, slots] = Object.entries(blockType?.attributes || {}).reduce(
-    (acc, [name, value]) => {
-      if (value?.clutch === 'SLOT') {
-        acc[1].push(['clutch/slot', { name }]);
-      } else if (value?.clutch) {
-        acc[0].push({ ...value, name });
-      }
+  const [fields, slots] = useMemo(
+    () =>
+      Object.entries(blockType?.attributes || {}).reduce(
+        (acc, [name, value]) => {
+          if (value?.clutch === 'SLOT') {
+            acc[1].push(['clutch/slot', { name }]);
+          } else if (value?.clutch) {
+            acc[0].push({ ...value, name });
+          }
 
-      return acc;
-    },
-    [[], []]
+          return acc;
+        },
+        [[], []]
+      ),
+    [blockType]
   );
 
   return (
