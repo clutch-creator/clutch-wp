@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.7
+
+### Patch Changes
+
+- 44c20bf: Fix ClutchAdminBar error on missing deploymentId
+
 ## 2.4.6
 
 ### Patch Changes
