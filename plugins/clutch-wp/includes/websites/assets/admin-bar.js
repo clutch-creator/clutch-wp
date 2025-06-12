@@ -50,7 +50,7 @@
         dropdownMenu.empty();
 
         const promises = websites.map(async website => {
-          if (website.deploymentId.startsWith(`${website.projectId}-`)) {
+          if (website.deploymentId?.startsWith(`${website.projectId}-`)) {
             try {
               const infoResponse = await fetch(`${website.url}/api/info`, {
                 method: 'GET',
@@ -195,7 +195,7 @@
     function addWebsiteToDropdown(dropdownMenu, website) {
       let websiteName = website.name;
 
-      if (website.deploymentId.startsWith(`${website.projectId}-`)) {
+      if (website.deploymentId?.startsWith(`${website.projectId}-`)) {
         websiteName += ` (Local)`;
       }
 
