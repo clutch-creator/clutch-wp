@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.6
+
+### Patch Changes
+
+- 740c078: Fix ClutchAdminBar websites dropdown
+
 ## 2.4.5
 
 ### Patch Changes
