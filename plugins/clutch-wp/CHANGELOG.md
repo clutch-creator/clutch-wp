@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.9
+
+### Patch Changes
+
+- cccc6ed: Recompute websites array keys on deletion
+
 ## 2.4.8
 
 ### Patch Changes
