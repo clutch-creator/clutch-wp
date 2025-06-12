@@ -88,11 +88,11 @@ function register_website(
 function remove_website($deployment_id)
 {
 	$websites = get_option('clutch_websites', []);
-	$websites = array_filter($websites, function ($website) use (
-		$deployment_id
-	) {
-		return $website['deploymentId'] !== $deployment_id;
-	});
+	$websites = array_values(
+		array_filter($websites, function ($website) use ($deployment_id) {
+			return $website['deploymentId'] !== $deployment_id;
+		})
+	);
 
 	update_option('clutch_websites', $websites);
 
