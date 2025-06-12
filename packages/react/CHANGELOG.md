@@ -1,5 +1,11 @@
 # @clutch-wp/react
 
+## 1.1.7
+
+### Patch Changes
+
+- @clutch-wp/sdk@1.1.7
+
 ## 1.1.6
 
 ### Patch Changes
