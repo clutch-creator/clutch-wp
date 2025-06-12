@@ -17,11 +17,11 @@ $icons = [
 ];
 
 $websites = get_registered_websites();
-
-$websites = array_filter($websites, function ($website) {
-	// Exclude websites with deploymentId starting with projectId- (local ones)
-	return strpos($website['deploymentId'], $website['projectId'] . '-') !== 0;
-});
+$selected_host = get_user_meta(
+	get_current_user_id(),
+	'selected_clutch_host',
+	true
+);
 
 /**
  * Formats a date to "day month year" if not the current year.
@@ -68,18 +68,21 @@ function time_difference_label($date)
  * @param array $website The website data.
  * @param array $icons The icons array.
  */
-function render_card($website, $icons)
+function render_card($website, $icons, $is_selected)
 {
-	$invalidation_url = get_website_invalidation_url($website, [
-		'wordpress',
-	]); ?>
+	$invalidation_url = get_website_invalidation_url($website, ['wordpress']);
+	$is_website_remote =
+		strpos($website['deploymentId'], $website['projectId'] . '-') !== 0;
+	?>
 	<div class="clt-card clt-website-card">
 		<div class="clt-website-frame-wrapper">
 			<iframe src="<?php echo esc_url($website['url']); ?>"></iframe>
 		</div>
 		<div class="clt-website-content">
 			<div class="clt-website-header">
-				<h3><?php echo esc_html($website['name']); ?></h3>
+				<h3><?php echo esc_html(
+    	$website['name'] . ($is_website_remote ?: ' (Local)')
+    ); ?></h3>
 				<div class="clt-website-buttons">
 					<a class="clt-button" href="<?php echo esc_url(
      	'https://app.clutch.io#/project/' . $website['projectId']
@@ -98,6 +101,9 @@ function render_card($website, $icons)
 				<p class="clt-info"><span class="clt-label">Last Published</span><span><?php echo esc_html(
     	time_difference_label($website['lastPublishDate'])
     ); ?></span></p>
+		<p class="clt-info"><span class="clt-label">URL</span><span><?php echo esc_html(
+  	$website['url']
+  ); ?></span></p>
 			</div>
 			<div class="clt-website-buttons">
 				<button class="clt-button clt-remove-website" data-deployment-id="<?php echo esc_attr(
@@ -105,9 +111,18 @@ function render_card($website, $icons)
     ); ?>">
 					<?php echo $icons['trash']; ?><span>Remove</span>
 				</button>
+				<?php if ($is_website_remote): ?>
 				<a class="clt-button" href="<?php echo esc_url(
     	$invalidation_url
-    ); ?>" target="_blank"><?php echo $icons['clear-cache']; ?><span>Clear Cache</span></a>
+    ); ?>" target="_blank"><?php echo $icons[
+	'clear-cache'
+]; ?><span>Clear Cache</span></a>
+				<?php endif; ?>
+				<?php if ($is_selected): ?>
+				<button class="clt-button" disabled>
+					<span>Currently used as preview</span>
+				</button>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>
@@ -127,7 +142,7 @@ function render_card($website, $icons)
 <?php else: ?>
 	<div class="clt-cards">
 		<?php foreach ($websites as $website): ?>
-			<?php render_card($website, $icons); ?>
+			<?php render_card($website, $icons, $website['url'] === $selected_host); ?>
 		<?php endforeach; ?>
 	</div>
 <?php endif; ?>
