@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.8
+
+### Patch Changes
+
+- a79c954: List connected local projects
+
 ## 2.4.7
 
 ### Patch Changes
