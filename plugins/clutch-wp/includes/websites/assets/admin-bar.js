@@ -38,7 +38,12 @@
     // Function to fetch and update the dropdown
     async function updateDropdown() {
       try {
-        const response = await fetch(ClutchAdminBar.restUrl);
+        const response = await fetch(ClutchAdminBar.restUrl, {
+          method: 'GET',
+          headers: {
+            'X-WP-Nonce': ClutchAdminBar.nonce,
+          },
+        });
         const websites = await response.json();
 
         // Clear the dropdown menu to avoid duplicates
