@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.10
+
+### Patch Changes
+
+- 64242bd: Fix "children" named slots in custom blocks not being processed
+
 ## 2.4.9
 
 ### Patch Changes
