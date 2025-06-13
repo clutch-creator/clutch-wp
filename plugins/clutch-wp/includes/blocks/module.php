@@ -392,18 +392,20 @@ function format_blocks(&$blocks)
 			$parsed_inner_blocks = [];
 
 			foreach ($block['innerBlocks'] as &$innerBlock) {
-				// If the inner block is a slot, extract its name and assign inner blocks to it.
 				if (
-					$innerBlock['blockName'] === 'clutch/slot' &&
-					isset($innerBlock['attrs']['name']) &&
-					!empty($innerBlock['innerBlocks'])
+					$innerBlock['blockName'] !== 'clutch/slot' ||
+					empty($innerBlock['innerBlocks'])
 				) {
-					$slot_name = $innerBlock['attrs']['name'] ?: 'children';
-
-					$block['attrs'][$slot_name] = $innerBlock['innerBlocks'];
-				} else {
 					// If the inner block is not a slot, just add it to the block's inner blocks.
 					$parsed_inner_blocks[] = $innerBlock;
+				} else {
+					if (!is_array($innerBlock['attrs'])) {
+						$innerBlock['attrs'] = [];
+					}
+
+					// If the inner block is a slot, extract its name and assign inner blocks to it.
+					$slot_name = $innerBlock['attrs']['name'] ?: 'children';
+					$block['attrs'][$slot_name] = $innerBlock['innerBlocks'];
 				}
 			}
 
@@ -413,17 +415,17 @@ function format_blocks(&$blocks)
 		// Tag block as Clutch block
 		$block['_clutch_type'] = 'block';
 
-		// Initialize block attributes as empty object if not set or empty array
-		if (!$block['attrs']) {
-			$block['attrs'] = new \stdClass();
-		}
-
 		if (
 			$block['blockName'] === 'core/image' &&
 			isset($block['attrs']['id'])
 		) {
 			// Tag image as Clutch media
 			$block['attrs']['_clutch_type'] = 'media';
+		}
+
+		// Initialize block attributes as empty object if not set or empty array
+		if (!$block['attrs']) {
+			$block['attrs'] = new \stdClass();
 		}
 	}
 }
