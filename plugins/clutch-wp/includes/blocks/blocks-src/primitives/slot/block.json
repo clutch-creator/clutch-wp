@@ -10,8 +10,7 @@
   "description": "Clutch Slot",
   "attributes": {
     "name": {
-      "type": "string",
-      "default": "children"
+      "type": "string"
     }
   },
   "supports": {
