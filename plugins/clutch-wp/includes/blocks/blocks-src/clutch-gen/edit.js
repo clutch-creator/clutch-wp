@@ -8,6 +8,7 @@ import {
   useBlockProps,
   MediaUpload,
   MediaUploadCheck,
+  InnerBlocks,
 } from '@wordpress/block-editor';
 import {
   Panel,
@@ -16,27 +17,47 @@ import {
   __experimentalNumberControl as NumberControl,
   SelectControl,
   Button,
+  BaseControl,
+  useBaseControlProps,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 
-const blacklistedAttributes = [
-  'anchor',
-  'align',
-  'backgroundColor',
-  'blockCommentId',
-  'borderColor',
-  'className',
-  'color',
-  'customClassName',
-  'fontSize',
-  'layout',
-  'lock',
-  'metadata',
-  'placeholder',
-  'spacing',
-];
+function MediaPicker({ open, media, label }) {
+  const { baseControlProps } = useBaseControlProps({
+    label: label || 'your media',
+  });
 
-function MediaControl({ name, value, onChange }) {
+  return (
+    <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
+      <BaseControl {...baseControlProps}>
+        <div
+          style={{
+            marginBottom: '1em',
+            border: '1px solid #ccc',
+            padding: '10px',
+          }}
+        >
+          {media ? (
+            <div>
+              <img
+                src={media.source_url}
+                alt={media.alt || ''}
+                style={{ maxWidth: '100%', height: 'auto' }}
+              />
+              <p>{media.alt || __('No alt text provided')}</p>
+            </div>
+          ) : null}
+          <Button onClick={open} isPrimary>
+            {media ? __('Change Image') : __('Select Image')}
+          </Button>
+        </div>
+      </BaseControl>
+    </div>
+  );
+}
+
+function MediaControl({ label, value, onChange }) {
   const { media } = useSelect(
     select => ({
       media: select('core').getMedia(value),
@@ -49,9 +70,7 @@ function MediaControl({ name, value, onChange }) {
       <MediaUpload
         onSelect={onChange}
         render={({ open }) => (
-          <Button onClick={open} isPrimary>
-            {media ? __('Change Image') : __('Select Image')}
-          </Button>
+          <MediaPicker open={open} media={media} label={label} />
         )}
         value={value}
         allowedTypes={['image']}
@@ -67,10 +86,73 @@ function MediaControl({ name, value, onChange }) {
   );
 }
 
-function FieldControl({ name, value, onChange, schema }) {
-  const { type, media, enum: enumValues, default: defaultValue } = schema;
+function TextArrayControl({ name, value, defaultValue, onChange }) {
+  const { baseControlProps } = useBaseControlProps({ label: name });
+
+  return (
+    <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
+      <BaseControl {...baseControlProps}>
+        <div
+          style={{
+            padding: '5px',
+            border: '1px solid #ccc',
+            marginBottom: '1em',
+          }}
+        >
+          {(value || defaultValue || ['']).map((item, index) => (
+            <div style={{ display: 'flex', marginBottom: '5px' }} key={index}>
+              <div style={{ flex: 1 }}>
+                <TextControl
+                  value={item}
+                  onChange={newValue => {
+                    const newArray = [...(value || [])];
+
+                    newArray[index] = newValue;
+                    onChange({ [name]: newArray });
+                  }}
+                />
+              </div>
+              <Button
+                isDestructive
+                disabled={!value || value.length <= 1}
+                onClick={() => {
+                  const newArray = [...(value || [])];
+
+                  newArray.splice(index, 1);
+                  onChange({ [name]: newArray });
+                }}
+              >
+                X
+              </Button>
+            </div>
+          ))}
+          <Button
+            isSecondary
+            onClick={() => {
+              const newArray = [...(value || []), ''];
+              onChange({ [name]: newArray });
+            }}
+          >
+            {__(`Add ${name} entry`)}
+          </Button>
+        </div>
+      </BaseControl>
+    </div>
+  );
+}
+
+function FieldControl(props) {
+  const { name, value, onChange, schema } = props;
+  const {
+    clutch,
+    type,
+    media,
+    enum: enumValues,
+    default: defaultValue,
+  } = schema;
 
   if (media) {
+    // @todo: Look for 'MEDIA_ID' in clutch key on the schema
     if (type !== 'number') {
       return null;
     }
@@ -95,7 +177,7 @@ function FieldControl({ name, value, onChange, schema }) {
 
   if (type === 'string') {
     return (
-      <div style={{ marginBottom: '10px', paddingLeft: '5px' }}>
+      <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
         <TextControl
           label={name}
           value={value || defaultValue || ''}
@@ -109,7 +191,7 @@ function FieldControl({ name, value, onChange, schema }) {
 
   if (type === 'number') {
     return (
-      <div style={{ marginBottom: '10px', paddingLeft: '5px' }}>
+      <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
         <NumberControl
           label={name}
           value={value || defaultValue || 0}
@@ -123,7 +205,7 @@ function FieldControl({ name, value, onChange, schema }) {
 
   if (type === 'boolean') {
     return (
-      <div style={{ marginBottom: '10px', paddingLeft: '5px' }}>
+      <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
         <SelectControl
           label={name}
           value={value || defaultValue || false}
@@ -141,7 +223,7 @@ function FieldControl({ name, value, onChange, schema }) {
 
   if (Array.isArray(enumValues)) {
     return (
-      <div style={{ marginBottom: '10px', paddingLeft: '5px' }}>
+      <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
         <SelectControl
           label={name}
           value={value || defaultValue || ''}
@@ -155,6 +237,10 @@ function FieldControl({ name, value, onChange, schema }) {
         />
       </div>
     );
+  }
+
+  if (type === 'array') {
+    return <TextArrayControl {...props} />;
   }
 
   return null;
@@ -171,7 +257,22 @@ function ClutchBlockEditingInterface({
     select => select(blocksStore).getBlockType(name),
     [name]
   );
-  const fields = blockType?.attributes || {};
+  const [fields, slots] = useMemo(
+    () =>
+      Object.entries(blockType?.attributes || {}).reduce(
+        (acc, [name, value]) => {
+          if (value?.clutch === 'SLOT') {
+            acc[1].push(['clutch/slot', { name }]);
+          } else if (value?.clutch) {
+            acc[0].push({ ...value, name });
+          }
+
+          return acc;
+        },
+        [[], []]
+      ),
+    [blockType]
+  );
 
   return (
     <>
@@ -182,25 +283,25 @@ function ClutchBlockEditingInterface({
       </InspectorControls>
       <div
         {...blockProps}
-        style={{ padding: '20px', border: '1px solid #ccc' }}
+        style={{ padding: '10px 20px', border: '1px solid #ccc' }}
       >
         <h2>{blockType.title || 'Clutch Block'}</h2>
-        {Object.entries(fields).map(([key, value]) => {
-          // Skip blacklisted attributes or non-string types
-          if (blacklistedAttributes.includes(key)) {
-            return null;
-          }
-
-          return (
-            <FieldControl
-              key={key}
-              name={key}
-              schema={value}
-              value={attributes[key] || null}
-              onChange={setAttributes}
-            />
-          );
-        })}
+        {fields.map(field => (
+          <FieldControl
+            key={field.name}
+            name={field.name}
+            schema={field}
+            value={attributes[field.name] || null}
+            onChange={setAttributes}
+          />
+        ))}
+        {slots.length ? (
+          <InnerBlocks
+            allowedBlocks={['clutch/slot']}
+            templateLock='all'
+            template={slots}
+          />
+        ) : null}
       </div>
     </>
   );

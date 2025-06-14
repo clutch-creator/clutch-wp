@@ -5,6 +5,8 @@
  */
 namespace Clutch\WP\Cache;
 
+use function Clutch\WP\Utils\make_parallel_requests;
+
 if (!defined('ABSPATH')) {
 	exit();
 }
@@ -22,12 +24,14 @@ function trigger_cache_invalidation($tags)
 {
 	$websites = get_registered_websites();
 
+	$urls = [];
 	foreach ($websites as $website) {
 		$url = get_website_invalidation_url($website, $tags);
-		$response = wp_remote_get($url);
-		if (is_wp_error($response)) {
-			continue; // Ignore errors
-		}
+		$urls[] = $url;
+	}
+
+	if (!empty($urls)) {
+		make_parallel_requests($urls);
 	}
 }
 

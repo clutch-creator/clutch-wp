@@ -1,5 +1,69 @@
 # @clutch-wp/sdk
 
+## 1.1.12
+
+### Patch Changes
+
+- Updated dependencies [304291a]
+  - @clutch-wp/clutch-plugin@2.4.11
+
+## 1.1.11
+
+### Patch Changes
+
+- Updated dependencies [64242bd]
+  - @clutch-wp/clutch-plugin@2.4.10
+
+## 1.1.10
+
+### Patch Changes
+
+- Updated dependencies [cccc6ed]
+  - @clutch-wp/clutch-plugin@2.4.9
+
+## 1.1.9
+
+### Patch Changes
+
+- Updated dependencies [a79c954]
+  - @clutch-wp/clutch-plugin@2.4.8
+
+## 1.1.8
+
+### Patch Changes
+
+- Updated dependencies [44c20bf]
+  - @clutch-wp/clutch-plugin@2.4.7
+
+## 1.1.7
+
+### Patch Changes
+
+- Updated dependencies [740c078]
+  - @clutch-wp/clutch-plugin@2.4.6
+
+## 1.1.6
+
+### Patch Changes
+
+- Updated dependencies [40793c6]
+  - @clutch-wp/clutch-plugin@2.4.5
+
+## 1.1.5
+
+### Patch Changes
+
+- Updated dependencies [0d4dbbc]
+  - @clutch-wp/clutch-plugin@2.4.4
+
+## 1.1.4
+
+### Patch Changes
+
+- 9af549e: Add variants and string array property support for custom blocks
+- Updated dependencies [9af549e]
+  - @clutch-wp/clutch-plugin@2.4.3
+
 ## 1.1.3
 
 ### Patch Changes

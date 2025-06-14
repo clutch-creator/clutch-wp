@@ -30,9 +30,18 @@ function rest_get_block_styles()
 		true
 	);
 
+	if (!$selected_host) {
+		return new \WP_Error('no_host', 'No host selected', ['status' => 400]);
+	}
+
 	// Fetch block styles from remote json file
 	$json_url = esc_url($selected_host) . '/clutch/classes.json';
-	$json_content = @file_get_contents($json_url);
+	$response = wp_remote_get($json_url);
+	$json_content = null;
+
+	if (!is_wp_error($response)) {
+		$json_content = wp_remote_retrieve_body($response);
+	}
 
 	// Check if the JSON content was retrieved successfully
 	if (!$json_content) {

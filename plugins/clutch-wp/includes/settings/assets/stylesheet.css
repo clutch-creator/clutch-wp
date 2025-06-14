@@ -254,6 +254,11 @@
   color: var(--text);
 }
 
+.clt-button:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .clt-remove-website {
   color: var(--text-error);
 }

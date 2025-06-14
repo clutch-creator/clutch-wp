@@ -38,14 +38,19 @@
     // Function to fetch and update the dropdown
     async function updateDropdown() {
       try {
-        const response = await fetch(ClutchAdminBar.restUrl);
+        const response = await fetch(ClutchAdminBar.restUrl, {
+          method: 'GET',
+          headers: {
+            'X-WP-Nonce': ClutchAdminBar.nonce,
+          },
+        });
         const websites = await response.json();
 
         // Clear the dropdown menu to avoid duplicates
         dropdownMenu.empty();
 
         const promises = websites.map(async website => {
-          if (website.deploymentId.startsWith(`${website.projectId}-`)) {
+          if (website.deploymentId?.startsWith(`${website.projectId}-`)) {
             try {
               const infoResponse = await fetch(`${website.url}/api/info`, {
                 method: 'GET',
@@ -190,7 +195,7 @@
     function addWebsiteToDropdown(dropdownMenu, website) {
       let websiteName = website.name;
 
-      if (website.deploymentId.startsWith(`${website.projectId}-`)) {
+      if (website.deploymentId?.startsWith(`${website.projectId}-`)) {
         websiteName += ` (Local)`;
       }
 
