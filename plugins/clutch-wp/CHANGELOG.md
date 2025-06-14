@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.11
+
+### Patch Changes
+
+- 304291a: Fix incorrect sanitization of component ids
+
 ## 2.4.10
 
 ### Patch Changes
