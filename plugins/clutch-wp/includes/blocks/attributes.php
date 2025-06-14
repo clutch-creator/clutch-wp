@@ -198,7 +198,7 @@ function get_control_type_config(array $property): array
  * Extract options from select/combobox controls
  *
  * @param array $property Property configuration array.
- * @return array Array of sanitized select options.
+ * @return array Array of select options.
  */
 function extract_select_options(array $property): array
 {

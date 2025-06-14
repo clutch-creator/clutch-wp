@@ -151,13 +151,11 @@ function process_components(
 			continue;
 		}
 
-		// Sanitize component ID.
-		$sanitized_id = sanitize_key($component_id);
-		if (empty($sanitized_id)) {
+		if (empty($component_id)) {
 			continue;
 		}
 
-		$unique_id = 'composition-' . str_replace('_', '-', $sanitized_id);
+		$unique_id = 'composition-' . str_replace('_', '-', $component_id);
 		$block_dir = trailingslashit($blocks_destination_dir) . $unique_id;
 
 		create_block_directory($block_dir, $base_assets_dir);
