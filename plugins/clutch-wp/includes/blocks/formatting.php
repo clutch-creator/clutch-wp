@@ -25,6 +25,14 @@ function format_blocks(array &$blocks): void
 			continue;
 		}
 
+		// Mark as a Clutch block.
+		$block['_clutch_type'] = 'block';
+
+		// Ensure attributes are always returned as an object.
+		if (!isset($block['attrs']) || !is_object($block['attrs'])) {
+			$block['attrs'] = new \stdClass();
+		}
+
 		// Validate block name exists.
 		if (empty($block['blockName'])) {
 			continue;
@@ -35,8 +43,6 @@ function format_blocks(array &$blocks): void
 			$block['innerBlocks'] = process_slot_blocks($block);
 		}
 
-		$block['_clutch_type'] = 'block';
-
 		if (
 			$block['blockName'] === 'core/image' &&
 			isset($block['attrs']['id'])
@@ -46,10 +52,6 @@ function format_blocks(array &$blocks): void
 				$block['attrs'] = [];
 			}
 			$block['attrs']['_clutch_type'] = 'media';
-		}
-
-		if (empty($block['attrs'])) {
-			$block['attrs'] = [];
 		}
 	}
 }
