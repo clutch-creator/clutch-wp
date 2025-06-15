@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.12
+
+### Patch Changes
+
+- 4278cea: Fix unflagged null blocks
+
 ## 2.4.11
 
 ### Patch Changes
