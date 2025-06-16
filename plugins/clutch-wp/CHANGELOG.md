@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.14
+
+### Patch Changes
+
+- ceb542a: Fix block attributes being reset by slots processing
+
 ## 2.4.13
 
 ### Patch Changes
