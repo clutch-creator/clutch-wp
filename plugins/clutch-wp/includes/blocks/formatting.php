@@ -30,7 +30,7 @@ function format_blocks(array &$blocks): void
 
 		// Ensure attributes are always returned as an object.
 		if (!isset($block['attrs']) || !is_object($block['attrs'])) {
-			$block['attrs'] = new \stdClass();
+			$block['attrs'] = (object) $block['attrs'];
 		}
 
 		// Validate block name exists.
@@ -38,20 +38,17 @@ function format_blocks(array &$blocks): void
 			continue;
 		}
 
+		// Mark image blocks as media.
+		if (
+			$block['blockName'] === 'core/image' &&
+			isset($block['attrs']->id)
+		) {
+			$block['attrs']->_clutch_type = 'media';
+		}
+
 		if (!empty($block['innerBlocks']) && is_array($block['innerBlocks'])) {
 			format_blocks($block['innerBlocks']);
 			$block['innerBlocks'] = process_slot_blocks($block);
-		}
-
-		if (
-			$block['blockName'] === 'core/image' &&
-			isset($block['attrs']['id'])
-		) {
-			// Ensure attrs is an array before setting media type.
-			if (!is_array($block['attrs'])) {
-				$block['attrs'] = [];
-			}
-			$block['attrs']['_clutch_type'] = 'media';
 		}
 	}
 }
