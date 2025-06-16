@@ -87,13 +87,7 @@ function process_slot_blocks(array &$block): array
 		}
 
 		$slot_name = $inner_block['attrs']['name'] ?? 'children';
-
-		// Ensure attrs is an array before setting slot.
-		if (!is_array($block['attrs'])) {
-			$block['attrs'] = [];
-		}
-
-		$block['attrs'][$slot_name] = $inner_block['innerBlocks'];
+		$block['attrs']->$slot_name = $inner_block['innerBlocks'];
 	}
 
 	return $parsed_inner_blocks;
