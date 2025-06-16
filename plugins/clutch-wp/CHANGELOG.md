@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.13
+
+### Patch Changes
+
+- c09d3be: Fix core image block formatting
+
 ## 2.4.12
 
 ### Patch Changes
