@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.15
+
+### Patch Changes
+
+- 7eca548: Fix slot name output in custom blocks
+
 ## 2.4.14
 
 ### Patch Changes
