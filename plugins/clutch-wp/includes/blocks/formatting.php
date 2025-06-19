@@ -68,7 +68,7 @@ function process_slot_blocks(array &$block): array
 		return $parsed_inner_blocks;
 	}
 
-	foreach ($block['innerBlocks'] as $inner_block) {
+	foreach ($block['innerBlocks'] as &$inner_block) {
 		// Validate inner block structure.
 		if (!is_array($inner_block) || empty($inner_block['blockName'])) {
 			continue;
@@ -82,11 +82,15 @@ function process_slot_blocks(array &$block): array
 			continue;
 		}
 
-		if (!is_array($inner_block['attrs'])) {
-			$inner_block['attrs'] = [];
+		// Ensure attributes are always returned as an object.
+		if (
+			!isset($inner_block['attrs']) ||
+			!is_object($inner_block['attrs'])
+		) {
+			$inner_block['attrs'] = (object) $inner_block['attrs'];
 		}
 
-		$slot_name = $inner_block['attrs']['name'] ?? 'children';
+		$slot_name = $inner_block['attrs']->name ?: 'children';
 		$block['attrs']->$slot_name = $inner_block['innerBlocks'];
 	}
 
