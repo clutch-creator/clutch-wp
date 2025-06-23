@@ -1,5 +1,23 @@
 # @clutch-wp/clutch-plugin
 
+## 2.4.15
+
+### Patch Changes
+
+- 7eca548: Fix slot name output in custom blocks
+
+## 2.4.14
+
+### Patch Changes
+
+- ceb542a: Fix block attributes being reset by slots processing
+
+## 2.4.13
+
+### Patch Changes
+
+- c09d3be: Fix core image block formatting
+
 ## 2.4.12
 
 ### Patch Changes

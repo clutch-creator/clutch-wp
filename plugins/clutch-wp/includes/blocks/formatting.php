@@ -30,7 +30,7 @@ function format_blocks(array &$blocks): void
 
 		// Ensure attributes are always returned as an object.
 		if (!isset($block['attrs']) || !is_object($block['attrs'])) {
-			$block['attrs'] = new \stdClass();
+			$block['attrs'] = (object) $block['attrs'];
 		}
 
 		// Validate block name exists.
@@ -38,20 +38,17 @@ function format_blocks(array &$blocks): void
 			continue;
 		}
 
+		// Mark image blocks as media.
+		if (
+			$block['blockName'] === 'core/image' &&
+			isset($block['attrs']->id)
+		) {
+			$block['attrs']->_clutch_type = 'media';
+		}
+
 		if (!empty($block['innerBlocks']) && is_array($block['innerBlocks'])) {
 			format_blocks($block['innerBlocks']);
 			$block['innerBlocks'] = process_slot_blocks($block);
-		}
-
-		if (
-			$block['blockName'] === 'core/image' &&
-			isset($block['attrs']['id'])
-		) {
-			// Ensure attrs is an array before setting media type.
-			if (!is_array($block['attrs'])) {
-				$block['attrs'] = [];
-			}
-			$block['attrs']['_clutch_type'] = 'media';
 		}
 	}
 }
@@ -71,7 +68,7 @@ function process_slot_blocks(array &$block): array
 		return $parsed_inner_blocks;
 	}
 
-	foreach ($block['innerBlocks'] as $inner_block) {
+	foreach ($block['innerBlocks'] as &$inner_block) {
 		// Validate inner block structure.
 		if (!is_array($inner_block) || empty($inner_block['blockName'])) {
 			continue;
@@ -85,18 +82,16 @@ function process_slot_blocks(array &$block): array
 			continue;
 		}
 
-		if (!is_array($inner_block['attrs'])) {
-			$inner_block['attrs'] = [];
+		// Ensure attributes are always returned as an object.
+		if (
+			!isset($inner_block['attrs']) ||
+			!is_object($inner_block['attrs'])
+		) {
+			$inner_block['attrs'] = (object) $inner_block['attrs'];
 		}
 
-		$slot_name = $inner_block['attrs']['name'] ?? 'children';
-
-		// Ensure attrs is an array before setting slot.
-		if (!is_array($block['attrs'])) {
-			$block['attrs'] = [];
-		}
-
-		$block['attrs'][$slot_name] = $inner_block['innerBlocks'];
+		$slot_name = $inner_block['attrs']->name ?: 'children';
+		$block['attrs']->$slot_name = $inner_block['innerBlocks'];
 	}
 
 	return $parsed_inner_blocks;
