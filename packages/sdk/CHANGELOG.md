@@ -1,5 +1,11 @@
 # @clutch-wp/sdk
 
+## 1.1.17
+
+### Patch Changes
+
+- 4e67a53: Make client wpPLuginGet and wpGet publicly accessible
+
 ## 1.1.16
 
 ### Patch Changes
