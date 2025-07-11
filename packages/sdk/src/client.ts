@@ -96,7 +96,7 @@ export class WordPressHttpClient {
     return new Resolver(this);
   }
 
-  private async wpPluginGet<T>(
+  async wpPluginGet<T>(
     path: string,
     params: TParams,
     tags: string[] = [],
@@ -206,7 +206,7 @@ export class WordPressHttpClient {
     }
   }
 
-  private async wpGet<T>(
+  async wpGet<T>(
     path: string,
     params?: TParams,
     tags: string[] = [],

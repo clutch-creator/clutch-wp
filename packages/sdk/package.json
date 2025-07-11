@@ -1,6 +1,6 @@
 {
   "name": "@clutch-wp/sdk",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Clutch wordpress sdk",
   "main": "dist/index.js",
   "types": "src/index.ts",
