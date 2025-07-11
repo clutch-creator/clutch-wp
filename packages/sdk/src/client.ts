@@ -158,7 +158,7 @@ export class WordPressHttpClient {
     }
   }
 
-  private async wpPluginPost<T>(
+  async wpPluginPost<T>(
     path: string,
     data: Record<string, unknown>,
     headers?: Record<string, string>
