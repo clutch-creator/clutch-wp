@@ -917,9 +917,11 @@ function rest_create_post(\WP_REST_Request $request)
 	// ---------------------------------------------------------------------
 	// 6. Prepare and return the response
 	// ---------------------------------------------------------------------
-	$response = rest_get_post(
-		new \WP_REST_Request('GET', '/clutch/v1/post', ['id' => $post_id])
-	);
+	$request = new \WP_REST_Request('GET', '/clutch/v1/post');
+	$request->set_query_params([
+		'id' => $post_id,
+	]);
+	$response = rest_get_post($request);
 
 	return rest_ensure_response($response);
 }
