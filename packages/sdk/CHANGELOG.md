@@ -1,5 +1,16 @@
 # @clutch-wp/sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- 8df1d65: Add createPost function to create a new post for any type with support for custom fields
+
+### Patch Changes
+
+- Updated dependencies [b6f2ca3]
+  - @clutch-wp/clutch-plugin@2.5.0
+
 ## 1.1.17
 
 ### Patch Changes

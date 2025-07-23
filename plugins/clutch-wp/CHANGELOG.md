@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.5.0
+
+### Minor Changes
+
+- b6f2ca3: Allow auth token configuration through plugin admin panel
+
 ## 2.4.15
 
 ### Patch Changes
