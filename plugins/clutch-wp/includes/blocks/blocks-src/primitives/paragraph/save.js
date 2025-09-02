@@ -10,12 +10,11 @@ import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { isRTL } from '@wordpress/i18n';
 
 export default function save({ attributes }) {
-  const { align, content, dropCap, direction } = attributes;
-  const className = align ? `has-text-align-${align}` : '';
-
+  const { content, dropCap, direction, tag } = attributes;
+  const Tag = tag || 'span';
   return (
-    <p {...useBlockProps.save({ className, dir: direction })}>
+    <Tag {...useBlockProps.save({ dir: direction })}>
       <RichText.Content value={content} />
-    </p>
+    </Tag>
   );
 }

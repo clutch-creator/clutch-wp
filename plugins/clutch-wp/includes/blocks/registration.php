@@ -316,7 +316,6 @@ function whitelist_editor_blocks(): array
 	$registered_block_types = \WP_Block_Type_Registry::get_instance()->get_all_registered();
 
 	$allowed_blocks = [
-		'core/heading',
 		'core/image',
 		'core/list',
 		'core/list-item',

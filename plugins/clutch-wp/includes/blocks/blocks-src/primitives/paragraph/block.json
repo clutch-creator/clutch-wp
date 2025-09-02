@@ -10,17 +10,18 @@
   "keywords": ["text"],
   "textdomain": "default",
   "attributes": {
-    "align": {
-      "type": "string"
-    },
     "content": {
       "type": "rich-text",
       "source": "rich-text",
-      "selector": "p",
+      "selector": "*",
       "role": "content"
     },
     "placeholder": {
       "type": "string"
+    },
+    "tag": {
+      "type": "string",
+      "default": "span"
     }
   },
   "supports": {
@@ -63,8 +64,9 @@
         "fontSize": true
       }
     },
-    "__experimentalSelector": "p",
+    "__experimentalSelector": "*",
     "__unstablePasteTextInline": true,
+    "__experimentalSlashInserter": true,
     "interactivity": {
       "clientNavigation": true
     }

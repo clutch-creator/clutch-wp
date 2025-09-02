@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import {
-  AlignmentControl,
   BlockControls,
   InspectorControls,
   RichText,
@@ -15,13 +14,21 @@ import {
   PanelBody,
   PanelRow,
   ToggleControl,
+  ToolbarGroup,
+  ToolbarButton,
+  Dropdown,
+  MenuGroup,
+  MenuItem,
 } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
+import { createBlock } from '@wordpress/blocks';
+import { create } from '@wordpress/rich-text';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
 import { useOnEnter } from './use-enter.js';
+import { TAG_OPTIONS } from './tag-options.js';
 
 function ParagraphBlock({
   attributes,
@@ -34,7 +41,25 @@ function ParagraphBlock({
   name,
 }) {
   const [availableClasses, setAvailableClasses] = useState([]);
-  const { align, content, placeholder, className } = attributes;
+  const { content, placeholder, className, tag } = attributes;
+
+  // Extract original tag from content if it exists (workaround for copy-paste)
+  useEffect(() => {
+    if (content && typeof content === 'string') {
+      const match = content.match(/data-original-tag="([^"]+)"/);
+      if (match && match[1] !== tag) {
+        // Set the tag attribute and clean up the content
+        const cleanContent = content.replace(
+          /<span data-original-tag="[^"]*">([^<]*)<\/span>/,
+          '$1'
+        );
+        setAttributes({
+          tag: match[1],
+          content: cleanContent,
+        });
+      }
+    }
+  }, [content, tag, setAttributes]);
 
   const blockProps = useBlockProps({
     ref: useOnEnter({ clientId, content }),
@@ -48,6 +73,54 @@ function ParagraphBlock({
     },
     {}
   );
+
+  const currentTagOption =
+    TAG_OPTIONS.find(option => option.tag === tag) ||
+    TAG_OPTIONS.find(option => option.tag === 'span');
+
+  // Handle splitting content into multiple blocks
+  const onSplit = (value, isOriginal) => {
+    let newAttributes = { ...attributes };
+
+    if (isOriginal || value) {
+      newAttributes = {
+        ...newAttributes,
+        content: value,
+      };
+    }
+
+    const block = createBlock(name, newAttributes);
+
+    if (isOriginal) {
+      block.clientId = clientId;
+    }
+
+    return block;
+  };
+
+  // Handle pasted content with multiple paragraphs
+  const handlePaste = ({ value, onChange, plainText }) => {
+    if (plainText && plainText.includes('\n')) {
+      const lines = plainText.split(/\n+/).filter(line => line.trim());
+
+      if (lines.length > 1) {
+        // Create multiple blocks for multi-line content
+        const blocks = lines.map((lineText, index) =>
+          createBlock(name, {
+            content: lineText.trim(),
+            tag: tag || 'span',
+          })
+        );
+
+        // Replace current block with multiple blocks
+        onReplace(blocks);
+        return;
+      }
+    }
+
+    // For single line or rich content, use default behavior
+    return false;
+  };
 
   useEffect(() => {
     // Get available classes from the REST API (requires edit_posts permission)
@@ -90,25 +163,45 @@ function ParagraphBlock({
       </InspectorControls>
       {blockEditingMode === 'default' && (
         <BlockControls group='block'>
-          <AlignmentControl
-            value={align}
-            onChange={newAlign =>
-              setAttributes({
-                align: newAlign,
-              })
-            }
-          />
+          <ToolbarGroup>
+            <Dropdown
+              popoverProps={{ placement: 'bottom-start' }}
+              renderToggle={({ isOpen, onToggle }) => (
+                <ToolbarButton
+                  onClick={onToggle}
+                  aria-haspopup='true'
+                  aria-expanded={isOpen}
+                  text={currentTagOption.label}
+                />
+              )}
+              renderContent={() => (
+                <MenuGroup>
+                  {TAG_OPTIONS.map(option => (
+                    <MenuItem
+                      key={option.tag}
+                      isSelected={tag === option.tag}
+                      onClick={() => setAttributes({ tag: option.tag })}
+                    >
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </MenuGroup>
+              )}
+            />
+          </ToolbarGroup>
         </BlockControls>
       )}
       <RichText
         identifier='content'
-        tagName='p'
+        tagName={tag || 'span'}
         {...blockProps}
         value={content}
         onChange={newContent => setAttributes({ content: newContent })}
         onMerge={mergeBlocks}
+        onSplit={onSplit}
         onReplace={onReplace}
         onRemove={onRemove}
+        onPaste={handlePaste}
         aria-label={
           RichText.isEmpty(content)
             ? __(
@@ -119,8 +212,10 @@ function ParagraphBlock({
         data-empty={RichText.isEmpty(content)}
         placeholder={placeholder || __('Type / to choose a block')}
         data-custom-placeholder={placeholder ? true : undefined}
+        preserveWhiteSpace
         __unstableEmbedURLOnPaste
         __unstableAllowPrefixTransformations
+        __unstableMarkAutomaticChange
       />
     </>
   );

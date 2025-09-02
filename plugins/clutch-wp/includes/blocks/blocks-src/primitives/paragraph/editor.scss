@@ -1,9 +1,164 @@
 /**
  * The following styles get applied inside the editor only.
  *
- * Replace them with your own styles or remove the file completely.
+ * These styles ensure consistent appearance across different HTML tags.
  */
 
-.wp-block-clutch-paragraph {
-  /* Add your styles here */
+/* High specificity selectors to override editor defaults */
+.block-editor-block-list__block.wp-block-clutch-paragraph {
+  margin: 1em auto;
+  line-height: 1.6;
+}
+
+/* Span elements should display as block in the editor */
+span.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+span.wp-block.wp-block-clutch-paragraph {
+  display: block;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Paragraph elements */
+p.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+p.wp-block.wp-block-clutch-paragraph {
+  display: block;
+  margin: 1em auto;
+  line-height: 1.6;
+}
+
+/* Div elements */
+div.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+div.wp-block.wp-block-clutch-paragraph {
+  display: block;
+  margin: 1em auto;
+  line-height: 1.6;
+}
+
+/* Heading styles with high specificity */
+h1.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h1.wp-block.wp-block-clutch-paragraph,
+h2.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h2.wp-block.wp-block-clutch-paragraph,
+h3.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h3.wp-block.wp-block-clutch-paragraph,
+h4.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h4.wp-block.wp-block-clutch-paragraph,
+h5.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h5.wp-block.wp-block-clutch-paragraph,
+h6.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h6.wp-block.wp-block-clutch-paragraph {
+  display: block;
+  margin: 1em auto;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+h1.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h1.wp-block.wp-block-clutch-paragraph {
+  font-size: 2em;
+}
+
+h2.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h2.wp-block.wp-block-clutch-paragraph {
+  font-size: 1.5em;
+}
+
+h3.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h3.wp-block.wp-block-clutch-paragraph {
+  font-size: 1.17em;
+}
+
+h4.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h4.wp-block.wp-block-clutch-paragraph {
+  font-size: 1em;
+}
+
+h5.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h5.wp-block.wp-block-clutch-paragraph {
+  font-size: 0.83em;
+}
+
+h6.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+h6.wp-block.wp-block-clutch-paragraph {
+  font-size: 0.67em;
+}
+
+/* Inline elements that should appear as block when used as paragraph blocks */
+em.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+em.wp-block.wp-block-clutch-paragraph,
+strong.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+strong.wp-block.wp-block-clutch-paragraph,
+code.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+code.wp-block.wp-block-clutch-paragraph,
+kbd.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+kbd.wp-block.wp-block-clutch-paragraph,
+samp.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+samp.wp-block.wp-block-clutch-paragraph,
+mark.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+mark.wp-block.wp-block-clutch-paragraph,
+small.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+small.wp-block.wp-block-clutch-paragraph,
+sub.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+sub.wp-block.wp-block-clutch-paragraph,
+sup.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+sup.wp-block.wp-block-clutch-paragraph,
+time.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+time.wp-block.wp-block-clutch-paragraph,
+u.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+u.wp-block.wp-block-clutch-paragraph,
+i.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+i.wp-block.wp-block-clutch-paragraph,
+b.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+b.wp-block.wp-block-clutch-paragraph,
+q.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+q.wp-block.wp-block-clutch-paragraph,
+abbr.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+abbr.wp-block.wp-block-clutch-paragraph,
+address.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+address.wp-block.wp-block-clutch-paragraph {
+  display: block;
+  margin: 1em auto;
+  line-height: 1.6;
+}
+
+/* Special styling for specific elements */
+code.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+code.wp-block.wp-block-clutch-paragraph,
+kbd.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+kbd.wp-block.wp-block-clutch-paragraph,
+samp.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+samp.wp-block.wp-block-clutch-paragraph {
+  font-family: monospace;
+  background-color: #f1f1f1;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+mark.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+mark.wp-block.wp-block-clutch-paragraph {
+  background-color: #ffff00;
+  padding: 0.1em 0.2em;
+}
+
+small.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+small.wp-block.wp-block-clutch-paragraph {
+  font-size: 0.8em;
+}
+
+sub.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+sub.wp-block.wp-block-clutch-paragraph,
+sup.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+sup.wp-block.wp-block-clutch-paragraph {
+  font-size: 0.75em;
+  vertical-align: baseline;
+}
+
+sub.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+sub.wp-block.wp-block-clutch-paragraph {
+  transform: translateY(0.4em);
+}
+
+sup.block-editor-rich-text__editable.wp-block-clutch-paragraph,
+sup.wp-block.wp-block-clutch-paragraph {
+  transform: translateY(-0.4em);
 }
