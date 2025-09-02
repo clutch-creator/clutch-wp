@@ -7,9 +7,9 @@ namespace Clutch\WP\Settings;
 require_once __DIR__ . '/../functions.php';
 
 $icons = [
-	'clutch' => get_icon('clutch'),
-	'clutch-text' => get_icon('clutch-text'),
-	'external-link' => get_icon('external-link'),
+	'clutch' => get_icon_clutch('clutch'),
+	'clutch-text' => get_icon_clutch('clutch-text'),
+	'external-link' => get_icon_clutch('external-link'),
 ];
 ?>
 

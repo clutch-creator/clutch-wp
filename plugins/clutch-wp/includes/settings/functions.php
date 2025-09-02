@@ -12,7 +12,7 @@ namespace Clutch\WP\Settings;
  * @param string $icon The name of the icon (without extension).
  * @return string The SVG content if the file exists, or an empty string otherwise.
  */
-function get_icon($icon)
+function get_icon_clutch($icon)
 {
 	// Normalize the icon name
 	$icon = basename($icon);

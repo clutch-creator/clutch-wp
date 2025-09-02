@@ -10,10 +10,11 @@ import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { isRTL } from '@wordpress/i18n';
 
 export default function save({ attributes }) {
-  const { content, dropCap, direction, tag } = attributes;
+  const { content, tag } = attributes;
   const Tag = tag || 'span';
+
   return (
-    <Tag {...useBlockProps.save({ dir: direction })}>
+    <Tag {...useBlockProps.save()}>
       <RichText.Content value={content} />
     </Tag>
   );

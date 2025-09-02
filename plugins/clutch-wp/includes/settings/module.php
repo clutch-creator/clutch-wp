@@ -8,7 +8,7 @@ require_once __DIR__ . '/functions.php';
 function register_admin_menu()
 {
 	$svg_icon =
-		'data:image/svg+xml;base64,' . base64_encode(get_icon('clutch'));
+		'data:image/svg+xml;base64,' . base64_encode(get_icon_clutch('clutch'));
 
 	add_menu_page(
 		'Clutch Settings', // Page title

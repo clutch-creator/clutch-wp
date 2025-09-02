@@ -4,8 +4,6 @@
  */
 namespace Clutch\WP\Websites;
 
-use function Clutch\WP\Settings\get_icon;
-
 if (!defined('ABSPATH')) {
 	exit();
 }

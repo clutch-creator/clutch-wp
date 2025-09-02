@@ -46,11 +46,55 @@ function format_blocks(array &$blocks): void
 			$block['attrs']->_clutch_type = 'media';
 		}
 
+		// Extract inner content for clutch/paragraph blocks
+		if ($block['blockName'] === 'clutch/paragraph') {
+			$block['attrs'] = process_paragraph_block($block);
+		}
+
 		if (!empty($block['innerBlocks']) && is_array($block['innerBlocks'])) {
 			format_blocks($block['innerBlocks']);
 			$block['innerBlocks'] = process_slot_blocks($block);
 		}
 	}
+}
+
+/**
+ * Process clutch/paragraph blocks to extract inner content
+ *
+ * @param array $block The paragraph block array.
+ * @return object The modified attributes object.
+ */
+function process_paragraph_block(array $block): object
+{
+	$attrs = $block['attrs'];
+
+	// Ensure we have innerHTML to work with
+	if (empty($block['innerHTML'])) {
+		$attrs->innerContent = '';
+		return $attrs;
+	}
+
+	$html = trim($block['innerHTML']);
+
+	// Get the tag from attributes, default to 'span'
+	$tag = isset($attrs->tag) ? $attrs->tag : 'span';
+
+	// Extract content between the opening and closing tags
+	$pattern =
+		'/<' .
+		preg_quote($tag, '/') .
+		'[^>]*>(.*?)<\/' .
+		preg_quote($tag, '/') .
+		'>/s';
+
+	if (preg_match($pattern, $html, $matches)) {
+		$attrs->innerContent = trim($matches[1]);
+	} else {
+		// Fallback: if no tags found, use the HTML as is
+		$attrs->innerContent = $html;
+	}
+
+	return $attrs;
 }
 
 /**

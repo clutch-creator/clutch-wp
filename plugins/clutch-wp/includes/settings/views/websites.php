@@ -11,9 +11,9 @@ use function Clutch\WP\Cache\get_website_invalidation_url;
 use function Clutch\WP\Websites\get_registered_websites;
 
 $icons = [
-	'external-link' => get_icon('external-link'),
-	'trash' => get_icon('trash'),
-	'clear-cache' => get_icon('clear-cache'),
+	'external-link' => get_icon_clutch('external-link'),
+	'trash' => get_icon_clutch('trash'),
+	'clear-cache' => get_icon_clutch('clear-cache'),
 ];
 
 $websites = get_registered_websites();
