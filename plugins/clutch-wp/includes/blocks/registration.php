@@ -315,11 +315,7 @@ function whitelist_editor_blocks(): array
 
 	$registered_block_types = \WP_Block_Type_Registry::get_instance()->get_all_registered();
 
-	$allowed_blocks = [
-		'core/image',
-		'core/list',
-		'core/list-item',
-	];
+	$allowed_blocks = ['core/image', 'core/list', 'core/list-item'];
 
 	foreach ($registered_block_types as $block_name => $block_type) {
 		if (strpos($block_name, 'clutch/') === 0) {

@@ -15,24 +15,12 @@ const DEFAULT_PRIORITY_OPTIONS = [{ tag: 'p', label: 'Paragraph' }];
 
 // Regular priority tags (no explicit priority, default 20)
 const REGULAR_PRIORITY_OPTIONS = [
-  { tag: 'abbr', label: 'Abbreviation' },
-  { tag: 'address', label: 'Address' },
   { tag: 'b', label: 'Bold' },
   { tag: 'code', label: 'Code' },
-  { tag: 'em', label: 'Emphasis' },
   { tag: 'i', label: 'Italic' },
-  { tag: 'kbd', label: 'Keyboard input' },
-  { tag: 'mark', label: 'Mark' },
-  { tag: 'pre', label: 'Preformatted' },
   { tag: 'q', label: 'Quote' },
   { tag: 's', label: 'Strikethrough' },
-  { tag: 'samp', label: 'Sample output' },
-  { tag: 'small', label: 'Small' },
   { tag: 'span', label: 'Span' },
-  { tag: 'strong', label: 'Strong' },
-  { tag: 'sub', label: 'Subscript' },
-  { tag: 'sup', label: 'Superscript' },
-  { tag: 'time', label: 'Time' },
   { tag: 'u', label: 'Underline' },
 ];
 
