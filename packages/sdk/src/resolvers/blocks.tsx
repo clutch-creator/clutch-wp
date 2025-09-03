@@ -24,7 +24,13 @@ export async function resolveBlock(block: WP_Block_Parsed, resolver: Resolver) {
   }
 
   const { innerHTML } = draftBlock;
-  const { source_url: src, alt_text: alt, className } = draftBlock.attrs;
+  const {
+    source_url: src,
+    alt_text: alt,
+    tag,
+    innerContent,
+    className,
+  } = draftBlock.attrs;
   const componentId = draftBlock.blockName
     ?.replace('clutch/composition-', '')
     ?.replace('-', '_');
@@ -32,6 +38,11 @@ export async function resolveBlock(block: WP_Block_Parsed, resolver: Resolver) {
 
   switch (draftBlock.blockName) {
     case 'clutch/paragraph':
+      return (
+        <RichText tag={tag || 'span'} className={className}>
+          {innerContent || innerHTML}
+        </RichText>
+      );
     case 'core/heading':
       return (
         <RichText tag='div' className={className}>
