@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.5.1
+
+### Patch Changes
+
+- 0cd5fe9: Add tag selector to Clutch Paragraph block and fix UX issues
+
 ## 2.5.0
 
 ### Minor Changes
