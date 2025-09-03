@@ -1,5 +1,12 @@
 # @clutch-wp/react
 
+## 1.1.19
+
+### Patch Changes
+
+- Updated dependencies [0cd5fe9]
+  - @clutch-wp/sdk@1.2.1
+
 ## 1.1.18
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @clutch-wp/sdk
 
+## 1.2.1
+
+### Patch Changes
+
+- 0cd5fe9: Add tag selector to Clutch Paragraph block and fix UX issues
+- Updated dependencies [0cd5fe9]
+  - @clutch-wp/clutch-plugin@2.5.1
+
 ## 1.2.0
 
 ### Minor Changes
