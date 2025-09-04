@@ -1,5 +1,12 @@
 # @clutch-wp/sdk
 
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [667682a]
+  - @clutch-wp/clutch-plugin@2.5.2
+
 ## 1.2.1
 
 ### Patch Changes
