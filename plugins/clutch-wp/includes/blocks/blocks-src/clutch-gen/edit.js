@@ -204,11 +204,20 @@ function FieldControl(props) {
   }
 
   if (type === 'boolean') {
+    // Determine current value with clearer logic
+    let currentValue = false;
+
+    if (value !== undefined) {
+      currentValue = value;
+    } else if (defaultValue !== undefined) {
+      currentValue = defaultValue;
+    }
+
     return (
       <div style={{ marginBottom: '1em', paddingLeft: '5px' }}>
         <SelectControl
           label={name}
-          value={value || defaultValue || false}
+          value={currentValue ? 'true' : 'false'}
           onChange={newValue => {
             onChange({ [name]: newValue === 'true' });
           }}
