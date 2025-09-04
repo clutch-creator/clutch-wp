@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.5.2
+
+### Patch Changes
+
+- 667682a: Fix boolean field handling in custom blocks
+
 ## 2.5.1
 
 ### Patch Changes
