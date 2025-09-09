@@ -1,5 +1,11 @@
 # @clutch-wp/clutch-plugin
 
+## 2.5.3
+
+### Patch Changes
+
+- f57874d: Fix local Clutch project refusing to register on mismatching protocol
+
 ## 2.5.2
 
 ### Patch Changes
