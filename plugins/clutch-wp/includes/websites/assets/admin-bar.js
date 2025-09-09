@@ -58,7 +58,17 @@
               if (!infoResponse.ok)
                 throw new Error(`Failed to fetch info for ${website.url}`);
               const data = await infoResponse.json();
-              if (data.url && data.url.startsWith(window.location.origin)) {
+              let host;
+
+              // Extract host from saved URL for verification (ignore protocol)
+              try {
+                host = new URL(data.url).host;
+              } catch (error) {
+                console.error(`Invalid URL for ${website.url}:`, error);
+              }
+
+              // Check if the host matches the current site
+              if (host === window.location.host) {
                 addWebsiteToDropdown(dropdownMenu, website);
               } else {
                 console.warn(
