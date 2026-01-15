@@ -12,9 +12,11 @@ if (!defined('ABSPATH')) {
 /**
  * Get navigation next/previous data for a specific post
  *
+ * @param int|\WP_Post|null $post Post ID or WP_Post object. Null for current post.
  * @return array Standardized navigation data
  */
-function get_post_navigation_data() {
+function get_post_navigation_data($post = null) {
+  setup_postdata($post);
   $next = get_adjacent_post( false, '', false );
   $previous = get_adjacent_post( false, '', true );
 
@@ -30,4 +32,6 @@ function get_post_navigation_data() {
       "title" => $previous->post_title
     ] : null,
   ];
+
+  wp_reset_postdata();
 }
