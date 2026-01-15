@@ -692,6 +692,11 @@ function rest_get_post(\WP_REST_Request $request)
 		FILTER_VALIDATE_BOOLEAN
 	);
 
+	$include_nav = filter_var(
+		$request->get_param('nav'),
+		FILTER_VALIDATE_BOOLEAN
+	);
+
 	if (!$id && !$slug) {
 		return new \WP_Error(
 			'rest_missing_id_or_slug',
@@ -770,6 +775,10 @@ function rest_get_post(\WP_REST_Request $request)
 	// Add SEO data if requested
 	if ($include_seo) {
 		$data['seo'] = get_post_seo_data($post);
+	}
+
+	if ($include_nav) {
+		$data['nav'] = get_post_navigation_data($post);
 	}
 
 	return rest_ensure_response($data);
