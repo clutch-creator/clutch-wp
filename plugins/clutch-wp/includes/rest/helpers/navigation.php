@@ -7,7 +7,7 @@
 namespace Clutch\WP\Rest;
 
 if (!defined('ABSPATH')) {
-  exit();
+	exit();
 }
 
 /**
@@ -18,22 +18,26 @@ if (!defined('ABSPATH')) {
  */
 function get_post_navigation_data($post = null)
 {
-  setup_postdata($post);
-  $next = get_adjacent_post(false, '', false);
-  $previous = get_adjacent_post(false, '', true);
+	setup_postdata($post);
+	$next = get_adjacent_post(false, '', false);
+	$previous = get_adjacent_post(false, '', true);
 
-  return [
-    'next' => $next ? [
-      "id" => $next->ID,
-      "slug" => $next->post_name,
-      "title" => $next->post_title
-    ] : null,
-    'previous' => $previous ? [
-      "id" => $previous->ID,
-      "slug" => $previous->post_name,
-      "title" => $previous->post_title
-    ] : null,
-  ];
+	return [
+		'next' => $next
+			? [
+				'id' => $next->ID,
+				'slug' => $next->post_name,
+				'title' => $next->post_title,
+			]
+			: null,
+		'previous' => $previous
+			? [
+				'id' => $previous->ID,
+				'slug' => $previous->post_name,
+				'title' => $previous->post_title,
+			]
+			: null,
+	];
 
-  wp_reset_postdata();
+	wp_reset_postdata();
 }
