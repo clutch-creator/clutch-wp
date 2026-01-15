@@ -72,7 +72,13 @@ async function resolveClutchField(value: TClutchField, resolver: Resolver) {
   }
 
   if (value._clutch_type === 'post') {
-    return client.fetchPostById(value.post_type, value.id, false, false, resolver);
+    return client.fetchPostById(
+      value.post_type,
+      value.id,
+      false,
+      false,
+      resolver
+    );
   }
 
   if (value._clutch_type === 'taxonomy_term') {
