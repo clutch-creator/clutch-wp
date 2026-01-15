@@ -32,22 +32,26 @@ import {
 const queryKeys = {
   all: ['wordpress'],
   posts: (args: FetchPostsArgs) => [...queryKeys.all, 'posts', args],
-  postBySlug: (postType: string, slug: string, includeSeo: boolean) => [
+  postBySlug: (
+    postType: string,
+    slug: string,
+    includeSeo: boolean,
+    includeNav: boolean
+  ) => [
     ...queryKeys.all,
     'post',
     'slug',
     postType,
     slug,
     includeSeo,
+    includeNav,
   ],
-  postById: (postType: string, id: string | number, includeSeo: boolean) => [
-    ...queryKeys.all,
-    'post',
-    'id',
-    postType,
-    id,
-    includeSeo,
-  ],
+  postById: (
+    postType: string,
+    id: string | number,
+    includeSeo: boolean,
+    includeNav: boolean
+  ) => [...queryKeys.all, 'post', 'id', postType, id, includeSeo, includeNav],
   users: (args: FetchUsersArgs) => [...queryKeys.all, 'users', args],
   userBySlug: (slug: string) => [...queryKeys.all, 'user', 'slug', slug],
   userById: (id: string | number) => [...queryKeys.all, 'user', 'id', id],
@@ -134,13 +138,15 @@ export function usePostBySlug(
   postType: string = 'post',
   slug: string,
   includeSeo: boolean = false,
+  includeNav: boolean = false,
   options?: UseQueryOptions<PostResult | null, Error>
 ) {
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: queryKeys.postBySlug(postType, slug, includeSeo),
-    queryFn: () => client.fetchPostBySlug(postType, slug, includeSeo),
+    queryKey: queryKeys.postBySlug(postType, slug, includeSeo, includeNav),
+    queryFn: () =>
+      client.fetchPostBySlug(postType, slug, includeSeo, includeNav),
     enabled: !!slug && options?.enabled !== false,
     ...options,
   });
@@ -151,19 +157,21 @@ export function usePostBySlug(
  * @param postType - The WordPress post type to query (defaults to "post")
  * @param id - The unique numeric or string ID for the post
  * @param includeSeo - Whether to include SEO metadata in the response
+ * @param includeNav - Whether to include navigation metadata in the response
  * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePostById(
   postType: string = 'post',
   id: string | number,
   includeSeo: boolean = false,
+  includeNav: boolean = false,
   options?: UseQueryOptions<PostResult | null, Error>
 ) {
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: queryKeys.postById(postType, id, includeSeo),
-    queryFn: () => client.fetchPostById(postType, id, includeSeo),
+    queryKey: queryKeys.postById(postType, id, includeSeo, includeNav),
+    queryFn: () => client.fetchPostById(postType, id, includeSeo, includeNav),
     enabled: !!id && options?.enabled !== false,
     ...options,
   });
@@ -175,6 +183,7 @@ export function usePostById(
  * @param identifier - Whether to search by "slug" or "id"
  * @param idOrSlug - The slug or ID value to search for
  * @param includeSeo - Whether to include SEO metadata in the response
+ * @param includeNav - Whether to include navigation metadata in the response
  * @param options - Additional React Query options for customizing cache behavior and query execution
  */
 export function usePost(
@@ -182,16 +191,30 @@ export function usePost(
   identifier: 'slug' | 'id',
   idOrSlug: string | number,
   includeSeo: boolean = false,
+  includeNav: boolean = false,
   options?: UseQueryOptions<PostResult | null, Error>
 ) {
   const client = useWordPressClient();
 
   return useQuery({
-    queryKey: queryKeys.postById(postType, idOrSlug, includeSeo),
+    queryKey:
+      identifier === 'id'
+        ? queryKeys.postById(postType, idOrSlug, includeSeo, includeNav)
+        : queryKeys.postBySlug(
+            postType,
+            idOrSlug.toString(),
+            includeSeo,
+            includeNav
+          ),
     queryFn: () =>
       identifier === 'id'
-        ? client.fetchPostById(postType, idOrSlug, includeSeo)
-        : client.fetchPostBySlug(postType, idOrSlug.toString(), includeSeo),
+        ? client.fetchPostById(postType, idOrSlug, includeSeo, includeNav)
+        : client.fetchPostBySlug(
+            postType,
+            idOrSlug.toString(),
+            includeSeo,
+            includeNav
+          ),
     enabled: !!idOrSlug && options?.enabled !== false,
     ...options,
   });
@@ -531,10 +554,16 @@ export function useWordPressQueries() {
   }, [queryClient]);
 
   const prefetchPostBySlug = useCallback(
-    async (postType: string, slug: string, includeSeo: boolean = false) => {
+    async (
+      postType: string,
+      slug: string,
+      includeSeo: boolean = false,
+      includeNav: boolean = false
+    ) => {
       await queryClient.prefetchQuery({
-        queryKey: queryKeys.postBySlug(postType, slug, includeSeo),
-        queryFn: () => client.fetchPostBySlug(postType, slug, includeSeo),
+        queryKey: queryKeys.postBySlug(postType, slug, includeSeo, includeNav),
+        queryFn: () =>
+          client.fetchPostBySlug(postType, slug, includeSeo, includeNav),
       });
     },
     [queryClient, client]
@@ -544,11 +573,13 @@ export function useWordPressQueries() {
     async (
       postType: string,
       id: string | number,
-      includeSeo: boolean = false
+      includeSeo: boolean = false,
+      includeNav: boolean = false
     ) => {
       await queryClient.prefetchQuery({
-        queryKey: queryKeys.postById(postType, id, includeSeo),
-        queryFn: () => client.fetchPostById(postType, id, includeSeo),
+        queryKey: queryKeys.postById(postType, id, includeSeo, includeNav),
+        queryFn: () =>
+          client.fetchPostById(postType, id, includeSeo, includeNav),
       });
     },
     [queryClient, client]

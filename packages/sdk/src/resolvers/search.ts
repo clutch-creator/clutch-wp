@@ -13,7 +13,7 @@ export async function resolveSearchResult(
   const restBase = restLink?.split('/wp/v2/')?.[1]?.split('/')[0];
 
   if (type === 'post') {
-    return client.fetchPostById(restBase, id, false, resolver) as Promise<
+    return client.fetchPostById(restBase, id, false, false, resolver) as Promise<
       SearchResut | undefined
     >;
   }
