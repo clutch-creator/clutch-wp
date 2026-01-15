@@ -374,6 +374,7 @@ export class WordPressHttpClient {
     postType: string = 'post',
     slug: string,
     includeSeo: boolean = false,
+    includeNav: boolean = false,
     _resolver?: Resolver
   ): Promise<PostResult | null> {
     if (!slug) return null;
@@ -394,6 +395,7 @@ export class WordPressHttpClient {
         {
           slug,
           seo: includeSeo,
+          nav: includeNav,
         },
         [`${postType}-${slug}`]
       );
@@ -410,6 +412,7 @@ export class WordPressHttpClient {
     postType: string = 'post',
     id: WPIdFilter,
     includeSeo: boolean = false,
+    includeNav: boolean = false,
     _resolver?: Resolver
   ): Promise<PostResult | null> {
     if (!id) return null;
@@ -427,6 +430,7 @@ export class WordPressHttpClient {
         {
           id,
           seo: includeSeo,
+          nav: includeNav,
         },
         [`${postType}-${id}`]
       );
