@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file defines navigation extra fields for the REST API.
  */
@@ -6,7 +7,7 @@
 namespace Clutch\WP\Rest;
 
 if (!defined('ABSPATH')) {
-	exit();
+  exit();
 }
 
 /**
@@ -15,10 +16,11 @@ if (!defined('ABSPATH')) {
  * @param int|\WP_Post|null $post Post ID or WP_Post object. Null for current post.
  * @return array Standardized navigation data
  */
-function get_post_navigation_data($post = null) {
+function get_post_navigation_data($post = null)
+{
   setup_postdata($post);
-  $next = get_adjacent_post( false, '', false );
-  $previous = get_adjacent_post( false, '', true );
+  $next = get_adjacent_post(false, '', false);
+  $previous = get_adjacent_post(false, '', true);
 
   return [
     'next' => $next ? [
